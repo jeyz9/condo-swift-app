@@ -38,7 +38,7 @@ const Home = () => {
       <div className="relative top-3  text-gray-600 p-2 ">
         <SearchBar /> {/* Add SearchBar here */}
       </div>
-      <div className="flex flex-row justify-center mt-10 gap-5">
+      <div className="flex flex-row flex-wrap justify-center mt-10 gap-4 sm:gap-5">
         <button className="btn bg-[#8C6239] text-white font-light rounded-md w-32 text-base sm:text-lg">
           <MdOutlineAddHome className="text-xl sm:text-2xl" />
           เช่า
