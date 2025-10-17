@@ -1,8 +1,10 @@
 import { createBrowserRouter } from "react-router";
 
 import { MainLayout } from "../layouts/MainLayout.jsx";
-import Home from "../pages/Home.jsx";
+import { Home } from "../pages/Home.jsx";
 import { Detail } from "../pages/Detail.jsx";
+import { Filter } from "../pages/filter.jsx";
+import { AddAnnounce } from "../pages/AddAnnounce.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -13,9 +15,19 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "/detail",
+        path: "/detail/:id",
         element: <Detail />,
       },
+      {
+        path: "/filter",
+        element: <Filter />,
+      },
+      {
+        path: "/add-announce",
+        element: <AddAnnounce />,
+      },
+      
+      
     ],
   },
 ]);

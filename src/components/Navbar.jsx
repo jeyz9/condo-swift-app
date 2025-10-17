@@ -1,6 +1,10 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-
+import React, { useState } from "react";
+import { Link } from "react-router";
+import { FaBars } from "react-icons/fa";
+import LoginPopup from "./login/LoginPopup"; // ✅ import login popup
+import RegisterPopup from "./login/RegisterPopup"; // ✅ import register popup
+import { useAuthContext } from "../context/AuthContext";
+import UserProfile from "./UserProfile";
 const Navbar = () => {
   const menuItems = [
     { title: "หน้าแรก", path: "/" },
@@ -14,25 +18,24 @@ const Navbar = () => {
     },
   ];
 
+  const { user } = useAuthContext();
+
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+
+  const handleLogin = (data) => {
+    console.log("ข้อมูลเข้าสู่ระบบ:", data);
+    // TODO: เรียก API login หรือบันทึก token ได้ที่นี่
+  };
+
   return (
     <div className="navbar bg-base-100 shadow-sm px-4 sm:px-8">
+      {/* ซ้าย */}
       <div className="navbar-start">
+        {/* เมนูมือถือ */}
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h8m-8 6h16"
-              />
-            </svg>
+            <FaBars className="h-5 w-5" />
           </div>
           <ul
             tabIndex={0}
@@ -58,41 +61,69 @@ const Navbar = () => {
             ))}
           </ul>
         </div>
-                <Link to="/" className="flex flex-col items-start">
-                  <span className="text-xs sm:text-sm">Condo</span>
-                  <span className="text-xl sm:text-2xl font-bold -mt-2">Swift</span>
+
+        {/* โลโก้ */}
+        <Link to="/" className="flex flex-col items-start">
+          <span className="text-xs sm:text-sm">Condo</span>
+          <span className="text-xl sm:text-2xl font-bold -mt-2">Swift</span>
+        </Link>
+      </div>
+
+      {/* กลาง */}
+      <div className="navbar-center hidden lg:flex">
+        <ul className="menu menu-horizontal px-1 text-base">
+          {menuItems.map((item, index) => (
+            <li key={index}>
+              {item.submenu ? (
+                <details>
+                  <summary className="text-base">{item.title}</summary>
+                  <ul className="p-2 bg-base-100 rounded-t-none absolute w-max text-base">
+                    {item.submenu.map((subItem, subIndex) => (
+                      <li key={subIndex}>
+                        <Link to={subItem.path}>{subItem.title}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              ) : (
+                <Link to={item.path} className="text-base">
+                  {item.title}
                 </Link>
-              </div>
-              <div className="navbar-center hidden lg:flex">
-                <ul className="menu menu-horizontal px-1 text-base">
-                  {menuItems.map((item, index) => (
-                    <li key={index}>
-                      {item.submenu ? (
-                        <details>
-                          <summary className="text-base">{item.title}</summary>
-                          <ul className="p-2 bg-base-100 rounded-t-none absolute w-max text-base">
-                            {item.submenu.map((subItem, subIndex) => (
-                              <li key={subIndex}>
-                                <Link to={subItem.path}>{subItem.title}</Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </details>
-                      ) : (
-                        <Link to={item.path} className="text-base">{item.title}</Link>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="navbar-end">
-                <a className="btn bg-[#8C6239] text-white font-light rounded-md sm:w-32 text-sm sm:text-base">
-                  เข้าสู่ระบบ
-                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* ขวา */}
+      <div className="navbar-end">
+         {user ? (
+          <UserProfile/>
+        ) : (
+        <button
+          onClick={() => setIsLoginOpen(true)}
+          className="btn bg-[#8C6239] text-white font-light rounded-md sm:w-32 text-sm sm:text-base"
+        >
+          เข้าสู่ระบบ
+        </button>
+        )}
+        {/* ✅ Login Popup */}
+        <LoginPopup
+          isOpen={isLoginOpen}
+          onClose={() => setIsLoginOpen(false)}
+          onLogin={handleLogin}
+          onOpenRegister={() => {
+            setIsLoginOpen(false);
+            setIsRegisterOpen(true);
+          }}
+        />
+        <RegisterPopup
+          isOpen={isRegisterOpen}
+          onClose={() => setIsRegisterOpen(false)}
+        />
       </div>
     </div>
   );
 };
 
 export default Navbar;
-

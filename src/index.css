@@ -1,4 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&display=swap');
+@import "leaflet/dist/leaflet.css";
+
+/* Force wrapping for long, unbroken Thai/EN strings inside Detail section */
+.wrap-anywhere h1 {
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  word-wrap: break-word !important;
+  hyphens: auto !important;
+}
+
+/* As a fallback, override any h1 using Tailwind's text-ellipsis + overflow-hidden */
+h1[class~="text-ellipsis"] {
+  text-overflow: clip !important;
+  white-space: normal !important;
+}
+h1[class~="overflow-hidden"] {
+  overflow: visible !important;
+}
+h1[class~="break-words"],
+h1[class~="break-all"] {
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
 
 @import "tailwindcss";
 @plugin "daisyui";

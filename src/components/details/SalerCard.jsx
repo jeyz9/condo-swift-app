@@ -1,7 +1,7 @@
 import React from 'react'
 import { MdVerified } from 'react-icons/md'
 
-const SallerCard = () => {
+const SallerCard = ({ onContactClick, agent }) => {
   return (
     <div className="card bg-base-100 w-full shadow-sm border-1 border-[#FAAF1C] rounded-2xl relative">
       <div className="absolute top-2 right-2">
@@ -22,13 +22,13 @@ const SallerCard = () => {
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="text-lg sm:text-xl font-semibold truncate">ผู้ขาย</h3>
-          <p className="text-sm text-base-content/70">ที่ปรึกษาอสังหาฯ</p>
+          <h3 className="text-lg sm:text-xl font-semibold truncate">{agent?.name || 'ผู้ขาย'}</h3>
+          <p className="text-sm text-base-content/70">{agent?.role || 'ที่ปรึกษาอสังหาฯ'}</p>
         </div>
       </div>
 
       <div className="px-4 sm:px-5 pb-4">
-        <button className="btn w-full bg-[#8C6239] text-white border-none rounded-full">ติดต่อสอบถาม</button>
+        <button onClick={onContactClick} className="btn w-full bg-[#8C6239] text-white border-none rounded-full">ติดต่อสอบถาม</button>
       </div>
     </div>
   )
