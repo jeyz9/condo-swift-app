@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
-import AuthService from "../../services/AuthService";
 import { useAuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
-import { motion, AnimatePresence } from "framer-motion"; // ✅ import animation
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -11,6 +10,7 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
   const { login, user } = useAuthContext();
   const location = useLocation();
 
+  // 🔁 ถ้ามี user แล้วให้ redirect
   useEffect(() => {
     if (user) navigate(location.pathname, { replace: true });
   }, [user, navigate, location.pathname]);
@@ -23,6 +23,7 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { email, password } = loginData;
+
     if (!email || !password) {
       Swal.fire({
         icon: "warning",
@@ -34,21 +35,25 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
     }
 
     try {
-      const currentUser = await AuthService.login(email, password);
-      if (currentUser.status === 201) {
-        Swal.fire({
-          icon: "success",
-          title: "เข้าสู่ระบบสำเร็จ!",
-          text: "ยินดีต้อนรับกลับ!",
-          confirmButtonText: "ตกลง",
-          confirmButtonColor: "#8C6239",
-        }).then(() => {
-          login(currentUser.data);
-          onClose();
-          navigate("/");
-        });
-      }
+      console.log("🧾 Payload before login:", { email, password });
+
+      // ✅ ใช้ login จาก AuthContext โดยตรง
+      const decodedUser = await login(email, password);
+
+      console.log("✅ Login success response:", decodedUser);
+
+      Swal.fire({
+        icon: "success",
+        title: "เข้าสู่ระบบสำเร็จ!",
+        text: "ยินดีต้อนรับกลับ!",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#8C6239",
+      }).then(() => {
+        onClose?.();
+        navigate("/");
+      });
     } catch (error) {
+      console.error("Login error:", error);
       Swal.fire({
         icon: "error",
         title: "ไม่สามารถเข้าสู่ระบบได้",
@@ -80,7 +85,7 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* พื้นหลังมืดพร้อม fade */}
+          {/* พื้นหลังมืด */}
           <motion.div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
             onClick={onClose}
@@ -111,7 +116,7 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
                 ✕
               </button>
 
-              {/* ซ้าย */}
+              {/* ฝั่งซ้าย */}
               <div className="bg-[#8C6239] text-white p-8 md:p-10 w-full md:w-1/2 flex flex-col justify-center">
                 <h3 className="text-base md:text-lg font-semibold mb-3">
                   เพียงสมัครสมาชิก และยืนยันตัวตน
@@ -129,7 +134,7 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
                 </ul>
               </div>
 
-              {/* ขวา */}
+              {/* ฝั่งขวา */}
               <div className="p-8 md:p-10 w-full md:w-1/2 flex flex-col justify-center overflow-y-auto">
                 <h2 className="text-xl md:text-2xl font-bold mb-6 text-gray-800 break-words">
                   เข้าสู่ระบบ

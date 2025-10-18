@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import CardFilter from "../components/filter/CardFilter";
 import SearchBarNonFilter from "../components/filter/SearchBarNonFilter";
 import SalerCard from "../components/details/SalerCard";
 import Pagination from "../components/filter/Pagination";
 import { Link, useLocation, useNavigate } from "react-router";
 import AnnounceService from "../services/AnnounceService";
-import Swal from "sweetalert";
+import Swal from "sweetalert2";
 
 export const Filter = () => {
   const location = useLocation();
@@ -22,10 +23,16 @@ export const Filter = () => {
   const [announces, setAnnounces] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(pageFromQuery);
+  const [loading, setLoading] = useState(true);
   const listTopRef = useRef(null);
 
+  const itemsPerPage = 6;
+  const pageCount = Math.ceil(total / itemsPerPage);
+
+  // ✅ Fetch data
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const res = await AnnounceService.getFilterAnnounceWithAgent({
           keyword,
@@ -48,24 +55,22 @@ export const Filter = () => {
           text: error.response?.data?.message || error.message,
           confirmButtonColor: "#8C6239",
         });
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
   }, [keyword, type, bedroomCount, minPrice, maxPrice, page]);
 
-  // sync page state when url query changes
+  // ✅ Sync page when URL changes
   useEffect(() => {
     const qPage = Number(new URLSearchParams(location.search).get("page") || 0) || 0;
     if (qPage !== page) setPage(qPage);
   }, [location.search]);
 
-  // Pagination
-  const itemsPerPage = 6;
-  const pageCount = Math.ceil(total / itemsPerPage);
-
+  // ✅ Pagination
   const handlePageClick = (newPage) => {
-    // update url query params
     const params = new URLSearchParams({
       keyword,
       type,
@@ -76,76 +81,118 @@ export const Filter = () => {
     });
     navigate(`/filter?${params.toString()}`);
     setPage(newPage);
-    if (listTopRef.current) {
-      listTopRef.current.scrollIntoView({ behavior: "smooth" });
-    } else {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    listTopRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // ✅ Animation variants
+  const fadeUp = {
+    initial: { opacity: 0, y: 15 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -15 },
+    transition: { duration: 0.3, ease: "easeInOut" },
   };
 
   return (
     <div className="mt-5 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8">
       {/* Breadcrumb */}
-      <div className="breadcrumbs text-sm">
+      <motion.div {...fadeUp} className="breadcrumbs text-sm mb-4">
         <ul>
           <li>
-            <Link to="/">หน้าหลัก</Link>
+            <Link to="/" className="hover:underline text-[#8C6239]">
+              หน้าหลัก
+            </Link>
           </li>
           <li>
-            <Link to="/filter">ประกาศขาย</Link>
+            <Link to="/filter" className="hover:underline text-[#8C6239]">
+              ประกาศขาย
+            </Link>
           </li>
         </ul>
-      </div>
+      </motion.div>
 
       {/* Search */}
-      <div className="mt-5">
+      <motion.div {...fadeUp}>
         <SearchBarNonFilter
           defaultKeyword={keyword}
           defaultFilter={type}
           onSearch={({ keyword: kw, type: ft, page: pg }) => {
-            const params = new URLSearchParams({ keyword: kw || "", type: ft || "", page: String(pg || 0) });
+            const params = new URLSearchParams({
+              keyword: kw || "",
+              type: ft || "",
+              page: String(pg || 0),
+            });
             navigate(`/filter?${params.toString()}`);
             setPage(pg || 0);
           }}
         />
         <div className="divider mt-5"></div>
-      </div>
+      </motion.div>
 
-      {/* Layout 2 ฝั่ง */}
+      {/* Layout */}
       <div className="flex flex-col md:flex-row gap-8">
-        {/* ฝั่งซ้าย 70% */}
+        {/* ✅ Left side */}
         <div className="w-full md:w-[70%]">
           <div ref={listTopRef} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {announces.length > 0 ? (
-              announces.map((item) => (
-                <CardFilter key={item.id} announce={item} />
-              ))
+
+          <AnimatePresence mode="wait">
+            {loading ? (
+              <motion.p
+                key="loading"
+                {...fadeUp}
+                className="text-center text-gray-500 py-10"
+              >
+                กำลังโหลดข้อมูล...
+              </motion.p>
+            ) : announces.length > 0 ? (
+              <motion.div
+                key="list"
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={fadeUp}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
+              >
+                {announces.map((item) => (
+                  <motion.div key={item.id} {...fadeUp}>
+                    <CardFilter announce={item} />
+                  </motion.div>
+                ))}
+              </motion.div>
             ) : (
-              <p className="text-gray-500 text-center col-span-full">
+              <motion.p
+                key="empty"
+                {...fadeUp}
+                className="text-gray-500 text-center col-span-full py-10"
+              >
                 ไม่มีข้อมูลที่ตรงกับการค้นหา
-              </p>
+              </motion.p>
             )}
-          </div>
+          </AnimatePresence>
         </div>
 
-        {/* ฝั่งขวา 30% */}
-        <div className="w-full md:w-[30%]">
-          <h1 className="font-bold text-[28px] mb-4">
+        {/* ✅ Right side */}
+        <motion.div
+          {...fadeUp}
+          className="w-full md:w-[30%] flex flex-col items-start"
+        >
+          <h1 className="font-bold text-2xl sm:text-3xl text-gray-800 mb-4">
             ผู้ประกาศขายที่แนะนำ
           </h1>
           <SalerCard />
-        </div>
+        </motion.div>
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center items-center mt-10">
+      <motion.div
+        {...fadeUp}
+        className="flex justify-center items-center mt-10"
+      >
         <Pagination
           currentPage={page}
           pageCount={pageCount}
           onPageChange={handlePageClick}
         />
-      </div>
+      </motion.div>
     </div>
   );
 };

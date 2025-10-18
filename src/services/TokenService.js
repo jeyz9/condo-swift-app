@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 
-const TOKEN_KEY = "user"; // ใช้ key เดิมเพื่อความเข้ากันได้
+const TOKEN_KEY = "user";
 
 const getUser = () => {
   try {
@@ -17,18 +17,28 @@ const setUser = (user) => {
   if (!user) {
     Cookies.remove(TOKEN_KEY, { path: "/" });
   } else {
-    Cookies.set(TOKEN_KEY, JSON.stringify(user), {
-      expires: 7, // 7 วัน
-      secure: true, // ใช้เฉพาะ HTTPS
-      sameSite: "Strict", // ป้องกัน cross-site request
-      path: "/", // ใช้ได้ทุกหน้า
+    // 🧠 รองรับทั้ง accessToken และ token เผื่อ backend ส่งชื่อไม่ตรง
+    const tokenData = {
+      ...user,
+      token: user.accessToken || user.token, 
+    };
+
+    // ❗ ปิด secure ตอน dev, เปิดเฉพาะโปรดักชัน
+    const isProd = window.location.protocol === "https:";
+
+    Cookies.set(TOKEN_KEY, JSON.stringify(tokenData), {
+      expires: 7,
+      secure: isProd,
+      sameSite: "Strict",
+      path: "/",
     });
   }
 };
 
 const getLocalAccessToken = () => {
   const user = getUser();
-  return user?.token;
+  // ✅ รองรับทั้งชื่อ token และ accessToken
+  return user?.token || user?.accessToken || null;
 };
 
 const removeUser = () => {

@@ -14,7 +14,7 @@ import Swal from "sweetalert2";
 import AddressMapPreview from "../components/AddressMapPreview";
 
 export const AddAnnounce = () => {
-  const user = useAuthContext()
+  const { user } = useAuthContext();
   const navigate = useNavigate();
   const [images, setImages] = useState([]);
 
@@ -71,20 +71,25 @@ export const AddAnnounce = () => {
     hasFitness: false,
     hasElevator: false,
     hasSecurity: false,
+    approveStatusId: 4,
     mapPoints: [{ lat: "", lng: "" }],
     announceType: 0,
     saleType: 0,
-    userId: user?.id || 0,
+    userId: user?.userId || 0,
   });
 
-  console.log(user?.id)
+  // แสดงผล userId ใน console เพื่อดีบัก
+  console.log(`userId from context: ${user?.userId}`);
 
-  useEffect(() => {
+useEffect(() => {
   if (!user) {
     Swal.fire({
       icon: "warning",
       title: "กรุณาเข้าสู่ระบบก่อนเพิ่มประกาศ",
-    }).then(() => navigate("/login"));
+    }).then(() => navigate("/"));
+  } else {
+    // อัปเดต userId ในฟอร์มเมื่อ user เปลี่ยน (กันค่าเริ่มต้นติดเป็น 0)
+    setAnnounce((prev) => ({ ...prev, userId: user?.userId || 0 }));
   }
 }, [user]);
 

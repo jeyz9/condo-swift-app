@@ -11,19 +11,19 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       {
-        path: "/condo-swift/",
+        path: "/",
         element: <Home />,
       },
       {
-        path: "/condo-swift/detail/:id",
+        path: "/detail/:id",
         element: <Detail />,
       },
       {
-        path: "/condo-swift/filter",
+        path: "/filter",
         element: <Filter />,
       },
       {
-        path: "/condo-swift/add-announce",
+        path: "/add-announce",
         element: <AddAnnounce />,
       },
       

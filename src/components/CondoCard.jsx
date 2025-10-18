@@ -43,7 +43,7 @@ export const CondoCard = (props ) => {
         <div className="absolute bottom-0 items-center justify-start content-start text-left bg-[#0A0A0A50] text-white w-full h-[140px] p-4">
           <div className="ml-2 sm:ml-3 md:ml-5">
             <h2 className="card-title text-md sm:text-xl md:text-2xl font-medium">
-              {announce?.price} /เดือน
+              {announce?.price.toLocaleString() || "-"} /เดือน
             </h2>
             <h2 className="card-title text-lg sm:text-xl md:text-2xl justify-start">
               {announce?.title}
