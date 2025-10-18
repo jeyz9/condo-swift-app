@@ -1,5 +1,5 @@
 import React from "react";
-import CondoHero from "../assets/Condo-hero.jpg";
+import CondoHero from "../assets/Condo-Hero.jpg";
 import { Link } from "react-router-dom";
 
 const Hero = () => {
