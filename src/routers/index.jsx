@@ -3,7 +3,7 @@ import { createBrowserRouter } from "react-router";
 import { MainLayout } from "../layouts/MainLayout.jsx";
 import { Home } from "../pages/Home.jsx";
 import { Detail } from "../pages/Detail.jsx";
-import { Filter } from "../pages/filter.jsx";
+import { Filter } from "../pages/Filter.jsx";
 import { AddAnnounce } from "../pages/AddAnnounce.jsx";
 const router = createBrowserRouter([
   {
