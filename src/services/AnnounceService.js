@@ -5,7 +5,39 @@ const API_URL =
   "https://condo-swift.onrender.com/api/v1/announces";
 
 // 🏗 CRUD หลัก
-const createAnnounce = async (Announce) => api.post(`${API_URL}/addAnnounce`, Announce);
+const createAnnounce = async (announce, imageFiles = []) => {
+  const formData = new FormData();
+
+  const payload = {
+    ...announce,
+    mapPoints: (announce?.mapPoints || []).map((point) => ({
+      lat: `${point?.lat ?? ""}`,
+      lng: `${point?.lng ?? ""}`,
+    })),
+  };
+
+  try {
+    const blob = new Blob([JSON.stringify(payload)], {
+      type: "application/json",
+    });
+    formData.append("announce", blob);
+  } catch (_error) {
+    formData.append("announce", JSON.stringify(payload));
+  }
+
+  if (Array.isArray(imageFiles)) {
+    imageFiles.forEach((file, index) => {
+      if (file) {
+        const filename = file.name || `image_${index}.jpg`;
+        formData.append("images", file, filename);
+      }
+    });
+  }
+
+  return api.post(`${API_URL}/addAnnounceWithImage`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
 const getAllAnnounce = async () => api.get(`${API_URL}/`);
 const updateAnnounce = async (id, Announce) => api.put(`${API_URL}/${id}`, Announce);
 const getAnnounceById = async (id) => api.get(`${API_URL}/${id}`);

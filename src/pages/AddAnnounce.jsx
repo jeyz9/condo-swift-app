@@ -36,10 +36,10 @@ export const AddAnnounce = () => {
     }
 
     // 
-    if (images.length + validFiles.length > 5) {
+    if (images.length + validFiles.length > 10) {
       Swal.fire({
         icon: "error",
-        title: "อัปโหลดได้สูงสุด 5 รูปเท่านั้น",
+        title: "อัปโหลดได้สูงสุด 10 รูปเท่านั้น",
       });
       return;
     }
@@ -164,7 +164,10 @@ useEffect(() => {
     }
 
     try {
-      const response = await AnnounceService.createAnnounce(announce);
+      const response = await AnnounceService.createAnnounce(
+        announce,
+        images.map((item) => item?.file).filter(Boolean)
+      );
       if (response.status === 201) {
         Swal.fire({
           icon: "success",
