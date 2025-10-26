@@ -1,8 +1,26 @@
 import api from "./api"; // <— axios instance มี interceptor token, header ฯลฯ
 
-const API_URL =
-  import.meta.env.VITE_ANNOUNCE_API ||
-  "https://condo-swift.onrender.com/api/v1/announces";
+const DEFAULT_BASE_URL = "https://condo-swift.onrender.com";
+const baseUrl =
+  (import.meta.env.VITE_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, "");
+
+const resolveEndpoint = (rawValue, fallbackPath) => {
+  if (rawValue) {
+    const trimmed = rawValue.replace(/\/$/, "");
+    if (/^https?:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+    if (trimmed.startsWith("/")) {
+      return `${baseUrl}${trimmed}`;
+    }
+  }
+  return `${baseUrl}${fallbackPath}`;
+};
+
+const API_URL = resolveEndpoint(
+  import.meta.env.VITE_ANNOUNCE_API,
+  "/api/v1/announces"
+);
 
 // 🏗 CRUD หลัก
 const createAnnounce = async (announce, imageFiles = []) => {

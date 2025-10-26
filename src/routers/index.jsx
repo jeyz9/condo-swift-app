@@ -5,6 +5,7 @@ import { Home } from "../pages/Home.jsx";
 import { Detail } from "../pages/Detail.jsx";
 import { Filter } from "../pages/Filter.jsx";
 import { AddAnnounce } from "../pages/AddAnnounce.jsx";
+import { Profile } from "../pages/Profile.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
       {
         path: "/add-announce",
         element: <AddAnnounce />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
       },
       
       
