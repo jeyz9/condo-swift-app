@@ -56,7 +56,6 @@ const createAnnounce = async (announce, imageFiles = []) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
-const getAllAnnounce = async () => api.get(`${API_URL}/`);
 const updateAnnounce = async (id, Announce) => api.put(`${API_URL}/${id}`, Announce);
 const getAnnounceById = async (id) => api.get(`${API_URL}/${id}`);
 const deleteAnnounce = async (id) => api.delete(`${API_URL}/${id}`);
@@ -81,9 +80,10 @@ const getFilterAnnounceWithAgent = async (arg1, arg2, arg3, arg4) => {
   return await api.get(`${API_URL}/filterAnnounceWithAgent`, { params: { keyword, type: filter, page, size } });
 };
 
+
+
 // ✅ export ฟังก์ชันทั้งหมดไว้ให้เรียกง่าย
 const AnnounceService = {
-  getAllAnnounce,
   deleteAnnounce,
   createAnnounce,
   updateAnnounce,

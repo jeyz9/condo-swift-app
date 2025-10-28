@@ -1,32 +1,30 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router";
+
+const propertyTypes = ["คอนโดมิเนียม", "บ้านเดี่ยว", "ทาวน์โฮม", "โฮมออฟฟิศ"];
+const provinces = [
+  "กรุงเทพมหานคร",
+  "นนทบุรี",
+  "ปทุมธานี",
+  "สมุทรปราการ",
+  "เชียงใหม่",
+  "ขอนแก่น",
+  "ภูเก็ต",
+  "ชลบุรี",
+  "ระยอง",
+  "สงขลา",
+];
 
 export default function SearchBarWithFilter({ selectedType = "" }) {
   const [selectedFilter, setSelectedFilter] = useState("");
   const [searchText, setSearchText] = useState("");
   const navigate = useNavigate();
 
-  const provinces = [
-    "กรุงเทพมหานคร",
-    "เชียงใหม่",
-    "ภูเก็ต",
-    "ขอนแก่น",
-    "ชลบุรี",
-    "นนทบุรี",
-    "ปทุมธานี",
-    "นครราชสีมา",
-    "สงขลา",
-    "นครปฐม",
-  ];
-
-  const types = ["คอนโด", "บ้านหรู", "ที่ดิน", "วิลล่า"];
-
   const handleSearch = (e) => {
     e.preventDefault();
 
     const params = { keyword: searchText };
 
-    // ถ้ามีค่า selectedType จากหน้าหลัก ให้ใช้ก่อน
     if (selectedType && String(selectedType).trim() !== "") {
       params.type = selectedType;
     } else if (selectedFilter && String(selectedFilter).trim() !== "") {
@@ -40,62 +38,66 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
   return (
     <form
       onSubmit={handleSearch}
-      className="w-full max-w-3xl mx-auto flex flex-col sm:flex-row items-stretch gap-3 p-3 bg-white rounded-2xl shadow-md"
+      className="mx-auto flex w-full max-w-3xl flex-col items-stretch gap-3 px-3 sm:flex-row sm:items-center"
     >
-      {/* Dropdown Filter */}
       <div className="dropdown dropdown-hover">
         <label
           tabIndex={0}
-          className="btn bg-[#8C6239] text-white font-light border-none w-full sm:w-40 rounded-lg"
+          className="btn w-full rounded-lg border-none bg-[#8C6239] font-light text-white sm:w-40"
         >
-          {selectedFilter || "เลือกตัวกรอง"}
+          {selectedFilter || "ตัวกรอง"}
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 ml-2"
+            className="ml-2 h-4 w-4"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </label>
         <ul
           tabIndex={0}
-          className="dropdown-content menu bg-base-100 rounded-box w-52 p-2 shadow-lg z-10"
+          className="dropdown-content menu z-10 w-52 rounded-box bg-base-100 p-2 shadow-lg"
         >
-          <li className="menu-title text-gray-500 text-xs">ประเภทอสังหา</li>
-          {types.map((type) => (
+          <li className="menu-title text-xs text-gray-500">ประเภททรัพย์</li>
+          {propertyTypes.map((type) => (
             <li key={type}>
               <button
                 type="button"
                 onClick={() => setSelectedFilter(type)}
-                className="text-gray-800 hover:bg-gray-100 text-sm"
+                className="text-sm text-gray-800 hover:bg-gray-100"
               >
                 {type}
               </button>
             </li>
           ))}
 
-          <div className="divider my-1"></div>
-          <li className="menu-title text-gray-500 text-xs">จังหวัด</li>
+          <div className="divider my-1" />
+          <li className="menu-title text-xs text-gray-500">จังหวัดยอดนิยม</li>
           {provinces.map((p) => (
             <li key={p}>
               <button
                 type="button"
                 onClick={() => setSelectedFilter(p)}
-                className="text-gray-800 hover:bg-gray-100 text-sm"
+                className="text-sm text-gray-800 hover:bg-gray-100"
               >
                 {p}
               </button>
             </li>
           ))}
 
-          <div className="divider my-1"></div>
+          <div className="divider my-1" />
           <li>
             <button
               type="button"
               onClick={() => setSelectedFilter("")}
-              className="text-gray-800 hover:bg-gray-100 text-sm font-semibold"
+              className="text-sm font-semibold text-gray-800 hover:bg-gray-100"
             >
               ล้างตัวกรอง
             </button>
@@ -103,30 +105,33 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
         </ul>
       </div>
 
-      {/* ช่องค้นหา */}
       <div className="relative flex-grow">
         <input
           type="text"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           placeholder="พิมพ์ชื่อโครงการหรือจังหวัด เช่น คอนโดสุขุมวิท, เชียงใหม่..."
-          className="input input-bordered w-full rounded-lg pl-10"
+          className="w-full rounded-xl bg-white/95 py-3 pl-12 pr-4 text-gray-700 shadow-sm transition focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#8C6239]/60 placeholder:text-gray-400"
         />
         <svg
-          className="w-5 h-5 text-gray-400 absolute left-3 top-3"
+          className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"
+          />
         </svg>
       </div>
 
-      {/* ปุ่มค้นหา */}
       <button
         type="submit"
-        className="btn bg-[#8C6239] hover:bg-[#6f4f2e] text-white border-none rounded-lg w-full sm:w-32"
+        className="btn w-full rounded-lg border-none bg-[#8C6239] text-white hover:bg-[#6f4f2e] sm:w-32"
       >
         ค้นหา
       </button>

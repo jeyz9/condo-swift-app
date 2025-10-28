@@ -2,23 +2,17 @@ import React from "react";
 
 export const CondoCardSkeleton = () => {
   return (
-    <div
-      className="card bg-base-100 shadow-sm overflow-hidden rounded-[12px] relative animate-pulse"
-      style={{ height: "550px" }}
-    >
-      {/* รูปภาพ (พื้นที่รูป) */}
-      <div className="w-full h-full bg-gray-300"></div>
+    <div className="card relative h-full min-h-[420px] overflow-hidden rounded-[12px] bg-base-100 shadow-sm animate-pulse sm:min-h-[480px]">
+      <div className="h-full w-full bg-gray-300" />
 
-      {/* ส่วนล่าง overlay */}
-      <div className="absolute bottom-0 w-full h-[140px] bg-[#0A0A0A50] p-4">
-        <div className="ml-2 sm:ml-3 md:ml-5 space-y-2">
-          <div className="h-5 w-32 bg-gray-400 rounded"></div>
-          <div className="h-5 w-48 bg-gray-400 rounded"></div>
-
-          <div className="flex flex-row justify-between pr-2 mt-2">
-            <div className="h-4 w-20 bg-gray-400 rounded"></div>
-            <div className="h-4 w-20 bg-gray-400 rounded"></div>
-            <div className="h-4 w-20 bg-gray-400 rounded"></div>
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent p-4 sm:p-5">
+        <div className="space-y-2">
+          <div className="h-5 w-32 rounded bg-gray-400"></div>
+          <div className="h-5 w-48 rounded bg-gray-400"></div>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <div className="h-4 w-20 rounded bg-gray-400"></div>
+            <div className="h-4 w-20 rounded bg-gray-400"></div>
+            <div className="h-4 w-20 rounded bg-gray-400"></div>
           </div>
         </div>
       </div>

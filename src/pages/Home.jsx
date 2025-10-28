@@ -62,7 +62,7 @@ export const Home = () => {
 
       {/* SEARCH BAR */}
       <motion.div
-        className="relative top-3 text-gray-600 p-2"
+        className="relative -top-6 text-gray-600 p-2"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
