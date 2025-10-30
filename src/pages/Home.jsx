@@ -19,6 +19,15 @@ export const Home = () => {
     const fetchData = async () => {
       try {
         const response = await AnnounceService.getAnnounceWithCategory();
+        const responseFilter = await AnnounceService.getFilterAnnounceWithAgent(
+          {
+            keyword: "", // ❌ ไม่ใส่คำค้น เพื่อให้ดึงทั้งหมด
+            type: "คอนโด", // ✅ ค้นหาเฉพาะ type = คอนโดมิเนียม
+            page: 0, // ✅ หน้าแรก
+            size: 20, // ✅ จำนวนข้อมูลต่อหน้า (ปรับได้)
+          }
+        );
+        setAnnounce(responseFilter.status === 200 ? responseFilter.data : [])
         setAnnounce(response.status === 200 ? response.data : []);
       } catch (error) {
         Swal.fire({
@@ -35,6 +44,10 @@ export const Home = () => {
 
     fetchData();
   }, []);
+
+  const handleMoreCondo = async () => {
+    
+  }
 
   const { recommendAnnounces, nearbyPlaces, luxuryHouses, villaProvince } =
     announce;
@@ -56,7 +69,11 @@ export const Home = () => {
   return (
     <>
       {/* HERO */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
         <Hero />
       </motion.div>
 
@@ -142,7 +159,12 @@ export const Home = () => {
                   </motion.div>
                 ))
               : [...Array(4)].map((_, i) => (
-                  <motion.div key={i} variants={fadeDelay(i)} initial="hidden" animate="visible">
+                  <motion.div
+                    key={i}
+                    variants={fadeDelay(i)}
+                    initial="hidden"
+                    animate="visible"
+                  >
                     <CondoCardSkeleton />
                   </motion.div>
                 ))}
@@ -170,7 +192,12 @@ export const Home = () => {
         <motion.div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {nearbyPlaces?.length > 0 ? (
             nearbyPlaces.map((item, i) => (
-              <motion.div key={item.id} variants={fadeDelay(i)} initial="hidden" animate="visible">
+              <motion.div
+                key={item.id}
+                variants={fadeDelay(i)}
+                initial="hidden"
+                animate="visible"
+              >
                 <CondoCardNearby item={item} />
               </motion.div>
             ))
@@ -200,7 +227,12 @@ export const Home = () => {
         <motion.div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {luxuryHouses?.length > 0 ? (
             luxuryHouses.map((item, i) => (
-              <motion.div key={item.id} variants={fadeDelay(i)} initial="hidden" animate="visible">
+              <motion.div
+                key={item.id}
+                variants={fadeDelay(i)}
+                initial="hidden"
+                animate="visible"
+              >
                 <CondoCardLuxury item={item} />
               </motion.div>
             ))
@@ -230,7 +262,12 @@ export const Home = () => {
         <motion.div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {villaProvince?.length > 0 ? (
             villaProvince.map((item, i) => (
-              <motion.div key={item.id} variants={fadeDelay(i)} initial="hidden" animate="visible">
+              <motion.div
+                key={item.id}
+                variants={fadeDelay(i)}
+                initial="hidden"
+                animate="visible"
+              >
                 <CondoCardVilla item={item} />
               </motion.div>
             ))

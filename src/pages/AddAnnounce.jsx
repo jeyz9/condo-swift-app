@@ -17,7 +17,7 @@ export const AddAnnounce = () => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
   const [images, setImages] = useState([]);
-
+  const [searchText, setSearchText] = useState("");
   // ✅ อัปโหลดเฉพาะไฟล์รูปภาพ
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -35,7 +35,7 @@ export const AddAnnounce = () => {
       return;
     }
 
-    // 
+    //
     if (images.length + validFiles.length > 10) {
       Swal.fire({
         icon: "error",
@@ -81,17 +81,17 @@ export const AddAnnounce = () => {
   // แสดงผล userId ใน console เพื่อดีบัก
   console.log(`userId from context: ${user?.userId}`);
 
-useEffect(() => {
-  if (!user) {
-    Swal.fire({
-      icon: "warning",
-      title: "กรุณาเข้าสู่ระบบก่อนเพิ่มประกาศ",
-    }).then(() => navigate("/"));
-  } else {
-    // อัปเดต userId ในฟอร์มเมื่อ user เปลี่ยน (กันค่าเริ่มต้นติดเป็น 0)
-    setAnnounce((prev) => ({ ...prev, userId: user?.userId || 0 }));
-  }
-}, [user]);
+  useEffect(() => {
+    if (!user) {
+      Swal.fire({
+        icon: "warning",
+        title: "กรุณาเข้าสู่ระบบก่อนเพิ่มประกาศ",
+      }).then(() => navigate("/"));
+    } else {
+      // อัปเดต userId ในฟอร์มเมื่อ user เปลี่ยน (กันค่าเริ่มต้นติดเป็น 0)
+      setAnnounce((prev) => ({ ...prev, userId: user?.userId || 0 }));
+    }
+  }, [user]);
 
   // ✅ ตัวช่วยเปลี่ยนค่าในฟอร์ม
   const handleChange = (e) => {
@@ -220,264 +220,270 @@ useEffect(() => {
       <div className="w-full max-w-5xl bg-white rounded-xl shadow-md p-8 min-h-[400px]">
         <AnimatePresence mode="wait">
           {/* ✅ Tab 1: รายละเอียดที่ตั้ง */}
-{activeTab === 0 && (
-  <motion.div key="tab1" {...fadeAnimation}>
-    <h2 className="text-xl font-semibold text-green-700 mb-4">
-      รายละเอียดที่ตั้ง
-    </h2>
+          {activeTab === 0 && (
+            <motion.div key="tab1" {...fadeAnimation}>
+              <h2 className="text-xl font-semibold text-green-700 mb-4">
+                รายละเอียดที่ตั้ง
+              </h2>
 
-    <div className="flex flex-col md:flex-row gap-6 items-start">
-      {/* LEFT: แผนที่ */}
-      <div className="w-full md:w-[65%] relative z-0">
-        <div className="text-sm font-medium mb-2 text-gray-700">
-          แผนที่ตำแหน่งที่ตั้ง
-        </div>
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                {/* LEFT: แผนที่ */}
+                <div className="w-full md:w-[65%] relative z-0">
+                  <div className="text-sm font-medium mb-2 text-gray-700">
+                    แผนที่ตำแหน่งที่ตั้ง
+                  </div>
 
-        <div className="rounded-lg overflow-hidden shadow-sm">
-          <AddressMapPreview
-            query={announce.location}
-            onGeocode={(lat, lng, result) => {
-              const formattedAddress =
-                result?.formatted_address || announce.location;
-              setAnnounce((prev) => ({
-                ...prev,
-                location: formattedAddress,
-                mapPoints: [{ lat, lng }],
-              }));
-            }}
-          />
-        </div>
+                  <div className="rounded-lg overflow-hidden shadow-sm">
+                    <AddressMapPreview
+                      query={searchText.trim() || null} // ✅ ป้องกัน query ว่าง
+                      onGeocode={(lat, lng, result) => {
+                        const formattedAddress =
+                          result?.formatted_address || searchText;
+                        setAnnounce((prev) => ({
+                          ...prev,
+                          location: formattedAddress,
+                          mapPoints: [{ lat, lng }],
+                        }));
+                      }}
+                    />
+                  </div>
 
-        {announce.mapPoints[0].lat && (
-          <div className="mt-3 text-sm text-gray-600">
-            📍 <span className="font-medium">{announce.location}</span>
-            <br />
-            🌐 พิกัด:{" "}
-            <span className="text-gray-800">
-              {announce.mapPoints[0].lat.toFixed(5)},{" "}
-              {announce.mapPoints[0].lng.toFixed(5)}
-            </span>
-          </div>
-        )}
-      </div>
+                  {announce.mapPoints[0].lat && (
+                    <div className="mt-3 text-sm text-gray-600">
+                      📍{" "}
+                      <span className="font-medium">{announce.location}</span>
+                      <br />
+                      🌐 พิกัด:{" "}
+                      <span className="text-gray-800">
+                        {announce.mapPoints[0].lat.toFixed(5)},{" "}
+                        {announce.mapPoints[0].lng.toFixed(5)}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-      {/* RIGHT: input + tip */}
-      <div className="w-full md:w-[35%] relative z-10">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          ค้นหาสถานที่ / โครงการ
-        </label>
+                {/* RIGHT: input + tip */}
+                <div className="w-full md:w-[35%] relative z-10">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ค้นหาสถานที่ / โครงการ
+                  </label>
 
-        <input
-          name="location"
-          value={announce.location}
-          onChange={handleChange}
-          type="text"
-          placeholder="พิมพ์ชื่อโครงการหรือสถานที่ เช่น คอนโด เอ บี ซี"
-          className="input input-bordered w-full mb-4"
-        />
+                  <input
+                    name="search"
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    type="text"
+                    placeholder="พิมพ์ชื่อโครงการหรือสถานที่ เช่น คอนโด เอ บี ซี"
+                    className="input input-bordered w-full mb-4"
+                  />
+                  {/* Tip card */}
+                  <div className="mt-2 rounded-xl border border-[#550080] bg-[#55008014] p-4 shadow-sm">
+                    <div className="text-[#550080] text-sm font-semibold mb-1">
+                      ไม่พบตำแหน่งที่ตั้งของคอนโด/โครงการ
+                      จากรายการของเราใช่หรือไม่?
+                    </div>
+                    <div className="text-[#550080] text-sm leading-relaxed">
+                      คุณสามารถระบุตำแหน่งของประกาศได้เองทันที
+                      โดยคลิกเลือกตำแหน่งบนแผนที่ด้านซ้าย
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-        {/* Tip card */}
-        <div className="mt-2 rounded-xl border border-[#550080] bg-[#55008014] p-4 shadow-sm">
-          <div className="text-[#550080] text-sm font-semibold mb-1">
-            ไม่พบตำแหน่งที่ตั้งของคอนโด/โครงการ จากรายการของเราใช่หรือไม่?
-          </div>
-          <div className="text-[#550080] text-sm leading-relaxed">
-            คุณสามารถระบุตำแหน่งของประกาศได้เองทันที
-            โดยคลิกเลือกตำแหน่งบนแผนที่ด้านซ้าย
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <p className="text-sm text-gray-600 mt-5">
-      เมื่อพิมพ์ชื่อสถานที่ ระบบจะค้นหาและปักหมุดให้อัตโนมัติ
-      หรือคลิกบนแผนที่เพื่อเลือกตำแหน่งเอง
-    </p>
-  </motion.div>
-)}
-
-
+              <p className="text-sm text-gray-600 mt-5">
+                เมื่อพิมพ์ชื่อสถานที่ ระบบจะค้นหาและปักหมุดให้อัตโนมัติ
+                หรือคลิกบนแผนที่เพื่อเลือกตำแหน่งเอง
+              </p>
+            </motion.div>
+          )}
 
           {/* ✅ Tab 2: รายละเอียด */}
-{activeTab === 1 && (
-  <motion.div key="tab2" {...fadeAnimation}>
-    <h2 className="text-xl font-semibold text-green-700 mb-6">รายละเอียด</h2>
+          {activeTab === 1 && (
+            <motion.div key="tab2" {...fadeAnimation}>
+              <h2 className="text-xl font-semibold text-green-700 mb-6">
+                รายละเอียด
+              </h2>
 
-    {/* หัวข้อ */}
-    <label className="block font-medium text-gray-700 mb-2">หัวข้อ</label>
-    <input
-      name="title"
-      value={announce.title}
-      onChange={handleChange}
-      type="text"
-      placeholder="รายละเอียดหัวข้อ"
-      className="input input-bordered w-full mb-6"
-    />
+              {/* หัวข้อ */}
+              <label className="block font-medium text-gray-700 mb-2">
+                หัวข้อ
+              </label>
+              <input
+                name="title"
+                value={announce.title}
+                onChange={handleChange}
+                type="text"
+                placeholder="รายละเอียดหัวข้อ"
+                className="input input-bordered w-full mb-6"
+              />
 
-    {/* สิ่งอำนวยความสะดวก */}
-    <p className="font-medium mb-2">สิ่งอำนวยความสะดวก</p>
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-6">
-      {[
-        { key: "hasPool", label: "สระว่ายน้ำ" },
-        { key: "hasParking", label: "ที่จอดรถ" },
-        { key: "hasFitness", label: "ฟิตเนส" },
-        { key: "hasElevator", label: "ลิฟต์" },
-        { key: "hasSecurity", label: "รปภ." },
-      ].map(({ key, label }) => (
-        <label key={key} className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            name={key}
-            checked={announce[key]}
-            onChange={handleChange}
-            className="checkbox checkbox-success"
-          />
-          <span>{label}</span>
-        </label>
-      ))}
-    </div>
+              {/* สิ่งอำนวยความสะดวก */}
+              <p className="font-medium mb-2">สิ่งอำนวยความสะดวก</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-6">
+                {[
+                  { key: "hasPool", label: "สระว่ายน้ำ" },
+                  { key: "hasParking", label: "ที่จอดรถ" },
+                  { key: "hasFitness", label: "ฟิตเนส" },
+                  { key: "hasElevator", label: "ลิฟต์" },
+                  { key: "hasSecurity", label: "รปภ." },
+                ].map(({ key, label }) => (
+                  <label key={key} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      name={key}
+                      checked={announce[key]}
+                      onChange={handleChange}
+                      className="checkbox checkbox-success"
+                    />
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </div>
 
-    {/* Dropdowns */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <div>
-        <label className="block font-medium text-gray-700 mb-2">
-          ประเภทของการประกาศ
-        </label>
-        <select
-          name="announceType"
-          value={announce.announceType}
-          onChange={handleChange}
-          className="select select-bordered w-full"
-        >
-          <option value="">เลือกประเภทของการประกาศ</option>
-          <option value={1}>ให้เช่า</option>
-          <option value={2}>ขาย</option>
-        </select>
-      </div>
+              {/* Dropdowns */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="block font-medium text-gray-700 mb-2">
+                    ประเภทของการประกาศ
+                  </label>
+                  <select
+                    name="announceType"
+                    value={announce.announceType}
+                    onChange={handleChange}
+                    className="select select-bordered w-full"
+                  >
+                    <option value="">เลือกประเภทของการประกาศ</option>
+                    <option value={1}>ให้เช่า</option>
+                    <option value={2}>ขาย</option>
+                  </select>
+                </div>
 
-      <div>
-        <label className="block font-medium text-gray-700 mb-2">
-          ประเภทอสังหาริมทรัพย์
-        </label>
-        <select
-          name="saleType"
-          value={announce.saleType}
-          onChange={handleChange}
-          className="select select-bordered w-full"
-        >
-          <option value="">เลือกประเภทอสังหาริมทรัพย์</option>
-          <option value={1}>คอนโด</option>
-          <option value={2}>ที่ดิน</option>
-          <option value={3}>บ้านหรู</option>
-          <option value={4}>วิลล่า</option>
-        </select>
-      </div>
-    </div>
+                <div>
+                  <label className="block font-medium text-gray-700 mb-2">
+                    ประเภทอสังหาริมทรัพย์
+                  </label>
+                  <select
+                    name="saleType"
+                    value={announce.saleType}
+                    onChange={handleChange}
+                    className="select select-bordered w-full"
+                  >
+                    <option value="">เลือกประเภทอสังหาริมทรัพย์</option>
+                    <option value={1}>คอนโด</option>
+                    <option value={2}>ที่ดิน</option>
+                    <option value={3}>บ้านหรู</option>
+                    <option value={4}>วิลล่า</option>
+                  </select>
+                </div>
+              </div>
 
-    {/* ราคา */}
-    <label className="block font-medium text-gray-700 mb-2">ราคา</label>
-    <input
-      name="price"
-      value={announce.price}
-      onChange={handleChange}
-      type="number"
-      placeholder="ระบุราคา"
-      className="input input-bordered w-full mb-6"
-    />
+              {/* ราคา */}
+              <label className="block font-medium text-gray-700 mb-2">
+                ราคา
+              </label>
+              <input
+                name="price"
+                value={announce.price}
+                onChange={handleChange}
+                type="number"
+                placeholder="ระบุราคา"
+                className="input input-bordered w-full mb-6"
+              />
 
-    {/* ที่อยู่ */}
-    <label className="block font-medium text-gray-700 mb-2">ที่อยู่</label>
-    <input
-      name="location"
-      value={announce.location}
-      onChange={handleChange}
-      type="text"
-      placeholder="รายละเอียดที่อยู่"
-      className="input input-bordered w-full mb-6"
-    />
+              {/* ที่อยู่ */}
+              <label className="block font-medium text-gray-700 mb-2">
+                ที่อยู่
+              </label>
+              <input
+                name="location"
+                value={announce.location}
+                onChange={handleChange}
+                type="text"
+                placeholder="รายละเอียดที่อยู่"
+                className="input input-bordered w-full mb-6"
+              />
 
-    {/* ห้องนอน ห้องน้ำ */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label className="block font-medium text-gray-700 mb-2">
-          รายละเอียด ห้องนอน
-        </label>
-        <input
-          name="bedroomCount"
-          value={announce.bedroomCount}
-          onChange={handleChange}
-          type="number"
-          placeholder="เช่น 2 ห้องนอน"
-          className="input input-bordered w-full"
-        />
-      </div>
-      <div>
-        <label className="block font-medium text-gray-700 mb-2">
-          รายละเอียด ห้องน้ำ
-        </label>
-        <input
-          name="bathroomCount"
-          value={announce.bathroomCount}
-          onChange={handleChange}
-          type="number"
-          placeholder="เช่น 2 ห้องน้ำ"
-          className="input input-bordered w-full"
-        />
-      </div>
-    </div>
-  </motion.div>
-)}
-
+              {/* ห้องนอน ห้องน้ำ */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-medium text-gray-700 mb-2">
+                    รายละเอียด ห้องนอน
+                  </label>
+                  <input
+                    name="bedroomCount"
+                    value={announce.bedroomCount}
+                    onChange={handleChange}
+                    type="number"
+                    placeholder="เช่น 2 ห้องนอน"
+                    className="input input-bordered w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium text-gray-700 mb-2">
+                    รายละเอียด ห้องน้ำ
+                  </label>
+                  <input
+                    name="bathroomCount"
+                    value={announce.bathroomCount}
+                    onChange={handleChange}
+                    type="number"
+                    placeholder="เช่น 2 ห้องน้ำ"
+                    className="input input-bordered w-full"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* ✅ Tab 3: รูปและวิดีโอ */}
-{/* ✅ Tab 3: รูปและวิดีโอ */}
-{activeTab === 2 && (
-  <motion.div key="tab3" {...fadeAnimation}>
-    <h2 className="text-xl font-semibold text-green-700 mb-4">
-      รูปภาพประกาศ (สูงสุด 10 รูป)
-    </h2>
+          {/* ✅ Tab 3: รูปและวิดีโอ */}
+          {activeTab === 2 && (
+            <motion.div key="tab3" {...fadeAnimation}>
+              <h2 className="text-xl font-semibold text-green-700 mb-4">
+                รูปภาพประกาศ (สูงสุด 10 รูป)
+              </h2>
 
-    <label
-      htmlFor="uploadInput"
-      className="border-2 border-dashed border-gray-300 rounded-lg h-48 flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:bg-gray-50 transition"
-    >
-      <span className="text-lg mb-1">📷 คลิกเพื่อเลือกไฟล์</span>
-      <span className="text-sm">หรือวางไฟล์รูปลงที่นี่</span>
-      <input
-        id="uploadInput"
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={handleFileUpload}
-        className="hidden"
-      />
-    </label>
+              <label
+                htmlFor="uploadInput"
+                className="border-2 border-dashed border-gray-300 rounded-lg h-48 flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:bg-gray-50 transition"
+              >
+                <span className="text-lg mb-1">📷 คลิกเพื่อเลือกไฟล์</span>
+                <span className="text-sm">หรือวางไฟล์รูปลงที่นี่</span>
+                <input
+                  id="uploadInput"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </label>
 
-    {/* แสดงตัวอย่างรูป */}
-    {images.length > 0 && (
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-6">
-        {images.map((img, index) => (
-          <div
-            key={index}
-            className="relative group border rounded-lg overflow-hidden shadow-sm"
-          >
-            <img
-              src={img.url}
-              alt={`uploaded-${index}`}
-              className="object-cover w-full h-40"
-            />
-            <button
-              onClick={() => handleRemoveImage(index)}
-              className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
-            >
-              ✕ ลบ
-            </button>
-          </div>
-        ))}
-      </div>
-    )}
-  </motion.div>
-)}
+              {/* แสดงตัวอย่างรูป */}
+              {images.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-6">
+                  {images.map((img, index) => (
+                    <div
+                      key={index}
+                      className="relative group border rounded-lg overflow-hidden shadow-sm"
+                    >
+                      <img
+                        src={img.url}
+                        alt={`uploaded-${index}`}
+                        className="object-cover w-full h-40"
+                      />
+                      <button
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+                      >
+                        ✕ ลบ
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
 
           {/* ✅ Tab 4: สรุป */}
           {activeTab === 3 && (

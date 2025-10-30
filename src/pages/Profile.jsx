@@ -109,14 +109,14 @@ export const Profile = () => {
               <button
                 key={tab.value}
                 onClick={() => setActiveTab(tab.value)}
-                className={`border px-5 py-2 text-sm sm:text-base transition 
+                className={`btn border px-5 py-2 text-sm sm:text-base transition 
                 ${isFirst ? "rounded-s-xl" : ""} 
                 ${isLast ? "rounded-e-xl" : ""} 
                 ${!isLast ? "-mr-[1px]" : ""} 
                 ${
                   isActive
-                    ? "border-[#8C6239] bg-[#8C6239] text-white"
-                    : "border-gray-300 text-gray-700 hover:border-[#8C6239] hover:text-[#8C6239]"
+                    ? "border-[#8C6239] bg-[#8C6239] text-white rounded-none"
+                    : "border-gray-300 text-gray-700 hover:border-[#8C6239] hover:text-[#8C6239] rounded-none"
                 }`}
               >
                 {tab.label}

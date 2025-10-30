@@ -8,7 +8,7 @@ import UserProfile from "./UserProfile";
 const Navbar = () => {
   const menuItems = [
     { title: "หน้าแรก", path: "/" },
-    { title: "เกี่ยวกับเรา", path: "/about" },
+    { title: "เกี่ยวกับเรา", path: "/about-us" },
     {
       title: "บริการ",
       submenu: [

@@ -26,42 +26,46 @@ export const Filter = () => {
   const [loading, setLoading] = useState(true);
   const listTopRef = useRef(null);
 
-  const itemsPerPage = 6;
+  const itemsPerPage = 10;
   const pageCount = Math.ceil(total / itemsPerPage);
 
   // ✅ Fetch data
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await AnnounceService.getFilterAnnounceWithAgent({
-          keyword,
-          type,
-          bedroomCount: bedroomCount ? Number(bedroomCount) : undefined,
-          minPrice: minPrice ? Number(minPrice) : undefined,
-          maxPrice: maxPrice ? Number(maxPrice) : undefined,
-          page,
-          size: itemsPerPage,
-        });
+ useEffect(() => {
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await AnnounceService.getFilterAnnounceWithAgent({
+        keyword,
+        type,
+        bedroomCount: bedroomCount ? Number(bedroomCount) : undefined,
+        minPrice: minPrice ? Number(minPrice) : undefined,
+        maxPrice: maxPrice ? Number(maxPrice) : undefined,
+        page,
+        size: itemsPerPage,
+      });
 
-        if (res.status === 200) {
-          setAnnounces(res.data.announceDetailsWithAgents || []);
-          setTotal(res.data.total || 0);
-        }
-      } catch (error) {
-        Swal.fire({
-          icon: "error",
-          title: "ไม่สามารถโหลดข้อมูลได้",
-          text: error.response?.data?.message || error.message,
-          confirmButtonColor: "#8C6239",
-        });
-      } finally {
-        setLoading(false);
+      if (res.status === 200) {
+        const data = res.data?.announceDetailsWithAgents || [];
+        const totalCount = res.data?.total || data.length;
+
+        setAnnounces(data);
+        setTotal(totalCount);
       }
-    };
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "ไม่สามารถโหลดข้อมูลได้",
+        text: error.response?.data?.message || error.message,
+        confirmButtonColor: "#8C6239",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchData();
-  }, [keyword, type, bedroomCount, minPrice, maxPrice, page]);
+  fetchData();
+}, [keyword, type, bedroomCount, minPrice, maxPrice, page]);
+
 
   // ✅ Sync page when URL changes
   useEffect(() => {

@@ -2,7 +2,8 @@ import React from "react";
 import { PiShareFat } from "react-icons/pi";
 import Swal from "sweetalert2";
 import { useAuthContext } from "../../context/AuthContext";
-
+import { GoVerified } from "react-icons/go";
+import VerifyService from "../../services/VerifyService";
 const HeroProfile = ({ profile }) => {
   const { user } = useAuthContext()
   const userId = user?.userId
@@ -12,7 +13,7 @@ const HeroProfile = ({ profile }) => {
   const avatarSrc =
     profile?.image ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0D8ABC&color=fff`;
-
+  
   // ✅ ฟังก์ชันแชร์ลิงก์
   const handleShare = async () => {
     const shareUrl = `${window.location.origin}/profile/${userId}`;
@@ -34,6 +35,14 @@ const HeroProfile = ({ profile }) => {
     }
   };
 
+  const handleVerify = () => {
+    VerifyService.startVerify({
+      userId: user?.userId,
+    });
+  };
+  
+  console.log(user)
+
   return (
     <div className="w-full">
       <div className="w-full h-[320px] bg-[#E3E3E3]" />
@@ -49,7 +58,7 @@ const HeroProfile = ({ profile }) => {
 
           <div className="space-y-6">
             <h2 className="text-[52px] font-medium text-gray-800">
-              {displayName}
+              {displayName} <button  onClick={handleVerify} className="btn btn-dash rounded-full"><GoVerified className="w-[20px] h-[20px]" />ยืนยันตัวตน</button>
             </h2>
             <p className="max-w-[360px] text-[14px] text-gray-600">
               {displayDescription}

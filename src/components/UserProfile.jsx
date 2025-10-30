@@ -7,7 +7,7 @@ const UserProfile = () => {
   const [profile, setProfile] = useState({});
   const { logout } = useAuthContext();
   const { user } = useAuthContext();
-
+  const displayName = profile?.name?.trim() || "ไม่ระบุชื่อ";
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -53,7 +53,7 @@ const UserProfile = () => {
           <div className="w-10 rounded-full">
             <img
               alt="Profile"
-              src={`${profile?.image}`}
+              src={profile?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0D8ABC&color=fff`}
             />
           </div>
         </div>

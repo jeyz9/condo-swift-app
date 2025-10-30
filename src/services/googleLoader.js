@@ -1,4 +1,3 @@
-// Centralized Google Maps JS API loader
 import { Loader } from "@googlemaps/js-api-loader";
 
 const G_API = import.meta.env.VITE_GOOGLEMAP_API;
@@ -6,11 +5,15 @@ const G_API = import.meta.env.VITE_GOOGLEMAP_API;
 export const googleLoader = new Loader({
   apiKey: G_API,
   version: "weekly",
-  libraries: ["places", "maps"],
+  libraries: ["places"], // ✅ ต้องมี places
 });
 
-// Convenience helper to load once from components
-export function loadGoogleMaps() {
-  return googleLoader.load();
+export async function loadGoogleMaps() {
+  try {
+    await googleLoader.load();
+    return window.google;
+  } catch (error) {
+    console.error("❌ โหลด Google Maps ไม่สำเร็จ:", error);
+    throw error;
+  }
 }
-

@@ -1,9 +1,7 @@
 /* This code snippet is a React component named `CardFilter` that displays a card with information
 about a property announcement. Here's a breakdown of what the component does: */
 import React from "react";
-import { IoBedOutline } from "react-icons/io5";
-import { PiShower } from "react-icons/pi";
-import { BsTextarea } from "react-icons/bs";
+
 import { motion } from "framer-motion";
 
 export default function CardFilter({ announce }) {
@@ -14,7 +12,7 @@ export default function CardFilter({ announce }) {
   const agentImage =
     announce?.agent?.image ||
     "https://cdn-icons-png.flaticon.com/512/147/147142.png";
-
+  console.log(announce)
   return (
     <motion.div
       whileHover={{
@@ -51,21 +49,6 @@ export default function CardFilter({ announce }) {
           {announce?.location}
         </p>
 
-        {/* ✅ รายละเอียดพื้นที่ */}
-        <div className="flex items-center justify-start gap-4 text-sm text-gray-600 mt-4">
-          <div className="flex items-center gap-1">
-            <IoBedOutline className="text-lg" />
-            <span>{announce?.bedroomCount || 0} ห้องนอน</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <PiShower className="text-lg" />
-            <span>{announce?.bathroomCount || 0} ห้องน้ำ</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <BsTextarea className="text-base" />
-            <span>{announce?.areaSize || 0} ตร.ม.</span>
-          </div>
-        </div>
 
         {/* ✅ เส้นแบ่ง */}
         <div className="divider my-4"></div>

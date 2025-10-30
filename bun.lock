@@ -19,7 +19,8 @@
         "react-paginate": "^8.3.0",
         "react-router-dom": "^7.9.4",
         "sweetalert": "^2.1.2",
-        "sweetalert2": "^11.25.1",
+        "sweetalert2": "^11.26.3",
+        "sweetalert2-react-content": "^5.1.0",
       },
       "devDependencies": {
         "@eslint/js": "^9.36.0",
@@ -672,7 +673,9 @@
 
     "sweetalert": ["sweetalert@2.1.2", "", { "dependencies": { "es6-object-assign": "^1.1.0", "promise-polyfill": "^6.0.2" } }, "sha512-iWx7X4anRBNDa/a+AdTmvAzQtkN1+s4j/JJRWlHpYE8Qimkohs8/XnFcWeYHH2lMA8LRCa5tj2d244If3S/hzA=="],
 
-    "sweetalert2": ["sweetalert2@11.25.1", "", {}, "sha512-yKftZWh0wxkeCJoT1tLSu4OaR694aBL1Q2YQpfEqN8kMz6TTi/vmOSelCjZCg3mEwJ4uYB67XEfGS0bLwami1Q=="],
+    "sweetalert2": ["sweetalert2@11.26.3", "", {}, "sha512-VU0hGw/WfI9h7Mh+SCsDlWgtxDwWZ6ccqS7QcO8zEeWnwplN1GptcLstq76OluUBSLUza6ldvKd3558OhjpJ9A=="],
+
+    "sweetalert2-react-content": ["sweetalert2-react-content@5.1.0", "", { "peerDependencies": { "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0", "sweetalert2": "^11.0.0" } }, "sha512-SBh41SdyHDY9NzwrIG6LACbClCMxIlEFP86tGVr/B4zGD4H2gGXB8o7UAJRc/RtBd/iQL9hIvuCAkrk0AgKEMA=="],
 
     "tailwindcss": ["tailwindcss@4.1.14", "", {}, "sha512-b7pCxjGO98LnxVkKjaZSDeNuljC4ueKUddjENJOADtubtdo8llTaJy7HwBMeLNSSo2N5QIAgklslK1+Ir8r6CA=="],
 
