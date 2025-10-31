@@ -45,9 +45,6 @@ export const Home = () => {
     fetchData();
   }, []);
 
-  const handleMoreCondo = async () => {
-    
-  }
 
   const { recommendAnnounces, nearbyPlaces, luxuryHouses, villaProvince } =
     announce;

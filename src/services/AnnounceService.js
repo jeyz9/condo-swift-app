@@ -69,15 +69,56 @@ const getAnnounceWithCategory = async () => api.get(`${API_URL}/showAnnounceWith
 // 🧠 ฟังก์ชันใหม่ — สำหรับหน้า /filter
 const getFilterAnnounceWithAgent = async (arg1, arg2, arg3, arg4) => {
   if (typeof arg1 === 'object' && arg1 !== null) {
-    const { keyword, filter, type, bedroomCount, minPrice, maxPrice, page = 0, size = 8 } = arg1;
-    const params = { keyword, type: type ?? filter, bedroomCount, minPrice, maxPrice, page, size };
+    // ✅ ดึงค่าที่เกี่ยวข้องจาก arg1
+    const {
+      keyword,
+      filter,
+      type,
+      saleType,
+      effectiveType, // ✅ เพิ่มรองรับชื่อใหม่
+      bedroomCount,
+      minPrice,
+      maxPrice,
+      page = 0,
+      size = 8,
+    } = arg1;
+
+    // ✅ ใช้ effectiveType ถ้ามี (เช่นจาก SearchBarWithFilter)
+    const finalSaleType = saleType ?? effectiveType ?? "";
+
+    // ✅ สร้าง params พร้อม clean undefined ออก
+    const params = {
+      keyword,
+      type: type ?? filter,
+      saleType: finalSaleType, // ✅ key เดิมที่ backend ใช้
+      bedroomCount,
+      minPrice,
+      maxPrice,
+      page,
+      size,
+    };
+
+    Object.keys(params).forEach((key) => {
+      const value = params[key];
+      const isEmptyString = typeof value === "string" && value.trim() === "";
+      const isZeroBedroom = key === "bedroomCount" && value === 0;
+      if (value === undefined || value === null || isEmptyString || isZeroBedroom) {
+        delete params[key];
+      }
+    });
+
     return await api.get(`${API_URL}/filterAnnounceWithAgent`, { params });
   }
+
+  // ✅ fallback mode: เรียกแบบเดิม (arg1,arg2,arg3,arg4)
   const keyword = arg1;
   const filter = arg2;
   const page = arg3 ?? 0;
   const size = arg4 ?? 8;
-  return await api.get(`${API_URL}/filterAnnounceWithAgent`, { params: { keyword, type: filter, page, size } });
+
+  return await api.get(`${API_URL}/filterAnnounceWithAgent`, {
+    params: { keyword, type: filter, page, size },
+  });
 };
 
 
@@ -94,3 +135,5 @@ const AnnounceService = {
 };
 
 export default AnnounceService;
+
+

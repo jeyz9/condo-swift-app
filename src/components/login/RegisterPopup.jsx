@@ -273,11 +273,11 @@ export default function RegisterPopup({ isOpen, onClose }) {
                     />
                     <span className="text-sm text-gray-700 break-words">
                       ยอมรับเงื่อนไข{" "}
-                      <a href="#" className="text-[#8C6239] hover:underline">
+                      <a href="/terms-of-service" className="text-[#8C6239] hover:underline">
                         ข้อตกลงการใช้งาน
                       </a>{" "}
                       และ{" "}
-                      <a href="#" className="text-[#8C6239] hover:underline">
+                      <a href="/privacy-policy" className="text-[#8C6239] hover:underline">
                         ความเป็นส่วนตัว
                       </a>
                     </span>

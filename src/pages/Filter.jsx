@@ -19,6 +19,10 @@ export const Filter = () => {
   const bedroomCount = queryParams.get("bedroomCount");
   const minPrice = queryParams.get("minPrice");
   const maxPrice = queryParams.get("maxPrice");
+  const saleType =
+    queryParams.get("saleType") ||
+    queryParams.get("effectiveType") || // รองรับชื่อใหม่จาก SearchBar
+    "";
 
   const [announces, setAnnounces] = useState([]);
   const [total, setTotal] = useState(0);
@@ -29,27 +33,37 @@ export const Filter = () => {
   const itemsPerPage = 10;
   const pageCount = Math.ceil(total / itemsPerPage);
 
-  // ✅ Fetch data
- useEffect(() => {
+  // ✅ ดึงข้อมูลทุกครั้งที่ query string เปลี่ยน
+useEffect(() => {
+  let ignore = false; // ✅ กันยิงซ้ำตอน navigate
   const fetchData = async () => {
+    if (ignore) return;
     setLoading(true);
     try {
+      const q = new URLSearchParams(location.search);
+      const keyword = q.get("keyword") || "";
+      const type = q.get("type") || q.get("filter") || "";
+      const saleType = q.get("saleType") || q.get("effectiveType") || "";
+      const bedroomCount = q.get("bedroomCount");
+      const minPrice = q.get("minPrice");
+      const maxPrice = q.get("maxPrice");
+      const page = Number(q.get("page") || 0);
+      const size = Number(q.get("size") || 10);
       const res = await AnnounceService.getFilterAnnounceWithAgent({
         keyword,
         type,
+        saleType,
         bedroomCount: bedroomCount ? Number(bedroomCount) : undefined,
         minPrice: minPrice ? Number(minPrice) : undefined,
         maxPrice: maxPrice ? Number(maxPrice) : undefined,
         page,
-        size: itemsPerPage,
+        size,
       });
 
       if (res.status === 200) {
         const data = res.data?.announceDetailsWithAgents || [];
-        const totalCount = res.data?.total || data.length;
-
         setAnnounces(data);
-        setTotal(totalCount);
+        setTotal(res.data?.total || data.length);
       }
     } catch (error) {
       Swal.fire({
@@ -64,31 +78,30 @@ export const Filter = () => {
   };
 
   fetchData();
-}, [keyword, type, bedroomCount, minPrice, maxPrice, page]);
+
+  return () => {
+    ignore = true;
+  };
+}, [location.search]);
 
 
-  // ✅ Sync page when URL changes
+  // ✅ Sync page state ทุกครั้งที่ URL เปลี่ยน
   useEffect(() => {
-    const qPage = Number(new URLSearchParams(location.search).get("page") || 0) || 0;
+    const qPage = Number(new URLSearchParams(location.search).get("page") || 0);
     if (qPage !== page) setPage(qPage);
   }, [location.search]);
 
   // ✅ Pagination
   const handlePageClick = (newPage) => {
-    const params = new URLSearchParams({
-      keyword,
-      type,
-      page: String(newPage),
-      ...(bedroomCount ? { bedroomCount } : {}),
-      ...(minPrice ? { minPrice } : {}),
-      ...(maxPrice ? { maxPrice } : {}),
-    });
-    navigate(`/filter?${params.toString()}`);
-    setPage(newPage);
+    const q = new URLSearchParams(location.search);
+    q.set("page", newPage);
+    q.set("size", itemsPerPage);
+    navigate(`/filter?${q.toString()}`);
+    setPage(newPage); // อัปเดตทันทีเพื่อให้สีเปลี่ยน
     listTopRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // ✅ Animation variants
+  // ✅ Animation
   const fadeUp = {
     initial: { opacity: 0, y: 15 },
     animate: { opacity: 1, y: 0 },
@@ -114,19 +127,42 @@ export const Filter = () => {
         </ul>
       </motion.div>
 
-      {/* Search */}
+      {/* Search Bar */}
       <motion.div {...fadeUp}>
         <SearchBarNonFilter
           defaultKeyword={keyword}
           defaultFilter={type}
-          onSearch={({ keyword: kw, type: ft, page: pg }) => {
-            const params = new URLSearchParams({
-              keyword: kw || "",
-              type: ft || "",
-              page: String(pg || 0),
-            });
-            navigate(`/filter?${params.toString()}`);
-            setPage(pg || 0);
+          defaultSaleType={saleType}
+          onSearch={({ keyword: kw, type: ft, saleType: st }) => {
+            const params = new URLSearchParams(location.search);
+            const nextKeyword = kw?.trim() || "";
+            const nextType = ft || "";
+            const nextSaleType = st || saleType || "";
+
+            if (nextKeyword) {
+              params.set("keyword", nextKeyword);
+            } else {
+              params.delete("keyword");
+            }
+
+            if (nextType) {
+              params.set("type", nextType);
+              params.delete("filter");
+            } else {
+              params.delete("type");
+            }
+
+            if (nextSaleType) {
+              params.set("saleType", nextSaleType);
+            } else {
+              params.delete("saleType");
+            }
+
+            params.set("page", "0");
+            params.set("size", String(itemsPerPage));
+
+            navigate(`/filter?${params.toString()}`, { replace: true });
+            setPage(0);
           }}
         />
         <div className="divider mt-5"></div>
@@ -134,10 +170,9 @@ export const Filter = () => {
 
       {/* Layout */}
       <div className="flex flex-col md:flex-row gap-8">
-        {/* ✅ Left side */}
+        {/* ✅ Left Side */}
         <div className="w-full md:w-[70%]">
           <div ref={listTopRef} />
-
           <AnimatePresence mode="wait">
             {loading ? (
               <motion.p
@@ -174,7 +209,7 @@ export const Filter = () => {
           </AnimatePresence>
         </div>
 
-        {/* ✅ Right side */}
+        {/* ✅ Right Side */}
         <motion.div
           {...fadeUp}
           className="w-full md:w-[30%] flex flex-col items-start"
@@ -186,11 +221,8 @@ export const Filter = () => {
         </motion.div>
       </div>
 
-      {/* Pagination */}
-      <motion.div
-        {...fadeUp}
-        className="flex justify-center items-center mt-10"
-      >
+      {/* ✅ Pagination */}
+      <motion.div {...fadeUp} className="flex justify-center items-center mt-10">
         <Pagination
           currentPage={page}
           pageCount={pageCount}
@@ -200,3 +232,6 @@ export const Filter = () => {
     </div>
   );
 };
+
+
+

@@ -1,10 +1,12 @@
 import api from "./api";
 import TokenService from "./TokenService";
 
+// ✅ Base URL จาก .env (เช่น https://condo-swift.onrender.com)
 const DEFAULT_BASE_URL = "https://condo-swift.onrender.com";
 const baseUrl =
   (import.meta.env.VITE_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, "");
 
+// ✅ ฟังก์ชันรวม URL base กับ path ย่อย
 const resolveEndpoint = (rawValue, fallbackPath) => {
   if (rawValue) {
     const trimmed = rawValue.replace(/\/$/, "");
@@ -18,10 +20,13 @@ const resolveEndpoint = (rawValue, fallbackPath) => {
   return `${baseUrl}${fallbackPath}`;
 };
 
+// ✅ AUTH_BASE = https://condo-swift.onrender.com/api/v1/auth
 const AUTH_BASE = resolveEndpoint(import.meta.env.VITE_AUTH_API, "/api/v1/auth");
-
 const buildUrl = (path) => `${AUTH_BASE}${path}`;
 
+/* -------------------------------
+ 🧾 Register / Login / Logout
+--------------------------------*/
 const register = async (usernameOrPayload, name, email, password) => {
   const payload =
     typeof usernameOrPayload === "object" && usernameOrPayload !== null
@@ -31,35 +36,62 @@ const register = async (usernameOrPayload, name, email, password) => {
 };
 
 const login = async (email, password) => {
-  console.log("🧾 Payload before login:", { email, password });
-  console.log("🧾 Payload before login:", { email, password });
+  console.log("🧾 Login Payload:", { email, password });
   const response = await api.post(
     buildUrl("/login"),
     { email, password },
     { withCredentials: false }
   );
-  console.log("🟢 Login response:", response.data);
 
-  // ✅ ตรวจว่า backend ส่ง accessToken กลับมาจริงไหม
   const { accessToken, tokenType, userId } = response.data;
+  if (!accessToken) throw new Error("ไม่พบ accessToken จาก backend");
 
-  if (!accessToken) {
-    throw new Error("ไม่พบ accessToken จาก backend");
-  }
-
-  // ✅ เก็บ token ใน cookie ผ่าน TokenService
-  TokenService.setUser({
-    accessToken,
-    tokenType,
-    userId,
-  });
-
+  TokenService.setUser({ accessToken, tokenType, userId });
   return response;
 };
 
-const logout = () => {
-  TokenService.removeUser();
+const logout = () => TokenService.removeUser();
+
+/* -------------------------------
+ ✉️ Email Verify & OTP
+--------------------------------*/
+
+// ✅ ส่งอีเมลยืนยัน
+const sendVerify = async (userId) => {
+  console.log("📤 Sending Email Verify:", userId);
+  return await api.post(`${AUTH_BASE}/send-verify?userId=${userId}`);
 };
 
-const AuthService = { register, login, logout };
+// ✅ ส่ง OTP ไปยังเบอร์โทร
+const sendOtp = async (userId) => {
+  console.log("📤 Sending OTP for user:", userId);
+  return await api.post(`${AUTH_BASE}/send-otp?userId=${userId}`);
+};
+
+// ✅ ตรวจสอบรหัส OTP (อ่าน token/refno จาก localStorage ตอนเรียกจริง)
+const verifyOtp = async (otpCode) => {
+  const token = localStorage.getItem("otpToken");
+  const refno = localStorage.getItem("otpRefno");
+
+  console.log("🔐 Verifying OTP:", { otpCode, token, refno });
+
+  if (!token) throw new Error("ไม่พบ token กรุณาส่ง OTP ใหม่");
+
+  // 🚫 อย่าแนบ Authorization Header — ใช้ OTP token แทน
+  return await api.post(`${AUTH_BASE}/verify-otp?token=${token}&otpCode=${otpCode}`)
+  ;
+};
+
+/* -------------------------------
+ ✅ Export รวมทั้งหมด
+--------------------------------*/
+const AuthService = {
+  register,
+  login,
+  logout,
+  sendVerify,
+  sendOtp,
+  verifyOtp,
+};
+
 export default AuthService;

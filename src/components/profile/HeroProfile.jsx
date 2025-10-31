@@ -1,20 +1,24 @@
 import React from "react";
 import { PiShareFat } from "react-icons/pi";
+import { GoVerified } from "react-icons/go";
 import Swal from "sweetalert2";
 import { useAuthContext } from "../../context/AuthContext";
-import { GoVerified } from "react-icons/go";
-import VerifyService from "../../services/VerifyService";
+import AuthService from "../../services/AuthService";
+
 const HeroProfile = ({ profile }) => {
-  const { user } = useAuthContext()
-  const userId = user?.userId
+  const { user } = useAuthContext();
+  const userId = user?.userId;
+
   const displayName = profile?.name?.trim() || "ไม่ระบุชื่อ";
   const displayDescription =
     profile?.description?.trim() || "ยังไม่มีคำอธิบายเกี่ยวกับผู้ใช้งาน";
   const avatarSrc =
     profile?.image ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0D8ABC&color=fff`;
-  
-  // ✅ ฟังก์ชันแชร์ลิงก์
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      displayName
+    )}&background=0D8ABC&color=fff`;
+
+  // ✅ แชร์ลิงก์โปรไฟล์
   const handleShare = async () => {
     const shareUrl = `${window.location.origin}/profile/${userId}`;
     try {
@@ -26,7 +30,7 @@ const HeroProfile = ({ profile }) => {
         timer: 1500,
         showConfirmButton: false,
       });
-    } catch (error) {
+    } catch {
       Swal.fire({
         icon: "error",
         title: "ไม่สามารถคัดลอกลิงก์ได้",
@@ -35,13 +39,185 @@ const HeroProfile = ({ profile }) => {
     }
   };
 
-  const handleVerify = () => {
-    VerifyService.startVerify({
-      userId: user?.userId,
+  // ✅ เริ่มต้นยืนยันตัวตน
+  const handleVerify = async () => {
+    const { value: method } = await Swal.fire({
+      title: "เลือกวิธีการยืนยันตัวตน",
+      input: "radio",
+      inputOptions: {
+        email: "อีเมล",
+        phone: "เบอร์โทรศัพท์",
+      },
+      inputValidator: (v) => (!v ? "กรุณาเลือกวิธีการยืนยันก่อน" : undefined),
+      confirmButtonText: "ดำเนินการต่อ",
+      confirmButtonColor: "#8C6239",
+      showCancelButton: true,
+      cancelButtonText: "ยกเลิก",
+    });
+
+    if (!method) return;
+
+    try {
+      Swal.fire({
+        title:
+          method === "email"
+            ? "กำลังส่งอีเมลยืนยัน..."
+            : "กำลังส่งรหัส OTP...",
+        didOpen: () => Swal.showLoading(),
+        allowOutsideClick: false,
+      });
+
+      let response;
+      if (method === "email") {
+        response = await AuthService.sendVerify(userId);
+      } else {
+        response = await AuthService.sendOtp(userId);
+      }
+
+      Swal.close();
+
+      if (response.status === 200 || response.status === 201) {
+        if (method === "email") {
+          Swal.fire({
+            icon: "success",
+            title: "ส่งอีเมลยืนยันสำเร็จ!",
+            text: "กรุณาตรวจสอบกล่องอีเมลของคุณ",
+            confirmButtonColor: "#8C6239",
+          });
+        } else {
+          const { token, refno } = response.data;
+          localStorage.setItem("otpToken", token);
+          localStorage.setItem("otpRefno", refno);
+          openOtpPopup();
+        }
+      }
+    } catch (error) {
+      try {
+        Swal.close();
+      } catch {}
+
+      console.error("❌ Verify Error:", error);
+
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "ไม่สามารถส่งรหัสยืนยันได้ กรุณาลองใหม่อีกครั้ง";
+
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: message,
+        confirmButtonColor: "#8C6239",
+      });
+    }
+  };
+
+  // ✅ popup กรอก OTP
+  const openOtpPopup = () => {
+    Swal.fire({
+      title: "ยืนยัน OTP",
+      html: `
+        <div class="flex justify-center gap-2 mt-3">
+          ${[...Array(6)]
+            .map(
+              (_, i) => `
+                <input id="otp-${i}" maxlength="1"
+                  class="w-10 h-12 text-center border border-gray-300 rounded-lg text-lg font-medium
+                  focus:ring-2 focus:ring-[#8C6239] outline-none"
+                />
+              `
+            )
+            .join("")}
+        </div>
+        <p class="text-sm text-gray-500 mt-3">
+          OTP ไม่ส่ง? 
+          <span id="resend-otp" class="text-[#8C6239] cursor-pointer font-semibold">ส่งอีกครั้ง</span>
+        </p>
+      `,
+      showCancelButton: true,
+      confirmButtonText: "ยืนยัน",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#8C6239",
+      didOpen: () => {
+        const inputs = Array.from({ length: 6 }, (_, i) =>
+          document.getElementById(`otp-${i}`)
+        );
+
+        // ✅ auto focus ข้ามช่อง
+        inputs.forEach((input, idx) => {
+          input.addEventListener("input", (e) => {
+            if (e.target.value && idx < inputs.length - 1)
+              inputs[idx + 1].focus();
+          });
+        });
+
+        // ✅ ปุ่มส่ง OTP อีกครั้ง
+        document
+          .getElementById("resend-otp")
+          .addEventListener("click", async () => {
+            try {
+              Swal.showLoading();
+              const resend = await AuthService.sendOtp(userId);
+              if (resend.status === 200 || resend.status === 201) {
+                const { token, refno } = resend.data;
+                localStorage.setItem("otpToken", token);
+                localStorage.setItem("otpRefno", refno);
+                Swal.fire({
+                  icon: "success",
+                  title: "ส่ง OTP อีกครั้งสำเร็จ!",
+                  timer: 1500,
+                  showConfirmButton: false,
+                });
+                openOtpPopup();
+              }
+            } catch (err) {
+              Swal.fire({
+                icon: "error",
+                title: "ไม่สามารถส่ง OTP ได้",
+                text: err.response?.data?.message || "โปรดลองใหม่อีกครั้ง",
+                confirmButtonColor: "#8C6239",
+              });
+            }
+          });
+      },
+      preConfirm: () => {
+        const otp = Array.from({ length: 6 }, (_, i) =>
+          document.getElementById(`otp-${i}`).value.trim()
+        ).join("");
+        if (otp.length !== 6) {
+          Swal.showValidationMessage("กรุณากรอก OTP ให้ครบ 6 หลัก");
+          return false;
+        }
+        return otp;
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const otpCode = result.value;
+        const token = localStorage.getItem("otpToken");
+        const refno = localStorage.getItem("otpRefno");
+
+        try {
+          const verify = await AuthService.verifyOtp(otpCode);
+          if (verify.status === 200 ) {
+            Swal.fire({
+              icon: "success",
+              title: "ยืนยัน OTP สำเร็จ!",
+              confirmButtonColor: "#8C6239",
+            });
+            localStorage.removeItem("otpToken");
+            localStorage.removeItem("otpRefno");
+          }
+        } catch (err) {
+          Swal.fire({
+            icon: "error",
+            title: "OTP ไม่ถูกต้อง",
+            text: err.response?.data?.message || "โปรดลองอีกครั้ง",
+            confirmButtonColor: "#8C6239",
+          });
+        }
+      }
     });
   };
-  
-  console.log(user)
 
   return (
     <div className="w-full">
@@ -57,23 +233,30 @@ const HeroProfile = ({ profile }) => {
           />
 
           <div className="space-y-6">
-            <h2 className="text-[52px] font-medium text-gray-800">
-              {displayName} <button  onClick={handleVerify} className="btn btn-dash rounded-full"><GoVerified className="w-[20px] h-[20px]" />ยืนยันตัวตน</button>
+            <h2 className="text-[52px] font-medium text-gray-800 flex items-center gap-3 flex-wrap">
+              {displayName}
+              <button
+                onClick={handleVerify}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#8C6239] text-white text-base 
+                font-normal hover:bg-[#704e2e] transition h-auto leading-none"
+              >
+                <GoVerified className="w-[18px] h-[18px]" />
+                ยืนยันตัวตน
+              </button>
             </h2>
+
             <p className="max-w-[360px] text-[14px] text-gray-600">
               {displayDescription}
             </p>
           </div>
         </div>
 
-        {/* ปุ่มด้านขวา */}
+        {/* ปุ่มแชร์ + ติดต่อ */}
         <div className="flex justify-start sm:ml-auto sm:justify-start sm:items-center gap-4">
-          {/* 🟢 ปุ่มแชร์ */}
           <PiShareFat
-  onClick={handleShare}
-  className="w-[32px] h-[32px] text-[#8C6239] hover:text-[#704e2e] hover:scale-110 transition cursor-pointer"
-/>
-
+            onClick={handleShare}
+            className="w-[32px] h-[32px] text-[#8C6239] hover:text-[#704e2e] hover:scale-110 transition cursor-pointer"
+          />
           <button className="btn bg-[#8C6239] px-6 py-3 text-white hover:bg-[#7a5431]">
             ติดต่อ
           </button>
