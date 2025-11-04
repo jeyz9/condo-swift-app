@@ -1,10 +1,11 @@
 import React from "react";
-import CondoHero from "../assets/Condo-hero.jpg";
+import CondoHero from "../assets/Condo-Hero.jpg";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
     <div
-      className="hero min-h-[440px] w-full bg-base-200"
+      className="hero min-h-[440px] w-full bg-base-200 -mt-8"
       style={{ backgroundImage: `url(${CondoHero})` }}
     >
       <div
@@ -18,9 +19,11 @@ const Hero = () => {
           <p className="relative top-35 mb-50 text-base sm:text-lg">
             แพลตฟอร์มซื้อ-ขายคอนโดที่เชื่อถือได้ เรียบง่าย และปลอดภัย
           </p>
+          <Link to="/add-announce">
           <button className="btn bg-[#8C6239] text-white font-light rounded-md w-32 border-none shadow-none mt-6">
             ลงประกาศใหม่
           </button>
+          </Link>
         </div>
       </div>
     </div>
