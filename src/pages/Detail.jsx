@@ -30,7 +30,7 @@ export const Detail = () => {
   const { user, login } = useAuthContext();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-
+ 
   useEffect(() => {
     const fetchData = async () => {
       try {

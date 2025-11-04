@@ -3,15 +3,18 @@ import { useAuthContext } from "../context/AuthContext";
 import Swal from "sweetalert2";
 import UserService from "../services/UserService";
 
+
 const UserProfile = () => {
   const [profile, setProfile] = useState({});
   const { logout } = useAuthContext();
   const { user } = useAuthContext();
   const displayName = profile?.name?.trim() || "ไม่ระบุชื่อ";
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await UserService.getUserProfileOverview(user?.userId);
+    
         console.log("response:", response);
 
         setProfile(response?.status === 200 ? response?.data : {});

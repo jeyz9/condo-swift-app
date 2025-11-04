@@ -12,8 +12,8 @@ const Navbar = () => {
     {
       title: "บริการ",
       submenu: [
-        { title: "บริการ 1", path: "/service1" },
-        { title: "บริการ 2", path: "/service2" },
+        { title: "เช่า", path: "/filter?saleType=เช่า&page=0&size=10" },
+        { title: "ขาย", path: "/filter?saleType=ขาย&page=0&size=10" },
       ],
     },
   ];

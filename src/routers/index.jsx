@@ -11,7 +11,7 @@ import { Profile } from "../pages/Profile.jsx";
 import Dashboard from "../pages/Dashboard.jsx";
 import HistoryTable from "../pages/HistoryTable.jsx";
 import Publish from "../pages/Publish.jsx";
-import About from "../pages/About.jsx";
+import {About} from "../pages/About.jsx";
 import TermsOfService from "../pages/Terms.jsx";
 import PrivacyPolicy from "../pages/Privacy.jsx";
 

@@ -1,110 +1,324 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
-import { FaSlidersH, FaFilter, FaBuilding, FaMoneyBillWave, FaBed, FaGem } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
+import Swal from "sweetalert2";
+import {
+  FaFilter,
+  FaBuilding,
+  FaMoneyBillWave,
+  FaBed,
+  FaGem,
+} from "react-icons/fa";
 
-const SearchBarNonFilter = ({
+export default function SearchBarNonFilter({
   defaultKeyword = "",
-  defaultFilter = "ทั้งหมด",
-  defaultSaleType = "", // ✅ เพิ่ม prop นี้
+  defaultFilter = "",
+  defaultSaleType = "",
+  defaultSaleAbout = "",
   onSearch,
-}) => {
+}) {
   const [searchText, setSearchText] = useState(defaultKeyword);
-  const [saleType, setSaleType] = useState(defaultSaleType || ""); // ✅ เก็บค่า saleType ภายใน component
+  const [saleType, setSaleType] = useState(defaultSaleType || defaultSaleAbout || "");
+  const [filters, setFilters] = useState({
+    type: defaultFilter || "",
+    bedroomCount: "",
+    minPrice: "",
+    maxPrice: "",
+    isPremium: false,
+  });
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    setSearchText(defaultKeyword || "");
+    setSearchText(defaultKeyword);
   }, [defaultKeyword]);
 
-  // ✅ เมื่อค่า defaultSaleType เปลี่ยน (เช่น จากหน้า Home)
   useEffect(() => {
-    setSaleType(defaultSaleType || "");
-  }, [defaultSaleType]);
+    setSaleType(defaultSaleType || defaultSaleAbout || "");
+  }, [defaultSaleType, defaultSaleAbout]);
 
-  const handleSubmit = (e) => {
-    e?.preventDefault?.();
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      type: defaultFilter || "",
+    }));
+  }, [defaultFilter]);
 
-    // ✅ รวมค่าทุกฟิลด์ (รวม saleType)
-    const params = {
-      keyword: searchText || "",
-      filter: defaultFilter || "ทั้งหมด",
-      saleType: saleType || "", // ✅ เพิ่มตรงนี้
-      page: 0,
-      size: 10,
+  // ✅ รวมและไปหน้า filter
+  const goFilter = (overrides = {}) => {
+    const merged = {
+      keyword: searchText.trim(),
+      saleType,
+      ...filters,
+      ...overrides,
     };
 
-    if (onSearch) {
-      onSearch({ ...params, type: params.filter });
-    } else {
-      // ✅ สร้าง query จาก params ที่มีค่าเท่านั้น
-      const queryObj = {};
-      Object.entries(params).forEach(([k, v]) => {
-        if (v !== "" && v !== null && v !== undefined) queryObj[k] = v;
-      });
-      const query = new URLSearchParams(queryObj).toString();
-      navigate(`/filter?${query}`, { replace: true });
+    const cleaned = Object.fromEntries(
+      Object.entries(merged).filter(([_, value]) => {
+        if (value === null || value === undefined) return false;
+        if (typeof value === "string" && value.trim() === "") return false;
+        return true;
+      })
+    );
 
+    if (onSearch) {
+      onSearch(cleaned);
+      return;
+    }
+
+    const query = Object.entries(cleaned)
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+      .join("&");
+
+    navigate(`/filter?${query}`);
+  };
+
+  const handleSearch = (e) => {
+    e?.preventDefault?.();
+    goFilter({
+      page: 0,
+      size: 10,
+    });
+  };
+
+  /* ✅ Popup ตัวกรองทั้งหมด */
+  const handleAllFilter = async () => {
+    await Swal.fire({
+      title: "ตัวกรองทั้งหมด",
+      width: 520,
+      background: "#fff",
+      confirmButtonColor: "#8C6239",
+      cancelButtonColor: "#aaa",
+      confirmButtonText: "ใช้ตัวกรอง",
+      cancelButtonText: "ยกเลิก",
+      showCancelButton: true,
+      customClass: {
+        popup:
+          "rounded-3xl p-0 overflow-hidden shadow-2xl border border-[#8C6239]/30",
+      },
+      html: `
+        <div class="p-6 space-y-6 font-sans text-gray-700 text-left">
+          <div>
+            <label class="block font-semibold text-[#8C6239] mb-1 text-sm">ประเภทอสังหาฯ</label>
+            <select id="filter-type" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
+              <option value="">ทั้งหมด</option>
+              <option value="คอนโด">คอนโด</option>
+              <option value="บ้านหรู">บ้านหรู</option>
+              <option value="วิลล่า">วิลล่า</option>
+              <option value="ที่ดิน">ที่ดิน</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-[#8C6239] mb-2 text-sm">จำนวนห้องนอน</label>
+            <input id="bedroomCount" type="number" min="0" placeholder="เช่น 2" value="${
+              filters.bedroomCount || ""
+            }" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm"/>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-[#8C6239] mb-2 text-sm">ช่วงราคา (บาท)</label>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-gray-600">ต่ำสุด</label>
+                <input id="minPrice" type="number" min="0" step="1000" value="${
+                  filters.minPrice || ""
+                }" class="w-full border border-gray-300 rounded-md p-1.5 text-sm" />
+              </div>
+              <div>
+                <label class="text-xs text-gray-600">สูงสุด</label>
+                <input id="maxPrice" type="number" min="0" step="1000" value="${
+                  filters.maxPrice || ""
+                }" class="w-full border border-gray-300 rounded-md p-1.5 text-sm" />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 mt-2">
+            <input id="premiumCheck" type="checkbox" ${
+              filters.isPremium ? "checked" : ""
+            } class="accent-[#8C6239]" />
+            <label for="premiumCheck" class="text-sm text-[#8C6239] font-semibold">เฉพาะ Premium</label>
+          </div>
+        </div>
+      `,
+      preConfirm: () => {
+        const type = document.getElementById("filter-type").value;
+        const bedroom = document.getElementById("bedroomCount").value;
+        const min = document.getElementById("minPrice").value;
+        const max = document.getElementById("maxPrice").value;
+        const premium = document.getElementById("premiumCheck").checked;
+
+        return {
+          type,
+          bedroomCount: bedroom,
+          minPrice: min,
+          maxPrice: max,
+          isPremium: premium,
+        };
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setFilters(result.value);
+        goFilter(result.value);
+      }
+    });
+  };
+
+  /* ✅ ฟิลเตอร์แยก */
+  const handlePropertyType = async () => {
+    const { value } = await Swal.fire({
+      title: "เลือกประเภทอสังหาฯ",
+      input: "select",
+      inputOptions: {
+        "คอนโด": "คอนโด",
+        "บ้านหรู": "บ้านหรู",
+        "วิลล่า": "วิลล่า",
+        "ที่ดิน": "ที่ดิน",
+      },
+      inputPlaceholder: "ทั้งหมด",
+      confirmButtonText: "ตกลง",
+      showCancelButton: true,
+      confirmButtonColor: "#8C6239",
+      cancelButtonColor: "#aaa",
+    });
+    if (value) {
+      setFilters((prev) => ({ ...prev, type: value }));
+      goFilter({ type: value });
     }
   };
 
-  const filters = [
-    { icon: <FaFilter />, label: "ตัวกรอง" },
-    { icon: <FaBuilding />, label: "ประเภทอสังหาฯ" },
-    { icon: <FaMoneyBillWave />, label: "ราคา" },
-    { icon: <FaBed />, label: "ห้องนอน" },
-    { icon: <FaGem className="text-yellow-500" />, label: "พิเศษสำหรับคุณ" },
+  const handlePrice = async () => {
+    const { value } = await Swal.fire({
+      title: "ช่วงราคา (บาท)",
+      html: `
+        <div class="flex flex-col gap-3">
+          <input id="minPrice" type="number" placeholder="ต่ำสุด" class="swal2-input" style="width:100%">
+          <input id="maxPrice" type="number" placeholder="สูงสุด" class="swal2-input" style="width:100%">
+        </div>
+      `,
+      confirmButtonText: "ตกลง",
+      showCancelButton: true,
+      confirmButtonColor: "#8C6239",
+      cancelButtonColor: "#aaa",
+      preConfirm: () => {
+        const min = document.getElementById("minPrice").value;
+        const max = document.getElementById("maxPrice").value;
+        return { minPrice: min, maxPrice: max };
+      },
+    });
+
+    if (value) {
+      setFilters((prev) => ({
+        ...prev,
+        minPrice: value.minPrice,
+        maxPrice: value.maxPrice,
+      }));
+      goFilter(value);
+    }
+  };
+
+  const handleBedroom = async () => {
+    const { value } = await Swal.fire({
+      title: "จำนวนห้องนอน",
+      input: "number",
+      inputPlaceholder: "เช่น 2",
+      confirmButtonText: "ตกลง",
+      showCancelButton: true,
+      confirmButtonColor: "#8C6239",
+      cancelButtonColor: "#aaa",
+    });
+    if (value) {
+      setFilters((prev) => ({ ...prev, bedroomCount: value }));
+      goFilter({ bedroomCount: value });
+    }
+  };
+
+  const handlePremiumClick = () => {
+    const newVal = !filters.isPremium;
+    setFilters((prev) => ({ ...prev, isPremium: newVal }));
+    if (newVal) goFilter({ badge: "Premium" });
+    else navigate("/filter");
+  };
+
+  const filterButtons = [
+    { icon: <FaFilter />, label: "ตัวกรองทั้งหมด", action: handleAllFilter },
+    {
+      icon: <FaBuilding />,
+      label: filters.type || "ประเภทอสังหาฯ",
+      action: handlePropertyType,
+    },
+    {
+      icon: <FaMoneyBillWave />,
+      label:
+        filters.minPrice || filters.maxPrice
+          ? `฿${filters.minPrice || 0} - ฿${filters.maxPrice || "∞"}`
+          : "ราคา",
+      action: handlePrice,
+    },
+    {
+      icon: <FaBed />,
+      label:
+        filters.bedroomCount > 0
+          ? `${filters.bedroomCount} ห้องนอน`
+          : "ห้องนอน",
+      action: handleBedroom,
+    },
+    {
+      icon: <FaGem className="text-yellow-500" />,
+      label: filters.isPremium ? "เฉพาะ Premium ✓" : "พิเศษสำหรับคุณ",
+      action: handlePremiumClick,
+    },
   ];
 
   return (
-    <>
+    <div className="w-full">
       {/* 🔍 ช่องค้นหา */}
       <form
-        onSubmit={handleSubmit}
-        className="flex items-center h-[60px] w-full max-w-full bg-base-100 rounded-md shadow-lg"
+        onSubmit={handleSearch}
+        className="flex items-center h-[60px] w-full max-w-full bg-white rounded-full shadow-md border border-gray-200 overflow-hidden"
       >
         <input
           type="text"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          placeholder="ค้นหา..."
-          className="input input-ghost w-full focus:outline-none rounded-l-full"
+          placeholder="ค้นหาคอนโด บ้าน หรือพื้นที่..."
+          className="input input-ghost flex-1 h-full px-4 focus:outline-none text-gray-700"
         />
-
-        {/* ✅ Dropdown เลือกประเภทการขาย/เช่า */}
         <select
           value={saleType}
           onChange={(e) => setSaleType(e.target.value)}
-          className="mx-2 select select-bordered rounded-lg text-sm h-[44px]"
+          className="mx-2 select select-bordered rounded-lg text-sm h-[44px] border-gray-300"
         >
           <option value="">ทั้งหมด</option>
           <option value="ขาย">ขาย</option>
           <option value="เช่า">เช่า</option>
         </select>
-
         <button
           type="submit"
-          className="mr-2 btn bg-[#8C6239] border-none btn-circle text-white font-light w-15 h-12"
+          className="mr-3 btn bg-[#8C6239] border-none rounded-full text-white font-medium px-6 h-[44px] hover:bg-[#704c2c]"
         >
           ค้นหา
         </button>
       </form>
 
-      {/* 🔘 ปุ่มฟิลเตอร์อื่น ๆ */}
-      <div className="flex flex-wrap justify-start gap-4 mt-10">
-        {filters.map((item, index) => (
+      {/* 🔘 ปุ่มฟิลเตอร์เพิ่มเติม */}
+      <div className="flex flex-wrap justify-start gap-4 mt-8">
+        {filterButtons.map((item, i) => (
           <button
-            key={index}
-            className="btn hover:bg-gray-200 flex items-center gap-2 border border-gray-400 rounded-full 
-                       px-5 py-2 text-sm sm:text-base text-gray-700 font-medium 
-                       transition duration-200 active:scale-95"
+            key={i}
+            onClick={item.action}
+            className={`btn flex items-center gap-2 border rounded-full px-5 py-2 text-sm sm:text-base font-medium shadow-sm transition 
+                        ${
+                          item.label.includes("Premium")
+                            ? "bg-[#fef7e6] border-[#d4a100] text-[#8C6239]"
+                            : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
+                        }`}
           >
             <span className="text-lg">{item.icon}</span>
             <span className="whitespace-nowrap">{item.label}</span>
           </button>
         ))}
       </div>
-    </>
+    </div>
   );
-};
-
-export default SearchBarNonFilter;
+}

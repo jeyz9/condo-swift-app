@@ -204,18 +204,17 @@ export default function AddressMapPreview({ query, onGeocode }) {
           gestureHandling: "auto",
         }}
       >
-        {hasMarker && (
-          <Marker position={center} draggable onDragEnd={handleMapInteraction} />
-        )}
-      </GoogleMap>
-
-      <button
+              <button
         onClick={handleUseMyLocation}
         className="mt-3 btn absolute right-3 bg-white shadow-md rounded-xl flex items-center justify-center hover:bg-gray-100"
         title="Use my current position"
       >
         Use my location
       </button>
+        {hasMarker && (
+          <Marker position={center} draggable onDragEnd={handleMapInteraction} />
+        )}
+      </GoogleMap>
 
       <div className="text-sm text-gray-700 mt-3">
         {placeName
@@ -227,7 +226,10 @@ export default function AddressMapPreview({ query, onGeocode }) {
       )}
       <div className="text-xs text-gray-500 text-right">
         Coordinates: {center.lat.toFixed(5)}, {center.lng.toFixed(5)}
+        
       </div>
+      
+      
     </div>
   );
 }

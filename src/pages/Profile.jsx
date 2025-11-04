@@ -21,9 +21,9 @@ export const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [activeTab, setActiveTab] = useState("เช่า");
   const [loading, setLoading] = useState(true);
-
   const userId =  user?.userId;
   console.log(userId)
+
 
   // ✅ ดึงข้อมูลโปรไฟล์จาก backend
   const fetchProfile = async (type = "เช่า") => {

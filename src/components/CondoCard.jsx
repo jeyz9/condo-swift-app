@@ -34,7 +34,7 @@ export const CondoCard = ({ announce }) => {
 
   return (
     <Link to={`/detail/${announce?.id ?? announce?.announceId ?? ""}`}>
-      <div className="card relative h-full min-h-[420px] overflow-hidden rounded-[12px] bg-base-100 shadow-sm transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:scale-[1.02] sm:min-h-[480px]">
+      <div className="card relative h-full min-h-[420px] overflow-hidden rounded-[12px] bg-base-100 shadow-sm transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:scale-[1.02] sm:min-h-[500px]">
         {badges.length > 0 && (
           <div className="absolute right-0 top-0 flex flex-wrap justify-end gap-2 p-3 z-10">
             {badges.map((badge) => {

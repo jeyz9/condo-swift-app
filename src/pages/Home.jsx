@@ -18,7 +18,9 @@ export const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+          
         const response = await AnnounceService.getAnnounceWithCategory();
+        console.log(response)
         const responseFilter = await AnnounceService.getFilterAnnounceWithAgent(
           {
             keyword: "", // ❌ ไม่ใส่คำค้น เพื่อให้ดึงทั้งหมด
@@ -29,6 +31,7 @@ export const Home = () => {
         );
         setAnnounce(responseFilter.status === 200 ? responseFilter.data : [])
         setAnnounce(response.status === 200 ? response.data : []);
+        console.log(response.data)
       } catch (error) {
         Swal.fire({
           icon: "error",
@@ -44,6 +47,7 @@ export const Home = () => {
 
     fetchData();
   }, []);
+
 
 
   const { recommendAnnounces, nearbyPlaces, luxuryHouses, villaProvince } =
