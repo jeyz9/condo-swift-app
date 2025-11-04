@@ -14,6 +14,7 @@ import Publish from "../pages/Publish.jsx";
 import {About} from "../pages/About.jsx";
 import TermsOfService from "../pages/Terms.jsx";
 import PrivacyPolicy from "../pages/Privacy.jsx";
+import NotificationDetail from "../pages/NotificationDetail.jsx";
 
 const router = createBrowserRouter([
   // 🏠 Layout หลักสำหรับผู้ใช้ทั่วไป
@@ -29,6 +30,7 @@ const router = createBrowserRouter([
       { path: "/about-us", element: <About /> },
       { path: "/terms-of-service", element: <TermsOfService /> },
       { path: "/privacy-policy", element: <PrivacyPolicy /> },
+      { path: "/notifications/:notifyId", element:<NotificationDetail />} 
     ],
   },
 

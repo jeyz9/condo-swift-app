@@ -10,6 +10,10 @@ const HeroProfile = ({ profile }) => {
   const { user } = useAuthContext();
   const userId = user?.userId;
   const [uploading, setUploading] = useState(false);
+  console.log("profile hero: ", profile);
+
+  const emailVerified = profile?.emailVerified;
+  const phoneVerified = profile?.phoneVerified;
 
   const displayName = profile?.name?.trim() || "ไม่ระบุชื่อ";
   const displayDescription =
@@ -28,12 +32,12 @@ const HeroProfile = ({ profile }) => {
     try {
       const res = await UserService.uploadProfilePicture(userId, file);
       if (res.status === 201) {
-       await Swal.fire({
+        await Swal.fire({
           icon: "success",
           title: "อัปโหลดรูปสำเร็จ!",
           timer: 1200,
           showConfirmButton: false,
-        })
+        });
         window.location.reload(); // โหลดหน้าใหม่เพื่อเห็นรูปใหม่
       }
     } catch (err) {
@@ -89,9 +93,7 @@ const HeroProfile = ({ profile }) => {
     try {
       Swal.fire({
         title:
-          method === "email"
-            ? "กำลังส่งอีเมลยืนยัน..."
-            : "กำลังส่งรหัส OTP...",
+          method === "email" ? "กำลังส่งอีเมลยืนยัน..." : "กำลังส่งรหัส OTP...",
         didOpen: () => Swal.showLoading(),
         allowOutsideClick: false,
       });
@@ -126,7 +128,7 @@ const HeroProfile = ({ profile }) => {
         icon: "error",
         title: "เกิดข้อผิดพลาด",
         text:
-          error?.response?.data?.message ||
+          error?.response?.data ||
           error?.message ||
           "ไม่สามารถส่งรหัสยืนยันได้ กรุณาลองใหม่อีกครั้ง",
         confirmButtonColor: "#8C6239",
@@ -239,14 +241,32 @@ const HeroProfile = ({ profile }) => {
         <div className="space-y-15">
           <h2 className="text-[52px] font-medium text-gray-800 flex items-center gap-3 flex-wrap">
             {displayName}
-            <button
-              onClick={handleVerify}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#8C6239] text-white text-base 
+            {emailVerified && phoneVerified ? (
+<div className="relative flex items-center select-none gap-2 px-6 py-2.5 rounded-full text-white font-medium text-base overflow-hidden shadow-lg backdrop-blur-md bg-white/10 border border-white/30 hover:scale-105 transition-transform duration-300">
+  {/* 🌈 Gradient เคลื่อนไหว */}
+  <div className="absolute inset-0 bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 bg-[length:400%_400%] animate-gradient-x opacity-90 mix-blend-overlay" />
+
+  {/* ✨ แสงวิ่งผ่าน */}
+  <div className="absolute inset-0 overflow-hidden rounded-full">
+    <div className="absolute inset-y-0 left-0 w-1/3 bg-white/40 blur-xl animate-shimmer"></div>
+  </div>
+
+  {/* เนื้อหา */}
+  <div className="relative flex items-center gap-2 z-10">
+    <GoVerified className="w-[18px] h-[18px]" />
+    <span className="tracking-wide drop-shadow-sm">ยืนยันตัวตนแล้ว</span>
+  </div>
+</div>
+            ) : (
+              <button
+                onClick={handleVerify}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#8C6239] text-white text-base 
               font-normal hover:bg-[#704e2e] transition h-auto leading-none"
-            >
-              <GoVerified className="w-[18px] h-[18px]" />
-              ยืนยันตัวตน
-            </button>
+              >
+                <GoVerified className="w-[18px] h-[18px]" />
+                ยืนยันตัวตน
+              </button>
+            )}
           </h2>
 
           <p className="max-w-[360px] text-[14px] text-gray-600 ">

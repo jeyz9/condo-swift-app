@@ -5,6 +5,8 @@ import LoginPopup from "./login/LoginPopup"; // ✅ import login popup
 import RegisterPopup from "./login/RegisterPopup"; // ✅ import register popup
 import { useAuthContext } from "../context/AuthContext";
 import UserProfile from "./UserProfile";
+import { IoMdNotificationsOutline } from "react-icons/io";
+import NotificationMenu from "./NotificationMenu";
 const Navbar = () => {
   const menuItems = [
     { title: "หน้าแรก", path: "/" },
@@ -97,15 +99,19 @@ const Navbar = () => {
 
       {/* ขวา */}
       <div className="navbar-end">
-         {user ? (
-          <UserProfile/>
+        {user ? (
+          <>
+            <NotificationMenu />
+            
+            <UserProfile />
+          </>
         ) : (
-        <button
-          onClick={() => setIsLoginOpen(true)}
-          className="btn bg-[#8C6239] text-white font-light rounded-md sm:w-32 text-sm sm:text-base"
-        >
-          เข้าสู่ระบบ
-        </button>
+          <button
+            onClick={() => setIsLoginOpen(true)}
+            className="btn bg-[#8C6239] text-white font-light rounded-md sm:w-32 text-sm sm:text-base"
+          >
+            เข้าสู่ระบบ
+          </button>
         )}
         {/* ✅ Login Popup */}
         <LoginPopup
