@@ -11,9 +11,15 @@ const showNotificationDetailsSelected = async (notifyId, userId) => {
     return api.get(`${API_URL}/showNotificationDetailsSelected/${notifyId}?userId=${userId}`)
 }
 
+const deleteNotification = async (notifyId) => {
+    return api.get(`${API_URL}/deleteNotification/${notifyId}?notifyId=${notifyId}`)
+}
+
+
 const NotificationService = {
     showAllNotificationSelectedByUserId,
-    showNotificationDetailsSelected
+    showNotificationDetailsSelected,
+    deleteNotification,
 }
 
 export default NotificationService

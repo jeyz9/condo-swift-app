@@ -1,7 +1,7 @@
 import Hero from "../components/Hero";
 import SearchBar from "../components/SearchBar";
 import { MdOutlineAddHome, MdSell } from "react-icons/md";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import AnnounceService from "../services/AnnounceService";
 import Swal from "sweetalert2";
 import CondoCardNearby from "../components/CondoCardNearby";
@@ -13,25 +13,30 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export const Home = () => {
   const [announce, setAnnounce] = useState([]);
-  const [saleType, setSaleType] = useState(""); // แค่เก็บไว้เฉย ๆ
+  const [saleType, setSaleType] = useState("");
+
+  // ✅ รูป MRT (เรียงตาม index)
+  const imageList = [
+    "/mrt/BTS-and-MRT-Bangkok.jpg",
+    "/mrt/IM2019100039MO.jpg",
+    "/mrt/MRT-BLUELINE-BLE.jpg",
+    "/mrt/c1_1851229.jpg",
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-          
         const response = await AnnounceService.getAnnounceWithCategory();
-        console.log(response)
-        const responseFilter = await AnnounceService.getFilterAnnounceWithAgent(
-          {
-            keyword: "", // ❌ ไม่ใส่คำค้น เพื่อให้ดึงทั้งหมด
-            type: "คอนโด", // ✅ ค้นหาเฉพาะ type = คอนโดมิเนียม
-            page: 0, // ✅ หน้าแรก
-            size: 20, // ✅ จำนวนข้อมูลต่อหน้า (ปรับได้)
-          }
+        const responseFilter = await AnnounceService.getFilterAnnounceWithAgent({
+          keyword: "",
+          type: "คอนโด",
+          page: 0,
+          size: 20,
+        });
+
+        setAnnounce(
+          response.status === 200 ? response.data : responseFilter.data || []
         );
-        setAnnounce(responseFilter.status === 200 ? responseFilter.data : [])
-        setAnnounce(response.status === 200 ? response.data : []);
-        console.log(response.data)
       } catch (error) {
         Swal.fire({
           icon: "error",
@@ -48,12 +53,11 @@ export const Home = () => {
     fetchData();
   }, []);
 
-
-
+  // ✅ ดึงข้อมูลแต่ละหมวด
   const { recommendAnnounces, nearbyPlaces, luxuryHouses, villaProvince } =
     announce;
 
-  // 🎨 Animation settings
+  // ✅ Animation
   const fadeUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
@@ -70,11 +74,7 @@ export const Home = () => {
   return (
     <>
       {/* HERO */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
         <Hero />
       </motion.div>
 
@@ -85,7 +85,7 @@ export const Home = () => {
         initial="hidden"
         animate="visible"
       >
-        <SearchBar selectedType={saleType} /> {/* ✅ ส่ง type ให้ SearchBar */}
+        <SearchBar selectedType={saleType} />
       </motion.div>
 
       {/* ปุ่ม “เช่า” และ “ขาย” */}
@@ -95,7 +95,6 @@ export const Home = () => {
         animate="visible"
         variants={fadeUp}
       >
-        {/* ปุ่มเช่า */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.97 }}
@@ -111,7 +110,6 @@ export const Home = () => {
           เช่า
         </motion.button>
 
-        {/* ปุ่มขาย */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.97 }}
@@ -137,10 +135,7 @@ export const Home = () => {
       >
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
           คอนโดแนะนำ (ข้อเสนอที่ดีที่สุด)
-          <a
-            href="#"
-            className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
-          >
+          <a href="#" className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline">
             รายละเอียดเพิ่มเติม {`>`}
           </a>
         </h2>
@@ -182,10 +177,7 @@ export const Home = () => {
       >
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
           คอนโดใกล้ BTS/MRT
-          <a
-            href="#"
-            className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
-          >
+          <a href="#" className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline">
             รายละเอียดเพิ่มเติม {`>`}
           </a>
         </h2>
@@ -199,7 +191,11 @@ export const Home = () => {
                 initial="hidden"
                 animate="visible"
               >
-                <CondoCardNearby item={item} />
+                {/* ✅ ใช้รูปเรียงตามลำดับ */}
+                <CondoCardNearby
+                  item={item}
+                  image={imageList[i % imageList.length]}
+                />
               </motion.div>
             ))
           ) : (
@@ -216,11 +212,8 @@ export const Home = () => {
         animate="visible"
       >
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
-          บ้านหรู
-          <a
-            href="#"
-            className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
-          >
+          บ้าน แนะนำ
+          <a href="#" className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline">
             รายละเอียดเพิ่มเติม {`>`}
           </a>
         </h2>
@@ -228,12 +221,7 @@ export const Home = () => {
         <motion.div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {luxuryHouses?.length > 0 ? (
             luxuryHouses.map((item, i) => (
-              <motion.div
-                key={item.id}
-                variants={fadeDelay(i)}
-                initial="hidden"
-                animate="visible"
-              >
+              <motion.div key={item.id} variants={fadeDelay(i)} initial="hidden" animate="visible">
                 <CondoCardLuxury item={item} />
               </motion.div>
             ))
@@ -252,23 +240,12 @@ export const Home = () => {
       >
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
           รีสอร์ต วิลล่า
-          <a
-            href="#"
-            className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
-          >
-            รายละเอียดเพิ่มเติม {`>`}
-          </a>
         </h2>
 
         <motion.div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {villaProvince?.length > 0 ? (
             villaProvince.map((item, i) => (
-              <motion.div
-                key={item.id}
-                variants={fadeDelay(i)}
-                initial="hidden"
-                animate="visible"
-              >
+              <motion.div key={item.id} variants={fadeDelay(i)} initial="hidden" animate="visible">
                 <CondoCardVilla item={item} />
               </motion.div>
             ))
