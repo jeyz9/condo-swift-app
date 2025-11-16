@@ -57,7 +57,7 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
       Swal.fire({
         icon: "error",
         title: "ไม่สามารถเข้าสู่ระบบได้",
-        text: error?.response?.data?.message || error.message,
+        text: error?.response?.data || error.message,
         confirmButtonColor: "#8C6239",
       });
     }

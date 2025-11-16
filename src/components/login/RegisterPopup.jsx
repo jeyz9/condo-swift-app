@@ -85,7 +85,7 @@ export default function RegisterPopup({ isOpen, onClose }) {
       Swal.fire({
         icon: "error",
         title: "ไม่สามารถสมัครสมาชิกได้",
-        text: error?.response?.data?.message || error.message,
+        text: error?.response?.data || error.message,
         confirmButtonColor: "#8C6239",
       });
     }
