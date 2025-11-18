@@ -59,6 +59,8 @@ export const Detail = () => {
     fetchData();
   }, [id]);
 
+
+
   if (loading)
     return <div className="p-10 text-center">กำลังโหลดข้อมูล...</div>;
   if (!announce)
@@ -70,14 +72,7 @@ export const Detail = () => {
   const lng = parseFloat(announce?.mapPoint?.lng ?? 0);
 
   const agentData = announce?.agent ?? announce?.agent ?? null;
-
-  const handleContactClick = () => {
-    if (!user) {
-      setIsLoginOpen(true);
-    } else {
-      Swal.fire({ icon: "info", title: "เริ่มติดต่อผู้ขาย", timer: 1200, showConfirmButton: false });
-    }
-  };
+  console.log(agentData)
 
   const handleLogin = async ({ email, password }) => {
     try {
@@ -170,7 +165,13 @@ export const Detail = () => {
           <div className="mt-5 divider"></div>
 
           {/* FACILITIES */}
-          <h2 className="font-bold text-[20px] mb-3">สิ่งอำนวยความสะดวก</h2>
+          {announce.hasPool || announce.hasParking || announce.hasFitness || announce.hasElevator || announce.hasConvenienceStore ?
+          (<h2 className="font-bold text-[20px] mb-3">สิ่งอำนวยความสะดวก</h2>) : (
+            <>
+            <h2 className="font-bold text-[20px] mb-3">สิ่งอำนวยความสะดวก</h2>
+            <p className="text-gray-500">ไม่มีสิ่งอำนวยความสะดวก</p>
+            </>
+          )}
           <div className="grid grid-cols-2 gap-3 text-[#404040]">
             {announce.hasPool && (
               <div className="flex items-center gap-2">
@@ -232,7 +233,7 @@ export const Detail = () => {
 
       {/* RIGHT SIDE */}
       <div className="w-full">
-          <SalerCard agent={agentData} onContactClick={handleContactClick} />
+          <SalerCard agent={agentData}  />
           <div className="divider my-4" />
           <div role="alert" className="alert alert-warning bg-[#FAAF1C40] h-[125px] ">
             <MdWarningAmber className="h-6 w-6 shrink-0" />

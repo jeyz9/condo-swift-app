@@ -20,8 +20,12 @@ const uploadProfilePicture = async (userId, imageFile) => {
   })
 }
 
+const acceptTerms = async (userId) => {
+  return await api.post(`${API_URL}/${userId}/acceptTerms`)
+}
 export default {
   getUserProfileOverview,
   uploadProfilePicture,
-  showRecommendedAgents
+  showRecommendedAgents,
+  acceptTerms
 };
