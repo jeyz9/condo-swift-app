@@ -121,6 +121,24 @@ const getFilterAnnounceWithAgent = async (arg1, arg2, arg3, arg4) => {
   });
 };
 
+const showAllAnnouncePending = async (keyword, page, size) => {
+  return await api.get(`${API_URL}/showAllAnnouncePendingByAdmin?keyword=${keyword? keyword:''}&page=${page? page:0}&size=${size? size:10}`)
+}
+const showAllAnnounceApprove = async (keyword, page, size) => {
+  return await api.get(`${API_URL}/showAllAnnounceApproveByAdmin?keyword=${keyword? keyword:''}&page=${page? page:0}&size=${size? size:10}`)
+}
+const showAllAnnounceHistory = async (keyword, page, size) => {
+  return await api.get(`${API_URL}/showAllAnnounceHistoryByAdmin?keyword=${keyword? keyword:''}&page=${page? page:0}&size=${size? size:10}`)
+}
+
+const approveAnnounce = async (id) => {
+  return await api.put(`${API_URL}/approveAnnounce/${id}`);
+}
+
+const rejectAnnounce = async (id, data) => {
+  return await api.put(`${API_URL}/rejectAnnounce/${id}`, data);
+}
+
 
 
 // ✅ export ฟังก์ชันทั้งหมดไว้ให้เรียกง่าย
@@ -132,6 +150,11 @@ const AnnounceService = {
   showAnnounceDetail,
   getAnnounceWithCategory,
   getFilterAnnounceWithAgent,
+  showAllAnnouncePending,
+  showAllAnnounceApprove,
+  showAllAnnounceHistory,
+  approveAnnounce,
+  rejectAnnounce
 };
 
 export default AnnounceService;

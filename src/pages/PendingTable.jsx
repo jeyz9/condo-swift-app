@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import AnnounceService from "../services/AnnounceService";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
 
-export default function HistoryTable() {
+export default function PendingTable() {
   const location = useLocation();
   const currentPath = location.pathname;
+  const navigate = useNavigate();
 
   const [announces, setAnnounces] = useState([]);
   const [page, setPage] = useState(0);
@@ -21,9 +22,16 @@ export default function HistoryTable() {
     fetchAnnounceHistory(keyword, page, size);
   }, [page, keyword]);
 
+  useEffect(() => {
+    if (announces.length > 0) {
+      const ids = announces.map(a => a.id);
+      localStorage.setItem("pending_ids", JSON.stringify(ids));
+    }
+  }, [announces]);
+
   const fetchAnnounceHistory = async (searchKey, page, size) => {
     try {
-      const response = await AnnounceService.showAllAnnounceHistory(
+      const response = await AnnounceService.showAllAnnouncePending(
         searchKey,
         page,
         size
@@ -65,6 +73,7 @@ export default function HistoryTable() {
 
   return (
     <div className="p-6 bg-base-100 rounded-xl shadow-md">
+      {/* Navigation Tabs */}
       <div className="flex gap-6 items-center mb-6 border-b border-gray-200 pb-2">
         <Link
           to="/admin/announce/pending"
@@ -99,6 +108,7 @@ export default function HistoryTable() {
           ประวัติการตรวจ
         </Link>
 
+        {/* ---------------------- Search Input ---------------------- */}
         <div className="relative ml-auto w-48">
           <input
             type="text"
@@ -109,6 +119,7 @@ export default function HistoryTable() {
             onKeyDown={handleKeyDown}
           />
 
+          {/* ปุ่ม Clear (✖) */}
           {search.length > 0 && (
             <button
               onClick={clearSearch}
@@ -118,6 +129,7 @@ export default function HistoryTable() {
             </button>
           )}
 
+          {/* ปุ่ม Search (🔍) */}
           <button
             onClick={triggerSearch}
             className="absolute top-1/2 -translate-y-1/2 right-2 text-gray-600 hover:text-gray-800"
@@ -127,7 +139,8 @@ export default function HistoryTable() {
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto">
+      {/* Table */}
+      <div className="overflow-x-auto">
         <table className="table table-zebra w-full text-sm">
           <thead className="bg-[#f8f5f1] text-[#8C6239]">
             <tr>
@@ -136,15 +149,12 @@ export default function HistoryTable() {
               <th>ผู้อัปโหลด</th>
               <th>วันที่</th>
               <th>ราคา</th>
-              <th>การอนุมัติ</th>
-              <th>หมายเหตุ</th>
-              <th>วันที่ตรวจ</th>
             </tr>
           </thead>
 
           <tbody>
             {announces.map((item, index) => (
-              <tr key={item.id} className="hover:bg-[#f7f3ef] transition">
+              <tr key={item.id} className="hover:bg-[#f7f3ef] transition select-none cursor-pointer" onClick={() => navigate(`/admin/announce/details/${item.id}`)}>
                 <td>{ordered + index + 1}</td>
                 <td className="flex items-center gap-3">
                   <img
@@ -152,27 +162,16 @@ export default function HistoryTable() {
                     alt={item.title}
                     className="w-10 h-10 rounded-md object-cover"
                   />
-                  <span className="font-medium whitespace-nowrap">{item.title}</span>
+                  <span className="font-medium">{item.title}</span>
                 </td>
                 <td>{item.agentName}</td>
-                <td className="whitespace-nowrap">
+                <td>
                   {dayjs(item.announcementDate)
                     .locale("th")
                     .format("DD MMMM YYYY เวลา HH:mm น.")}
                 </td>
-                <td className="text-[#8C6239] font-semibold whitespace-nowrap">
+                <td className="text-[#8C6239] font-semibold">
                   {item.price?.toLocaleString()} ฿
-                </td>
-                <td>
-                  {item.status === "APPROVED" ? <div className="w-[67px] h-[24px] text-[#418C1B] border border-[#D3F4BB] text-[12px] bg-[#F9FEF6] justify-center flex items-center rounded-full">อนุมัติ</div> : <div className="w-[67px] h-[24px] text-[#E74B50] border border-[#F8C2C7] text-[12px] bg-[#FEF6F6] justify-center flex items-center rounded-full">ไม่อนุมัติ</div>}
-                </td>
-                <td className="w-10 whitespace-nowrap">
-                  {item.remark}
-                </td>
-                <td className="whitespace-nowrap">
-                  {dayjs(item.approveDate)
-                    .locale("th")
-                    .format("DD MMMM YYYY เวลา HH:mm น.")}
                 </td>
               </tr>
             ))}
@@ -180,6 +179,7 @@ export default function HistoryTable() {
         </table>
       </div>
 
+      {/* Pagination */}
       <div className="flex justify-center items-center gap-2 mt-4">
         <button
           className="btn btn-sm btn-outline border-[#8C6239] text-[#8C6239]"

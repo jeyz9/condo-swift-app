@@ -15,6 +15,8 @@ import {About} from "../pages/About.jsx";
 import TermsOfService from "../pages/Terms.jsx";
 import PrivacyPolicy from "../pages/Privacy.jsx";
 import NotificationDetail from "../pages/NotificationDetail.jsx";
+import PendingTable from "../pages/PendingTable.jsx";
+import ShareAnnounce from "../pages/ShareAnnounce.jsx";
 
 const router = createBrowserRouter([
   // 🏠 Layout หลักสำหรับผู้ใช้ทั่วไป
@@ -34,16 +36,16 @@ const router = createBrowserRouter([
     ],
   },
 
-  // ⚙️ Layout สำหรับผู้ดูแลระบบ (Admin)
   {
     path: "/admin",
-    element: <AdminLayout />, // 👈 ใช้ layout แยกของ admin
+    element: <AdminLayout />,
     children: [
-      { path: "dashboard", element: <Dashboard /> }, // /admin/dashboard
-      { path: "history", element: <HistoryTable /> },
-      { path: "published", element: <Publish /> }, // /admin/dashboard
+      { path: "dashboard", element: <Dashboard /> },
+      { path: "announce/history", element: <HistoryTable /> },
+      { path: "announce/published", element: <Publish /> },
+      { path: "announce/pending", element: <PendingTable />},
       // 👇 ถ้ามีหน้าอื่นในอนาคต เช่น:
-      // { path: "announces", element: <ManageAnnounces /> },
+      { path: "announce/details/:id", element: <ShareAnnounce /> },
       // { path: "users", element: <ManageUsers /> },
     ],
   },
