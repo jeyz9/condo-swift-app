@@ -27,12 +27,14 @@ export const Home = () => {
     const fetchData = async () => {
       try {
         const response = await AnnounceService.getAnnounceWithCategory();
-        const responseFilter = await AnnounceService.getFilterAnnounceWithAgent({
-          keyword: "",
-          type: "คอนโด",
-          page: 0,
-          size: 20,
-        });
+        const responseFilter = await AnnounceService.getFilterAnnounceWithAgent(
+          {
+            keyword: "",
+            type: "คอนโด",
+            page: 0,
+            size: 20,
+          }
+        );
 
         setAnnounce(
           response.status === 200 ? response.data : responseFilter.data || []
@@ -74,7 +76,11 @@ export const Home = () => {
   return (
     <>
       {/* HERO */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
         <Hero />
       </motion.div>
 
@@ -135,7 +141,10 @@ export const Home = () => {
       >
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
           คอนโดแนะนำ (ข้อเสนอที่ดีที่สุด)
-          <a href="#" className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline">
+          <a
+            href="#"
+            className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
+          >
             รายละเอียดเพิ่มเติม {`>`}
           </a>
         </h2>
@@ -177,7 +186,10 @@ export const Home = () => {
       >
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
           คอนโดใกล้ BTS/MRT
-          <a href="#" className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline">
+          <a
+            href="#"
+            className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
+          >
             รายละเอียดเพิ่มเติม {`>`}
           </a>
         </h2>
@@ -204,7 +216,7 @@ export const Home = () => {
         </motion.div>
       </motion.div>
 
-      {/* SECTION: บ้านหรู */}
+      {/* SECTION: บ้าน */}
       <motion.div
         className="mt-10 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8"
         variants={fadeUp}
@@ -213,22 +225,36 @@ export const Home = () => {
       >
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
           บ้าน แนะนำ
-          <a href="#" className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline">
+          <a
+            href="#"
+            className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
+          >
             รายละเอียดเพิ่มเติม {`>`}
           </a>
         </h2>
 
-        <motion.div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {luxuryHouses?.length > 0 ? (
-            luxuryHouses.map((item, i) => (
-              <motion.div key={item.id} variants={fadeDelay(i)} initial="hidden" animate="visible">
+        {/* ดักกรณีไม่มีบ้าน */}
+        {(!luxuryHouses || luxuryHouses.length === 0) && (
+          <div className="mt-6 p-4 rounded-lg text-center">
+            ยังไม่มีบ้านแนะนำในขณะนี้
+          </div>
+        )}
+
+        {/* ถ้ามีข้อมูลค่อยแสดง Card */}
+        {luxuryHouses && luxuryHouses.length > 0 && (
+          <motion.div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {luxuryHouses.map((item, i) => (
+              <motion.div
+                key={item.id}
+                variants={fadeDelay(i)}
+                initial="hidden"
+                animate="visible"
+              >
                 <CondoCardLuxury item={item} />
               </motion.div>
-            ))
-          ) : (
-            <CondoCardLuxury item={{ name: "บ้านหรู", totalAnnounces: 0 }} />
-          )}
-        </motion.div>
+            ))}
+          </motion.div>
+        )}
       </motion.div>
 
       {/* SECTION: วิลล่า */}
@@ -245,7 +271,12 @@ export const Home = () => {
         <motion.div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {villaProvince?.length > 0 ? (
             villaProvince.map((item, i) => (
-              <motion.div key={item.id} variants={fadeDelay(i)} initial="hidden" animate="visible">
+              <motion.div
+                key={item.id}
+                variants={fadeDelay(i)}
+                initial="hidden"
+                animate="visible"
+              >
                 <CondoCardVilla item={item} />
               </motion.div>
             ))

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router";
 
 export const RentCard = ({ announce }) => {
   if (!announce) return null;
@@ -18,6 +19,7 @@ export const RentCard = ({ announce }) => {
       : "เช่า";
 
   return (
+    <Link to={`/detail/${announce?.id}`}>
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
       {/* รูปภาพ */}
       <img
@@ -43,13 +45,9 @@ export const RentCard = ({ announce }) => {
           {announce?.location || "ไม่ระบุสถานที่"}
         </p>
 
-        {/* ราคาและขนาดพื้นที่ */}
-        <div className="mt-auto flex items-center justify-between text-sm text-gray-700">
-          <span className="text-xs text-gray-500">
-            {announce?.areaSize ? `${announce.areaSize} ตร.ม.` : "-"}
-          </span>
-        </div>
+       
       </div>
     </article>
+    </Link>
   );
 };

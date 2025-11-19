@@ -50,7 +50,7 @@ const SalerCard = ({ agent }) => {
     <div className="card bg-base-100 w-full shadow-sm border border-[#FAAF1C] rounded-2xl relative">
       <div className="absolute top-2 right-2">
         <div className="badge bg-[#28A745] border-none rounded-full text-white text-xs sm:text-sm inline-flex items-center gap-1">
-          {agent.is_verify ? "ยืนยันตัวตนแล้ว" : "ยังไม่ยืนยันตัวตน"}
+          {agent?.is_verify ? "ยืนยันตัวตนแล้ว" : "ยังไม่ยืนยันตัวตน"}
         </div>
       </div>
 
@@ -61,7 +61,7 @@ const SalerCard = ({ agent }) => {
               src={
                 agent?.image ||
                 `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  agent.name
+                  agent?.name
                 )}&background=0D8ABC&color=fff`
               }
               alt="โปรไฟล์ผู้ขาย"
@@ -71,10 +71,10 @@ const SalerCard = ({ agent }) => {
 
         <div className="flex-1 min-w-0">
           <h3 className="text-lg sm:text-xl font-semibold truncate">
-            {agent.name}
+            {agent?.name}
           </h3>
           <p className="text-sm text-base-content/70">
-            {agent.description}
+            {agent?.description}
           </p>
         </div>
       </div>

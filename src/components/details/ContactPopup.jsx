@@ -34,7 +34,7 @@ export const showContactPopup = (phoneMasked, phoneFull, lineUrl) => {
       </a>
     `,
     showConfirmButton: false,
-    width: "600px",     // ⬅⬅⬅ เพิ่มความกว้าง popup
+    width: "600px",
     padding: "24px",
     customClass: {
       popup: "rounded-2xl !p-6",
@@ -43,16 +43,27 @@ export const showContactPopup = (phoneMasked, phoneFull, lineUrl) => {
     },
   });
 
-  // ปุ่มแสดงเบอร์เต็ม
   const popup = Swal.getPopup();
   const phoneText = popup?.querySelector("#phone-text");
   const showBtn = popup?.querySelector("#show-full-phone");
 
   if (showBtn && phoneText) {
+    let isShown = false; // ❗ สถานะ toggle
+
     showBtn.addEventListener("click", () => {
-      phoneText.textContent = phoneFull;
-      showBtn.textContent = "ซ่อน";
-      showBtn.classList.add("bg-[#6b4a2e]");
+      isShown = !isShown;
+
+      if (isShown) {
+        // ➤ โชว์เบอร์เต็ม
+        phoneText.textContent = phoneFull;
+        showBtn.textContent = "ซ่อน";
+        showBtn.classList.add("bg-[#6b4a2e]");
+      } else {
+        // ➤ ซ่อนกลับเป็นเบอร์ Mask
+        phoneText.textContent = phoneMasked;
+        showBtn.textContent = "แสดงเบอร์เต็ม";
+        showBtn.classList.remove("bg-[#6b4a2e]");
+      }
     });
   }
 };

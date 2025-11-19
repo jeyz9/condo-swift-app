@@ -5,6 +5,9 @@ import { GrMapLocation } from "react-icons/gr";
 import { IoBedOutline } from "react-icons/io5";
 import { PiShower } from "react-icons/pi";
 import { BsTextarea } from "react-icons/bs";
+import { IoBookmarkOutline } from "react-icons/io5";
+import { PiShareFat } from "react-icons/pi";
+import { FaFacebook } from "react-icons/fa";
 import {
   MdPool,
   MdFitnessCenter,
@@ -58,6 +61,64 @@ export const Detail = () => {
 
     fetchData();
   }, [id]);
+
+ const sharePage = () => {
+  const pageUrl = window.location.href;                 // URL จริง
+  const encodedUrl = encodeURIComponent(pageUrl);       // สำหรับแชร์
+
+  Swal.fire({
+    title: "แชร์ลิงก์หน้านี้",
+    html: `
+      <div class="flex flex-col gap-3">
+
+        <!-- ปุ่มแชร์ Facebook -->
+        <a
+          id="fb-share-btn"
+          href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}"
+          target="_blank"
+          rel="noreferrer"
+          class="btn flex items-center justify-center w-full py-3 bg-blue-600 text-white rounded-lg text-center"
+        >
+          <span class="mr-2">📘</span>
+          แชร์ผ่าน Facebook
+        </a>
+
+        <!-- ปุ่มแชร์ LINE -->
+        <a
+          href="https://line.me/R/msg/text/?${encodedUrl}"
+          target="_blank"
+          rel="noreferrer"
+          class="btn flex items-center justify-center w-full py-3 bg-green-500 text-white rounded-lg text-center"
+        >
+          <span class="mr-2">💬</span>
+          แชร์ผ่าน LINE
+        </a>
+
+        <!-- ปุ่มคัดลอกลิงก์ -->
+        <button
+          id="copy-link"
+          class="btn w-full py-3 bg-gray-200 rounded-lg"
+        >
+          คัดลอกลิงก์
+        </button>
+
+      </div>
+    `,
+    showConfirmButton: false,
+    width: "500px",
+  });
+
+  // ปุ่มคัดลอกลิงก์
+  const popup = Swal.getPopup();
+  const copyBtn = popup?.querySelector("#copy-link");
+
+  if (copyBtn) {
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(pageUrl);           // ⬅ ใช้ URL จริง
+      copyBtn.textContent = "คัดลอกเรียบร้อย ✓";
+    });
+  }
+};
 
 
 
@@ -234,7 +295,11 @@ export const Detail = () => {
       {/* RIGHT SIDE */}
       <div className="w-full">
           <SalerCard agent={agentData}  />
-          <div className="divider my-4" />
+          <div className="divider my-4 " />
+          <div className="flex gap-x-4 mb-5">
+          <btn className="btn rounded-full border-gray-700"><IoBookmarkOutline className="w-6 h-6"/>บันทึก</btn>
+          <btn onClick={sharePage} className="btn rounded-full pl-12 pr-12 border-gray-700"><PiShareFat className="w-6 h-6" />แชร์</btn>
+          </div>
           <div role="alert" className="alert alert-warning bg-[#FAAF1C40] h-[125px] ">
             <MdWarningAmber className="h-6 w-6 shrink-0" />
             <span>

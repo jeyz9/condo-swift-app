@@ -1,13 +1,5 @@
 import React from "react";
-
-const formatPrice = (price) => {
-  const numeric = Number(price);
-  if (Number.isNaN(numeric) || !Number.isFinite(numeric)) {
-    return "-";
-  }
-  return numeric.toLocaleString("th-TH");
-};
-
+import { Link } from "react-router";
 const SellCard = ({ announce }) => {
   if (!announce) return null;
 
@@ -17,9 +9,12 @@ const SellCard = ({ announce }) => {
     announce?.imageList?.[0]?.imageUrl ||
     "https://placehold.co/600x400?text=No Image";
 
-  const price = formatPrice(announce?.price);
+
+console.log("announce object =", announce);
+
 
   return (
+     <Link to={`/detail/${announce?.id}`}>
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
       {/* รูปภาพ */}
       <img
@@ -45,15 +40,9 @@ const SellCard = ({ announce }) => {
           {announce?.location || "ไม่ระบุสถานที่"}
         </p>
 
-        {/* ราคาและขนาดพื้นที่ */}
-        <div className="mt-auto flex items-center justify-between text-sm text-gray-700">
-          <span className="font-semibold text-emerald-600">฿{price}</span>
-          <span className="text-xs text-gray-500">
-            {announce?.areaSize ? `${announce.areaSize} ตร.ม.` : "-"}
-          </span>
-        </div>
       </div>
     </article>
+    </Link>
   );
 };
 
