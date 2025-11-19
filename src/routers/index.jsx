@@ -28,7 +28,7 @@ const router = createBrowserRouter([
       { path: "/detail/:id", element: <Detail /> },
       { path: "/filter", element: <Filter /> },
       { path: "/add-announce", element: <AddAnnounce /> },
-      { path: "/profile/:userId", element: <Profile /> },
+      { path: "/profile", element: <Profile /> },
       { path: "/about-us", element: <About /> },
       { path: "/terms-of-service", element: <TermsOfService /> },
       { path: "/privacy-policy", element: <PrivacyPolicy /> },

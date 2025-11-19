@@ -58,7 +58,7 @@ export const AddAnnounce = () => {
     hasElevator: false,
     hasSecurity: false,
     hasConvenienceStore: false,
-    approveStatusId: 4,
+    approveStatusId: 0,
     mapPoints: [{ lat: "", lng: "" }],
     announceType: 0,
     saleType: 0,
@@ -197,30 +197,77 @@ const handleChange = (e) => {
     else setActiveTab(activeTab - 1);
   };
 
-  const handleSubmit = async () => {
+   const submitAnnounce = async (statusId) => {
     try {
+      if (!user?.userId) {
+        await Swal.fire({
+          icon: "warning",
+          title: "กรุณาเข้าสู่ระบบก่อนบันทึกประกาศ",
+        });
+        navigate("/");
+        return;
+      }
+
+      const payload = {
+        ...announce,
+        userId: user.userId,        // กันพลาด เผื่อ state ยังไม่อัปเดต
+        approveStatusId: statusId,  // 👈 เหมือนที่ต้องการ 3 หรือ 4
+      };
+
       const response = await AnnounceService.createAnnounce(
-        announce,
+        payload,
         images.map((i) => i.file)
       );
+
       if (response.status === 201) {
-        Swal.fire({
+        await Swal.fire({
           icon: "success",
-          title: "บันทึกประกาศสำเร็จ!",
-        }).then(() => navigate("/"));
+          title:
+            statusId === 4
+              ? "บันทึกแบบร่างสำเร็จ!"
+              : "ส่งประกาศสำเร็จ! รอการอนุมัติ",
+        });
+
+        // reset ฟอร์มแบบเบาๆ
+        setAnnounce((prev) => ({
+          ...prev,
+          title: "",
+          location: "",
+          price: "",
+          bedroomCount: "",
+          bathroomCount: "",
+          areaSize: "",
+          hasPool: false,
+          hasParking: false,
+          hasFitness: false,
+          hasElevator: false,
+          hasSecurity: false,
+          hasConvenienceStore: false,
+          approveStatusId: 0,
+          mapPoints: [{ lat: "", lng: "" }],
+          announceType: 0,
+          saleType: 0,
+        }));
+        setImages([]);
+        setActiveTab(0);
+        navigate("/");
       }
-    } catch {
+    } catch (err) {
+      console.error(err);
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
+        text: err.response?.data?.message || "ไม่สามารถบันทึกประกาศได้",
       });
     }
   };
 
+
   return (
-    <div className="flex flex-col items-center mt-10">
+    <div className="flex flex-col items-center w-full mt-6 sm:mt-8 lg:mt-10 px-3 sm:px-4 lg:px-6">
       {/* Tabs */}
-      <div className="flex gap-10 border-b border-gray-200 mb-6">
+            {/* Tabs */}
+      <div className="w-full max-w-5xl flex flex-wrap gap-4 sm:gap-8 border-b border-gray-200 mb-4 sm:mb-6 justify-center sm:justify-centers">
         {tabs.map((tab, index) => {
           const isActive = index === activeTab;
           const isCompleted = index < activeTab;
@@ -229,7 +276,7 @@ const handleChange = (e) => {
               <button
                 disabled={index > activeTab}
                 onClick={() => setActiveTab(index)}
-                className={`pb-2 text-lg font-medium flex items-center gap-2 ${
+                className={`pb-2 text-sm sm:text-base lg:text-lg font-medium flex items-center gap-2 ${
                   isActive
                     ? "text-green-600 border-b-2 border-green-600"
                     : isCompleted
@@ -237,17 +284,23 @@ const handleChange = (e) => {
                     : "text-gray-500 hover:text-green-500"
                 }`}
               >
-                {tab.icon}
-                <span>{tab.name}</span>
-                {isCompleted && <FaCheck className="text-green-500 ml-1" />}
+                <span className="text-base sm:text-lg">{tab.icon}</span>
+                <span className="truncate max-w-[120px] sm:max-w-none">
+                  {tab.name}
+                </span>
+                {isCompleted && (
+                  <FaCheck className="text-green-500 ml-1 hidden sm:inline-block" />
+                )}
               </button>
             </div>
           );
         })}
       </div>
 
+
       {/* ✅ Tabs 1–3 (คงของเดิมไว้) */}
-      <div className="w-full max-w-5xl bg-white rounded-xl p-8 min-h-[400px]">
+            {/* ✅ Tabs 1–3 (คงของเดิมไว้) */}
+      <div className="w-full max-w-5xl rounded-xl p-4 sm:p-6 lg:p-8">
         <AnimatePresence mode="wait">
          {/* ✅ Tab 1: รายละเอียดที่ตั้ง */}
 {activeTab === 0 && (
@@ -360,7 +413,7 @@ const handleChange = (e) => {
           className={`flex items-center gap-3 px-2 h-9 border-none cursor-pointer transition-all duration-200 rounded-full w-fit ${
             announce[key]
               ? "bg-[#EBEBEB] text-gray-700"
-              : "bg-gray-100 text-gray-700 hover:bg-[#ebebebb9]"
+              : "bg-gray-600 text-gray-100 hover:bg-[#ebebebb9]"
           }`}
         >
           <div
@@ -533,10 +586,10 @@ const handleChange = (e) => {
   <motion.div
     key="tab4"
     {...fadeAnimation}
-    className="w-full bg-white min-h-screen py-10 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 -translate-y-100"
+    className="w-full  min-h-screen py-8 sm:py-10 px-3 sm:px-6 lg:px-10 max-w-6xl mx-auto"
   >
     <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-      🔍 ตัวอย่างประกาศของคุณ
+      ตัวอย่างประกาศของคุณ
     </h2>
 
     {/* ✅ รูป CardDetails กลางหน้า */}
@@ -720,30 +773,41 @@ const handleChange = (e) => {
 )}
 
       {/* ปุ่ม */}
-      <div className="flex justify-between w-full max-w-5xl mt-6 mb-20">
-        <button
-          onClick={handleBack}
-          className="btn btn-outline px-8 hover:bg-gray-100"
-        >
-          {activeTab === 0 ? "⬅ ออก" : "⬅ ย้อนกลับ"}
-        </button>
+      <div className="w-full max-w-5xl mt-6 mb-20">
+        <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 sm:gap-0 items-stretch sm:items-center">
+          <button
+            onClick={handleBack}
+            className="btn btn-outline w-full sm:w-auto px-6 sm:px-8 hover:bg-gray-100"
+          >
+            {activeTab === 0 ? "⬅ ออก" : "⬅ ย้อนกลับ"}
+          </button>
 
-        {activeTab < tabs.length - 1 ? (
-          <button
-            onClick={handleNext}
-            className="btn bg-[#8C6239] text-white px-8 hover:bg-[#704c2c]"
-          >
-            ถัดไป ➜
-          </button>
-        ) : (
-          <button
-            onClick={handleSubmit}
-            className="btn bg-green-600 text-white px-8"
-          >
-            ✅ เสร็จสิ้น
-          </button>
-        )}
+          {activeTab < tabs.length - 1 ? (
+            <button
+              onClick={handleNext}
+              className="btn bg-[#8C6239] text-white w-full sm:w-auto px-6 sm:px-8 hover:bg-[#704c2c]"
+            >
+              ถัดไป ➜
+            </button>
+          ) : (
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
+              <button
+                onClick={() => submitAnnounce(4)}
+                className="btn btn-outline w-full sm:w-auto px-6 sm:px-8"
+              >
+                บันทึกเป็นฉบับร่าง
+              </button>
+              <button
+                onClick={() => submitAnnounce(3)}
+                className="btn bg-[#8c6239] text-white w-full sm:w-auto px-6 sm:px-8"
+              >
+                เสร็จสิ้น
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
     </div>
   );
 };

@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CardFilter from "../components/filter/CardFilter";
 import SearchBarNonFilter from "../components/filter/SearchBarNonFilter";
-import SalerCard from "../components/details/SalerCard";
 import Pagination from "../components/filter/Pagination";
 import { Link, useLocation, useNavigate } from "react-router";
 import AnnounceService from "../services/AnnounceService";
+import UserService from "../services/UserService";
 import Swal from "sweetalert2";
+import RecommendedAgent from "../components/RecommendedAgent";
 
 export const Filter = () => {
   const location = useLocation();
@@ -30,60 +31,97 @@ export const Filter = () => {
   const [loading, setLoading] = useState(true);
   const listTopRef = useRef(null);
 
+  // 🌟 ใหม่: state สำหรับ recommended agents
+  const [recommendedAgents, setRecommendedAgents] = useState([]);
+  const [loadingAgents, setLoadingAgents] = useState(true);
+
   const itemsPerPage = 10;
   const pageCount = Math.ceil(total / itemsPerPage);
 
-  // ✅ ดึงข้อมูลทุกครั้งที่ query string เปลี่ยน
-useEffect(() => {
-  let ignore = false; // ✅ กันยิงซ้ำตอน navigate
-  const fetchData = async () => {
-    if (ignore) return;
-    setLoading(true);
-    try {
-      const q = new URLSearchParams(location.search);
-      const keyword = q.get("keyword") || "";
-      const type = q.get("type") || q.get("filter") || "";
-      const saleType = q.get("saleType") || q.get("effectiveType") || "";
-      const bedroomCount = q.get("bedroomCount");
-      const minPrice = q.get("minPrice");
-      const maxPrice = q.get("maxPrice");
-      const page = Number(q.get("page") || 0);
-      const size = Number(q.get("size") || 10);
-      const res = await AnnounceService.getFilterAnnounceWithAgent({
-        keyword,
-        type,
-        saleType,
-        bedroomCount: bedroomCount ? Number(bedroomCount) : undefined,
-        minPrice: minPrice ? Number(minPrice) : undefined,
-        maxPrice: maxPrice ? Number(maxPrice) : undefined,
-        page,
-        size,
-      });
+  // ✅ ดึงข้อมูลประกาศทุกครั้งที่ query string เปลี่ยน
+  useEffect(() => {
+    let ignore = false; // กันยิงซ้ำตอน navigate
 
-      if (res.status === 200) {
-        const data = res.data?.announceDetailsWithAgents || [];
-        setAnnounces(data);
-        setTotal(res.data?.total || data.length);
+    const fetchData = async () => {
+      if (ignore) return;
+      setLoading(true);
+      try {
+        const q = new URLSearchParams(location.search);
+        const keyword = q.get("keyword") || "";
+        const type = q.get("type") || q.get("filter") || "";
+        const saleType = q.get("saleType") || q.get("effectiveType") || "";
+        const bedroomCount = q.get("bedroomCount");
+        const minPrice = q.get("minPrice");
+        const maxPrice = q.get("maxPrice");
+        const badge = q.get("badge");
+        const page = Number(q.get("page") || 0);
+        const size = Number(q.get("size") || 10);
+
+        const res = await AnnounceService.getFilterAnnounceWithAgent({
+          keyword,
+          type,
+          saleType,
+          badge,
+          bedroomCount: bedroomCount ? Number(bedroomCount) : undefined,
+          minPrice: minPrice ? Number(minPrice) : undefined,
+          maxPrice: maxPrice ? Number(maxPrice) : undefined,
+          page,
+          size,
+        });
+
+        if (res.status === 200) {
+          const data = res.data?.announceDetailsWithAgents || [];
+          setAnnounces(data);
+          setTotal(res.data?.total || data.length);
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "ไม่สามารถโหลดข้อมูลได้",
+          text: error.response?.data?.message || error.message,
+          confirmButtonColor: "#8C6239",
+        });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "ไม่สามารถโหลดข้อมูลได้",
-        text: error.response?.data?.message || error.message,
-        confirmButtonColor: "#8C6239",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchData();
+    fetchData();
 
-  return () => {
-    ignore = true;
-  };
-}, [location.search]);
+    return () => {
+      ignore = true;
+    };
+  }, [location.search]);
 
+  // 🌟 ใหม่: ดึง Recommended Agents ครั้งเดียวตอน mount
+  useEffect(() => {
+    let ignore = false;
+
+    const fetchRecommendedAgents = async () => {
+      try {
+        setLoadingAgents(true);
+        // ใช้เส้น showRecommendedAgents จาก service
+        const res = await UserService.showRecommendedAgents();
+        if (!ignore && res.status === 200) {
+          // ปรับตาม shape ของ API ถ้าต่าง
+          const agents = Array.isArray(res.data)
+            ? res.data
+            : res.data?.agents || [];
+          setRecommendedAgents(agents);
+        }
+      } catch (error) {
+        console.error("โหลด Recommended Agents ไม่สำเร็จ:", error);
+      } finally {
+        if (!ignore) setLoadingAgents(false);
+      }
+    };
+
+    fetchRecommendedAgents();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   // ✅ Sync page state ทุกครั้งที่ URL เปลี่ยน
   useEffect(() => {
@@ -217,7 +255,12 @@ useEffect(() => {
           <h1 className="font-bold text-2xl sm:text-3xl text-gray-800 mb-4">
             ผู้ประกาศขายที่แนะนำ
           </h1>
-          <SalerCard />
+
+          {loadingAgents ? (
+            <p className="text-sm text-gray-500">กำลังโหลดผู้ประกาศแนะนำ...</p>
+          ) : (
+            <RecommendedAgent recommendedAgents={recommendedAgents} />
+          )}
         </motion.div>
       </div>
 
@@ -232,6 +275,3 @@ useEffect(() => {
     </div>
   );
 };
-
-
-

@@ -22,7 +22,7 @@ export const showTermsPopup = () => {
           <input
             id="terms-checkbox"
             type="checkbox"
-            class="mt-[3px] w-4 h-4 border border-gray-400 rounded-sm"
+            class="checkbox mt-[3px] w-4 h-4 border border-gray-400 rounded-sm"
           />
           <span>ฉันรับทราบและยอมรับข้อความเตือนข้างต้น</span>
         </label>
@@ -31,7 +31,7 @@ export const showTermsPopup = () => {
           <button
             type="button"
             id="terms-cancel"
-            class="py-2.5 rounded-lg border border-[#8C6239] bg-white text-[#8C6239]
+            class="btn py-2.5 rounded-lg border border-[#8C6239] bg-white text-[#8C6239]
                    font-medium text-[15px] hover:bg-[#8C6239]/5 transition-colors duration-150"
           >
             ยกเลิก

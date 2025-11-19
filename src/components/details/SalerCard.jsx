@@ -53,9 +53,9 @@ const SalerCard = ({ agent }) => {
           {agent?.is_verify ? "ยืนยันตัวตนแล้ว" : "ยังไม่ยืนยันตัวตน"}
         </div>
       </div>
-
-      <div className="flex items-center gap-4 p-4 sm:p-5">
-        <div className="avatar">
+       
+      <div className="flex items-center gap-4 p-4 sm:p-5 ">
+        <div className="avatar ">
           <div className="w-16 sm:w-20 rounded-full ring ring-base-200 ring-offset-2">
             <img
               src={
@@ -78,6 +78,7 @@ const SalerCard = ({ agent }) => {
           </p>
         </div>
       </div>
+
 
       <div className="px-4 sm:px-5 pb-4">
         <button

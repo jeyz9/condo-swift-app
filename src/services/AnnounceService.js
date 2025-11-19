@@ -76,6 +76,7 @@ const getFilterAnnounceWithAgent = async (arg1, arg2, arg3, arg4) => {
       type,
       saleType,
       effectiveType, // ✅ เพิ่มรองรับชื่อใหม่
+      badge, // ✅ เพิ่ม badge
       bedroomCount,
       minPrice,
       maxPrice,
@@ -91,6 +92,7 @@ const getFilterAnnounceWithAgent = async (arg1, arg2, arg3, arg4) => {
       keyword,
       type: type ?? filter,
       saleType: finalSaleType, // ✅ key เดิมที่ backend ใช้
+      badge, // ✅ เพิ่ม badge
       bedroomCount,
       minPrice,
       maxPrice,
