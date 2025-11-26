@@ -1,8 +1,8 @@
 import axios from "axios";
+import TokenService from "./TokenService"; // Using TokenService is more robust
 
-import Cookies from "js-cookie"; // ✅ ต้อง import
-
-const baseURL = import.meta.env.VITE_BASE_URL;
+const DEFAULT_BASE_URL = "https://condo-swift.onrender.com";
+const baseURL = import.meta.env.VITE_BASE_URL || DEFAULT_BASE_URL;
 
 const api = axios.create({
   baseURL,
@@ -18,10 +18,10 @@ api.interceptors.request.use(
     const isExcluded = excluded.some((url) => config.url?.includes(url));
 
     if (!isExcluded) {
-      const token = Cookies.get("token");
+      const token = TokenService.getLocalAccessToken(); // ✅ Use TokenService
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        console.log("✅ Attached token:", token);
+        console.log("✅ Attached token for:", config.url);
       }
     } else {
       console.log("🚫 Skip token for:", config.url);
@@ -34,3 +34,4 @@ api.interceptors.request.use(
 );
 
 export default api;
+

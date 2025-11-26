@@ -9,11 +9,37 @@ import {
   FaGem,
 } from "react-icons/fa";
 
+// Define THAI_PROVINCES
+const THAI_PROVINCES = [
+  "กรุงเทพมหานคร", "กระบี่", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น",
+  "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร",
+  "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก",
+  "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี",
+  "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์",
+  "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง",
+  "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต",
+  "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด",
+  "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "เลย", "ศรีสะเกษ",
+  "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร",
+  "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี",
+  "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี",
+  "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"
+];
+
+// Define BTS_MRT_LINES
+const BTS_MRT_LINES = [
+  "สายสุขุมวิท (BTS)", "สายสีลม (BTS)", "สายสีน้ำเงิน (MRT)", "สายสีม่วง (MRT)",
+  "สายสีเหลือง (MRT)", "สายสีชมพู (MRT)", "สายสีแดง (SRT)", "Airport Rail Link"
+];
+
 export default function SearchBarNonFilter({
   defaultKeyword = "",
   defaultFilter = "",
   defaultSaleType = "",
   defaultSaleAbout = "",
+  defaultStation = "", // Add defaultStation prop
+  defaultProvince = "", // Add defaultProvince prop
+  defaultBadge = "", // Add defaultBadge prop
   onSearch,
 }) {
   const [searchText, setSearchText] = useState(defaultKeyword);
@@ -26,6 +52,9 @@ export default function SearchBarNonFilter({
     minPrice: "",
     maxPrice: "",
     isPremium: false,
+    station: defaultStation || "", // Initialize station state
+    province: defaultProvince || "", // Initialize province state
+    badge: defaultBadge || "", // Initialize badge state
   });
 
   const navigate = useNavigate();
@@ -69,6 +98,27 @@ export default function SearchBarNonFilter({
     }));
   }, [defaultFilter]);
 
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      station: defaultStation || "",
+    }));
+  }, [defaultStation]);
+
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      province: defaultProvince || "",
+    }));
+  }, [defaultProvince]);
+
+  useEffect(() => {
+    setFilters((prev) => ({
+      ...prev,
+      badge: defaultBadge || "",
+    }));
+  }, [defaultBadge]);
+
   // ✅ รวม filter → สร้าง query แล้วไปหน้า /filter
   const goFilter = (overrides = {}) => {
     const merged = {
@@ -82,6 +132,9 @@ export default function SearchBarNonFilter({
         overrides.isPremium !== undefined
           ? overrides.isPremium
           : filters.isPremium, // ⬅ ให้ priority จาก overrides
+      station: overrides.station ?? filters.station, // Add station to merged
+      province: overrides.province ?? filters.province, // Add province to merged
+      badge: overrides.badge ?? filters.badge, // Add badge to merged
       page: overrides.page ?? 0,
       size: overrides.size ?? 10,
     };
@@ -117,8 +170,9 @@ export default function SearchBarNonFilter({
         maxPriceNum !== undefined && !Number.isNaN(maxPriceNum)
           ? maxPriceNum
           : undefined,
-      // ✅ backend ใช้ภาษาไทย → ส่ง "พรีเมียม" ตรง ๆ
-      badge: merged.isPremium ? "พรีเมียม" : undefined,
+      badge: merged.badge || undefined, // Use merged.badge directly
+      station: merged.station || undefined, // Add station to params
+      province: merged.province || undefined, // Add province to params
       page: merged.page,
       size: merged.size,
     };
@@ -172,6 +226,32 @@ export default function SearchBarNonFilter({
           </div>
 
           <div>
+            <label class="block font-semibold text-[#8C6239] mb-1 text-sm">สถานี (BTS/MRT)</label>
+            <select id="filter-station" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
+              <option value="">ทั้งหมด</option>
+              ${BTS_MRT_LINES.map(
+                (line) =>
+                  `<option value="${line}" ${
+                    filters.station === line ? "selected" : ""
+                  }>${line}</option>`
+              ).join("")}
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-[#8C6239] mb-1 text-sm">จังหวัด</label>
+            <select id="filter-province" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
+              <option value="">ทั้งหมด</option>
+              ${THAI_PROVINCES.map(
+                (province) =>
+                  `<option value="${province}" ${
+                    filters.province === province ? "selected" : ""
+                  }>${province}</option>`
+              ).join("")}
+            </select>
+          </div>
+
+          <div>
             <label class="block font-semibold text-[#8C6239] mb-2 text-sm">จำนวนห้องนอน</label>
             <input id="bedroomCount" type="number" min="0" placeholder="เช่น 2" value="${
               filters.bedroomCount || ""
@@ -195,89 +275,98 @@ export default function SearchBarNonFilter({
               </div>
             </div>
             <p class="mt-1 text-[11px] text-gray-500">เว้นว่าง = ไม่จำกัด</p>
-          </div>
-
-          <div class="flex items-center gap-2 mt-2">
-            <input id="premiumCheck" type="checkbox" ${
-              filters.isPremium ? "checked" : ""
-            } class="accent-[#8C6239]" />
-            <label for="premiumCheck" class="text-sm text-[#8C6239] font-semibold">เฉพาะ Premium</label>
-          </div>
-        </div>
-      `,
-      preConfirm: () => {
-        const type = document.getElementById("filter-type").value;
-        const bedroom = document.getElementById("bedroomCount").value;
-        const min = normalizePriceValue(
-          document.getElementById("minPrice").value
-        );
-        const max = normalizePriceValue(
-          document.getElementById("maxPrice").value
-        );
-        const premium = document.getElementById("premiumCheck").checked;
-
-        if (min === null || max === null) {
-          Swal.showValidationMessage("กรุณากรอกราคาเป็นตัวเลขที่ถูกต้อง");
-          return false;
-        }
-
-        if (min !== "" && max !== "" && Number(min) > Number(max)) {
-          Swal.showValidationMessage("ราคาต่ำสุดต้องไม่มากกว่าราคาสูงสุด");
-          return false;
-        }
-
-        return {
-          type,
-          bedroomCount: bedroom,
-          minPrice: min,
-          maxPrice: max,
-          isPremium: premium,
-        };
-      },
-    });
-
-    if (result.isConfirmed && result.value) {
-      const v = result.value;
-      const normalized = {
-        type: v.type || "",
-        bedroomCount: v.bedroomCount || "",
-        minPrice: v.minPrice === "" ? "" : v.minPrice,
-        maxPrice: v.maxPrice === "" ? "" : v.maxPrice,
-        isPremium: !!v.isPremium,
-      };
-
-      setFilters((prev) => ({
-        ...prev,
-        ...normalized,
-      }));
-
-      goFilter(normalized);
-    }
-  };
-
-  const handlePropertyType = async () => {
-    const { value, isConfirmed } = await Swal.fire({
-      title: "เลือกประเภทอสังหาฯ",
-      input: "select",
-      inputOptions: {
-        คอนโด: "คอนโด",
-        บ้านหรู: "บ้าน",
-        วิลล่า: "วิลล่า",
-        ที่ดิน: "ที่ดิน",
-      },
-      inputPlaceholder: "ทั้งหมด",
-      confirmButtonText: "ตกลง",
-      showCancelButton: true,
-      confirmButtonColor: "#8C6239",
-      cancelButtonColor: "#aaa",
-      inputValue: filters.type || "",
-    });
-
-    if (isConfirmed) {
-      setFilters((prev) => ({ ...prev, type: value || "" }));
-      goFilter({ type: value || "" });
-    }
-  };
+                    </div>
+          
+                    <div>
+                      <label class="block font-semibold text-[#8C6239] mb-1 text-sm">ป้ายประกาศ</label>
+                      <select id="filter-badge" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
+                        <option value="">ทั้งหมด</option>
+                        <option value="มาใหม่" ${filters.badge === "มาใหม่" ? "selected" : ""}>มาใหม่</option>
+                        <option value="พรีเมียม" ${filters.badge === "พรีเมียม" ? "selected" : ""}>พรีเมียม</option>
+                        <option value="แนะนำ" ${filters.badge === "แนะนำ" ? "selected" : ""}>แนะนำ</option>
+                      </select>
+                    </div>
+                  </div>
+                `,
+                preConfirm: () => {
+                  const type = document.getElementById("filter-type").value;
+                  const station = document.getElementById("filter-station").value;
+                  const province = document.getElementById("filter-province").value;
+                  const badge = document.getElementById("filter-badge").value;
+                  const bedroom = document.getElementById("bedroomCount").value;
+                  const min = normalizePriceValue(
+                    document.getElementById("minPrice").value
+                  );
+                  const max = normalizePriceValue(
+                    document.getElementById("maxPrice").value
+                  );
+          
+                  if (min === null || max === null) {
+                    Swal.showValidationMessage("กรุณากรอกราคาเป็นตัวเลขที่ถูกต้อง");
+                    return false;
+                  }
+          
+                  if (min !== "" && max !== "" && Number(min) > Number(max)) {
+                    Swal.showValidationMessage("ราคาต่ำสุดต้องไม่มากกว่าราคาสูงสุด");
+                    return false;
+                  }
+          
+                  return {
+                    type,
+                    station,
+                    province,
+                    badge,
+                    bedroomCount: bedroom,
+                    minPrice: min,
+                    maxPrice: max,
+                  };
+                },
+              });
+          
+              if (result.isConfirmed && result.value) {
+                const v = result.value;
+                const normalized = {
+                  type: v.type || "",
+                  station: v.station || "",
+                  province: v.province || "",
+                  badge: v.badge || "",
+                  bedroomCount: v.bedroomCount || "",
+                  minPrice: v.minPrice === "" ? "" : v.minPrice,
+                  maxPrice: v.maxPrice === "" ? "" : v.maxPrice,
+                };
+          
+                setFilters((prev) => ({
+                  ...prev,
+                  ...normalized,
+                }));
+          
+                goFilter(normalized);
+              }
+            };
+          
+            const handlePropertyType = async () => {
+              const { value, isConfirmed } = await Swal.fire({
+                title: "เลือกประเภทอสังหาฯ",
+                input: "select",
+                inputOptions: {
+                  คอนโด: "คอนโด",
+                  บ้านหรู: "บ้าน",
+                  วิลล่า: "วิลล่า",
+                  ที่ดิน: "ที่ดิน",
+                },
+                inputPlaceholder: "ทั้งหมด",
+                confirmButtonText: "ตกลง",
+                showCancelButton: true,
+                confirmButtonColor: "#8C6239",
+                cancelButtonColor: "#aaa",
+                inputValue: filters.type || "",
+              });
+          
+              if (isConfirmed) {
+                setFilters((prev) => ({ ...prev, type: value || "" }));
+                goFilter({ type: value || "" });
+              }
+            };
 
   const handlePrice = async () => {
     const shortcuts = [
@@ -429,12 +518,12 @@ export default function SearchBarNonFilter({
   };
 
   // ✅ ปุ่ม Premium / พิเศษสำหรับคุณ
-  const handlePremiumClick = () => {
-    const newVal = !filters.isPremium;
-    setFilters((prev) => ({ ...prev, isPremium: newVal }));
-    // ⬅ ตรงนี้สำคัญ: ส่ง isPremium เข้าไปตรง ๆ → goFilter จะ map เป็น badge=พรีเมียม ให้
-    goFilter({ isPremium: newVal });
-  };
+  // const handlePremiumClick = () => {
+  //   const newVal = !filters.isPremium;
+  //   setFilters((prev) => ({ ...prev, isPremium: newVal }));
+  //   // ⬅ ตรงนี้สำคัญ: ส่ง isPremium เข้าไปตรง ๆ → goFilter จะ map เป็น badge=พรีเมียม ให้
+  //   goFilter({ isPremium: newVal });
+  // };
 
   const priceLabel = formatPriceLabel(filters.minPrice, filters.maxPrice);
 
@@ -458,12 +547,12 @@ export default function SearchBarNonFilter({
           : "ห้องนอน",
       action: handleBedroom,
     },
-    {
-      icon: <FaGem className="text-yellow-500" />,
-      label: filters.isPremium ? "เฉพาะ Premium ✓" : "พิเศษสำหรับคุณ",
-      action: handlePremiumClick,
-      isPremiumButton: true,
-    },
+    // {
+    //   icon: <FaGem className="text-yellow-500" />,
+    //   label: filters.isPremium ? "เฉพาะ Premium ✓" : "พิเศษสำหรับคุณ",
+    //   action: handlePremiumClick,
+    //   isPremiumButton: true,
+    // },
   ];
 
   return (

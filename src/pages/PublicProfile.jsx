@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import Swal from "sweetalert2";
-import { useAuthContext } from "../context/AuthContext";
 import UserService from "../services/UserService";
-import HeroProfile from "../components/profile/HeroProfile";
+import PublicHeroProfile from "../components/profile/PublicHeroProfile";
 import { ProfileDetail } from "../components/profile/ProfileDetail";
 import { RentCard } from "../components/profile/RentCard";
 import SellCard from "../components/profile/SellCard";
@@ -15,16 +14,12 @@ const FILTER_TABS = [
   { label: "ขาย", value: "ขาย" },
 ];
 
-export const Profile = () => {
-  const { user } = useAuthContext();
-  const { userId: paramId } = useParams(); // ✅ รับ userId จาก URL เช่น /profile/2
+export const PublicProfile = () => {
+  const { userId } = useParams(); // ✅ รับ userId จาก URL เช่น /public-profile/2
 
   const [profile, setProfile] = useState(null);
   const [activeTab, setActiveTab] = useState("เช่า");
   const [loading, setLoading] = useState(true);
-  const userId =  user?.userId;
-  console.log(userId)
-
 
   // ✅ ดึงข้อมูลโปรไฟล์จาก backend
   const fetchProfile = async (type = "เช่า") => {
@@ -82,11 +77,9 @@ export const Profile = () => {
     );
   }
 
-
-
   return (
     <div className="flex flex-col items-center gap-y-10">
-      <HeroProfile profile={profile} />
+      <PublicHeroProfile profile={profile} />
       <ProfileDetail profile={profile} />
 
       <section className="w-full max-w-6xl px-6 pb-16">

@@ -185,8 +185,11 @@ export default function AddressMapPreview({ query, onGeocode }) {
 
   if (!isLoaded)
     return (
-      <div className="flex justify-center items-center h-[300px] text-gray-500">
-        Loading map...
+      <div
+        style={containerStyle}
+        className="flex justify-center items-center bg-gray-200 rounded-lg animate-pulse"
+      >
+        <p className="text-gray-500">Loading map...</p>
       </div>
     );
 

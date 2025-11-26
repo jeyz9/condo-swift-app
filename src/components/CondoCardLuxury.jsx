@@ -1,5 +1,7 @@
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
+
 const CondoCardLuxury = ({ item }) => {
+
   const title = item?.name || item?.title || "โครงการไฮไลต์ระดับลักชูรี";
   const image = item?.image
   const total =

@@ -3,6 +3,7 @@ import { IoBedOutline } from "react-icons/io5";
 import { PiShower } from "react-icons/pi";
 import { BsTextarea } from "react-icons/bs";
 import { Link } from "react-router-dom";
+import { CondoCardSkeleton } from "./CondoCardSkeleton";
 
 const formatPrice = (value) => {
   const numeric = Number(value);
@@ -12,7 +13,11 @@ const formatPrice = (value) => {
   return numeric.toLocaleString("th-TH");
 };
 
-export const CondoCard = ({ announce }) => {
+export const CondoCard = ({ announce, isLoading }) => {
+  if (isLoading) {
+    return <CondoCardSkeleton />;
+  }
+
   if (!announce) return null;
 
   const price = formatPrice(announce?.price);
@@ -38,7 +43,7 @@ export const CondoCard = ({ announce }) => {
         {badges.length > 0 && (
           <div className="absolute right-0 top-0 flex flex-wrap justify-end gap-2 p-3 z-10">
             {badges.map((badge) => {
-              const isGold = Number(badge?.id) === 1;
+              const isGold = Number(badge?.id) === 3;
               const base =
                 "badge border-none font-bold text-xs sm:text-sm md:text-base px-[9px] py-[2px] text-white rounded-2xl h-[24px] w-auto";
               const cls = isGold

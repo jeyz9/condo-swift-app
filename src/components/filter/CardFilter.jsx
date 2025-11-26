@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { showTermsPopup } from "../details/ShowTermsPopup";
 import { showContactPopup } from "../details/ContactPopup";
@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import UserService from "../../services/UserService";
 
 export default function CardFilter({ announce }) {
+
   const { user } = useAuthContext();
   const userId = user?.userId || user?.id;
 
@@ -122,9 +123,12 @@ export default function CardFilter({ announce }) {
 
         <div className="divider my-4"></div>
 
-        {/* ✅ Agent + ปุ่มติดต่อ (ไม่อยู่ใน Link แล้ว) */}
+        {/* ✅ Agent + ปุ่มติดต่อ */}
         <div className="flex items-center justify-between mt-auto">
-          <div className="flex items-center gap-3">
+          <Link
+            to={`/public-profile/${agent?.userId || agent?.agentId || agent?.id}`}
+            className="flex items-center gap-3 cursor-pointer"
+          >
             <img
               src={agentImage}
               alt="agent"
@@ -143,7 +147,7 @@ export default function CardFilter({ announce }) {
                 {agent.description || "ไม่มีรายละเอียด"}
               </p>
             </div>
-          </div>
+          </Link>
 
           <button
             onClick={handleClickTerms}

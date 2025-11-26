@@ -4,13 +4,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import NotificationService from "../services/์NotificationService";
 import { useAuthContext } from "../context/AuthContext";
 import Swal from "sweetalert2";
-import { useNavigate, useLocation } from "react-router";
-
-
+import { useNavigate, useLocation } from "react-router-dom";
+import { NotificationMenuSkeleton } from "./NotificationMenuSkeleton";
+import { LuBell } from "react-icons/lu";
+import { LuBellDot } from "react-icons/lu";
+import { u } from "framer-motion/client";
 export default function NotificationMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(true);
   const menuRef = useRef();
   const { user } = useAuthContext();
   const userId = user?.userId;
@@ -59,9 +62,12 @@ export default function NotificationMenu() {
           icon: "error",
           text: error?.response?.data || error.message,
         });
+      } finally {
+        setLoading(false);
       }
     };
 
+    setLoading(true);
     fetchData(); // ✅ โหลดทันทีตอนเข้า
     const interval = setInterval(fetchData, 10000); // ✅ โหลดซ้ำทุก 10 วิ
     return () => clearInterval(interval);
@@ -72,7 +78,10 @@ export default function NotificationMenu() {
     if (!isOpen && userId) {
       const refresh = async () => {
         try {
-          const res = await NotificationService.showAllNotificationSelectedByUserId(userId);
+          const res =
+            await NotificationService.showAllNotificationSelectedByUserId(
+              userId
+            );
           if (res?.status === 200) {
             setNotifications(res.data);
             const unread = res.data.filter((n) => !n.is_read).length;
@@ -125,11 +134,23 @@ export default function NotificationMenu() {
             transition={{ duration: 0.2 }}
             className="absolute right-0 mt-3 w-72 bg-white/90 backdrop-blur-md shadow-xl rounded-xl border border-gray-200 overflow-hidden z-50"
           >
-            <div className="p-3 text-sm font-semibold text-gray-700 border-b bg-gradient-to-r from-[#f7f3ef] to-[#faf9f8]">
-              🔔 การแจ้งเตือน
+            <div className="p-3 text-sm font-semibold text-gray-700 border-b bg-gradient-to-r from-[#faf9f8] to-[#f3ebe5] flex items-center">
+              {unreadCount > 0 ? (
+                <>
+                  <LuBellDot className="mr-2" />
+                  <p>การแจ้งเตือน</p>
+                </>
+              ) : (
+                <>
+                  <LuBell className="mr-2" />
+                  <p>การแจ้งเตือน</p>
+                </>
+              )}
             </div>
 
-            {notifications.length > 0 ? (
+            {loading ? (
+              <NotificationMenuSkeleton />
+            ) : notifications.length > 0 ? (
               <ul className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 divide-y divide-gray-100">
                 {notifications.map((n) => (
                   <li
@@ -146,13 +167,17 @@ export default function NotificationMenu() {
                       onClick={() => handleOpenDetail(n)}
                       className="flex flex-col cursor-pointer flex-grow"
                     >
-                      <span
-                        className={`font-semibold truncate ${
-                          n.is_read ? "text-gray-500" : "text-[#8C6239] font-bold"
-                        }`}
-                      >
-                        {n.title}
-                      </span>
+                      <div className="flex items-center">
+                        <span
+                          className={`truncate font-semibold max-w-[200px] ${
+                            n.is_read
+                              ? "text-gray-500"
+                              : "text-[#8C6239] font-bold"
+                          }`}
+                        >
+                          {n.title}
+                        </span>
+                      </div>
                       <span
                         className={`text-xs ${
                           n.is_read ? "text-gray-400" : "text-gray-600"

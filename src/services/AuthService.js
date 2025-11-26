@@ -92,6 +92,15 @@ const AuthService = {
   sendVerify,
   sendOtp,
   verifyOtp,
+  changePassword: async (oldPassword, newPassword, confirmPassword) => {
+    return await api.post(buildUrl("/changePassword"), { oldPassword, newPassword, confirmPassword });
+  },
+  sendEmailResetPassword: async (email) => {
+    return await api.post(buildUrl(`/sendEmailResetPassword?email=${email}`));
+  },
+  resetPassword: async (token, newPassword, confirmPassword) => {
+    return await api.post(buildUrl(`/resetPassword?token=${token}`), { newPassword, confirmPassword });
+  }
 };
 
 export default AuthService;

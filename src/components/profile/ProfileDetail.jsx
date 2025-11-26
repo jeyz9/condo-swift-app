@@ -1,5 +1,6 @@
 import React from "react";
 
+
 const formatJoinedAgo = (joinDate) => {
   if (!joinDate) return "-";
   const joined = new Date(joinDate);
@@ -76,7 +77,11 @@ const buildStats = (profile = {}) => {
   ];
 };
 
+
+
 export const ProfileDetail = ({ profile }) => {
+
+
   const stats = buildStats(profile);
 
   return (
@@ -99,6 +104,8 @@ export const ProfileDetail = ({ profile }) => {
           </div>
         ))}
       </div>
+
+
     </div>
   );
 };

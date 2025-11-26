@@ -1,5 +1,6 @@
 // src/components/RecommendedAgent.jsx
 import React, { useState } from "react";
+import { Link } from "react-router-dom"; // ✅ Import Link
 import { MdVerified } from "react-icons/md";
 import Swal from "sweetalert2";
 import { showContactPopup } from "./details/ContactPopup";
@@ -12,7 +13,7 @@ const RecommendedAgent = ({ recommendedAgents }) => {
   const userId = user?.userId || user?.id || null;
 
   const [termsAccepted, setTermsAccepted] = useState(false);
-  console.log("แนะนำ ", recommendedAgents)
+  console.log("แนะนำ ", recommendedAgents);
   // รองรับทั้งส่งมาเป็น object เดียว หรือ array
   const agents = Array.isArray(recommendedAgents)
     ? recommendedAgents
@@ -81,70 +82,79 @@ const RecommendedAgent = ({ recommendedAgents }) => {
 
   return (
     <div className="space-y-4 w-full">
-      {agents.map((agent) => (
-        <div
-          key={agent.id || agent.agentId || agent.name}
-          className="card bg-base-100 w-full shadow-sm border border-[#FAAF1C] rounded-2xl relative"
-        >
-          {/* Badge ยืนยันตัวตน */}
-          <div className="absolute top-2 right-2">
-            <div
-              className={`badge border-none rounded-full text-white text-xs sm:text-sm inline-flex items-center gap-1 ${
-                agent?.is_verify || agent?.isVerified
-                  ? "bg-[#28A745]"
-                  : "bg-gray-400"
-              }`}
-            >
-              <MdVerified className="w-4 h-4" />
-              {agent?.is_verify || agent?.isVerified
-                ? "ยืนยันตัวตนแล้ว"
-                : "ยังไม่ยืนยันตัวตน"}
-            </div>
-          </div>
+      {agents.map((agent) => {
+        const agentProfileId = agent?.userId || agent?.agentId || agent?.id; // ✅ Get agent ID
 
-          <div className="flex items-center gap-4 p-4 sm:p-5">
-            <div className="avatar">
-              <div className="w-16 sm:w-20 rounded-full ring ring-base-200 ring-offset-2">
-                <img
-                  src={
-                    agent?.image ||
-                    agent?.profileImage ||
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                      agent?.name || "Agent"
-                    )}&background=0D8ABC&color=fff`
-                  }
-                  alt={agent?.name || "โปรไฟล์ผู้ขาย"}
-                />
+        const Wrapper = agentProfileId ? Link : "div";
+        const wrapperProps = agentProfileId
+          ? { to: `/public-profile/${agentProfileId}` }
+          : {};
+
+        return (
+          <div
+            key={agent.id || agent.agentId || agent.name}
+            className="card bg-base-100 w-full shadow-sm border border-[#FAAF1C] rounded-2xl relative"
+          >
+            {/* Badge ยืนยันตัวตน */}
+            <div className="absolute top-2 right-2">
+              <div
+                className={`badge border-none rounded-full text-white text-xs sm:text-sm inline-flex items-center gap-1 ${
+                  agent?.is_verify || agent?.isVerified
+                    ? "bg-[#28A745]"
+                    : "bg-gray-400"
+                }`}
+              >
+                <MdVerified className="w-4 h-4" />
+                {agent?.is_verify || agent?.isVerified
+                  ? "ยืนยันตัวตนแล้ว"
+                  : "ยังไม่ยืนยันตัวตน"}
               </div>
             </div>
 
-            <div className="flex-1 min-w-0">
-              <h3 className="text-lg sm:text-xl font-semibold truncate">
-                {agent?.name || "ไม่ระบุชื่อ"}
-              </h3>
-              <p className="text-sm text-base-content/70 line-clamp-2">
-                {agent?.description || agent?.bio || "ยังไม่มีคำอธิบาย"}
-              </p>
+            <Wrapper {...wrapperProps} className="flex items-center gap-4 p-4 sm:p-5">
+              <div className="avatar">
+                <div className="w-16 sm:w-20 rounded-full ring ring-base-200 ring-offset-2">
+                  <img
+                    src={
+                      agent?.image ||
+                      agent?.profileImage ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                        agent?.name || "Agent"
+                      )}&background=0D8ABC&color=fff`
+                    }
+                    alt={agent?.name || "โปรไฟล์ผู้ขาย"}
+                  />
+                </div>
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg sm:text-xl font-semibold truncate">
+                  {agent?.name || "ไม่ระบุชื่อ"}
+                </h3>
+                <p className="text-sm text-base-content/70 line-clamp-2">
+                  {agent?.description || agent?.bio || "ยังไม่มีคำอธิบาย"}
+                </p>
+              </div>
+            </Wrapper>
+
+            <div className="px-4 sm:px-5 pb-4">
+              <button
+                type="button"
+                onClick={() => handleClickTerms(agent)}
+                className="btn w-full bg-[#8C6239] text-white border-none rounded-full hover:bg-[#704c2c]"
+              >
+                ติดต่อสอบถาม
+              </button>
+
+              {termsAccepted && (
+                <p className="mt-2 text-[12px] text-center text-green-600">
+                  คุณได้ยอมรับข้อตกลงและเงื่อนไขแล้ว
+                </p>
+              )}
             </div>
           </div>
-
-          <div className="px-4 sm:px-5 pb-4">
-            <button
-              type="button"
-              onClick={() => handleClickTerms(agent)}
-              className="btn w-full bg-[#8C6239] text-white border-none rounded-full hover:bg-[#704c2c]"
-            >
-              ติดต่อสอบถาม
-            </button>
-
-            {termsAccepted && (
-              <p className="mt-2 text-[12px] text-center text-green-600">
-                คุณได้ยอมรับข้อตกลงและเงื่อนไขแล้ว
-              </p>
-            )}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

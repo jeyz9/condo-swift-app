@@ -8,13 +8,15 @@ import AnnounceService from "../services/AnnounceService";
 import UserService from "../services/UserService";
 import Swal from "sweetalert2";
 import RecommendedAgent from "../components/RecommendedAgent";
+import { CondoCardSkeleton } from "../components/CondoCardSkeleton";
+import { RecommendedAgentSkeleton } from "../components/RecommendedAgentSkeleton";
 
 export const Filter = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
 
-  const keyword = queryParams.get("keyword") || "";
+  const keyword = queryParams.get("keyword") || queryParams.get("search_query") || "";
   const pageFromQuery = Number(queryParams.get("page") || 0) || 0;
   const type = queryParams.get("type") || queryParams.get("filter") || "";
   const bedroomCount = queryParams.get("bedroomCount");
@@ -24,6 +26,9 @@ export const Filter = () => {
     queryParams.get("saleType") ||
     queryParams.get("effectiveType") || // รองรับชื่อใหม่จาก SearchBar
     "";
+  const station = queryParams.get("station") || "";
+  const province = queryParams.get("province") || "";
+  const badge = queryParams.get("badge") || "";
 
   const [announces, setAnnounces] = useState([]);
   const [total, setTotal] = useState(0);
@@ -47,26 +52,26 @@ export const Filter = () => {
       setLoading(true);
       try {
         const q = new URLSearchParams(location.search);
-        const keyword = q.get("keyword") || "";
+        const keyword = q.get("keyword") || q.get("search_query") || "";
         const type = q.get("type") || q.get("filter") || "";
         const saleType = q.get("saleType") || q.get("effectiveType") || "";
         const bedroomCount = q.get("bedroomCount");
         const minPrice = q.get("minPrice");
         const maxPrice = q.get("maxPrice");
-        const badge = q.get("badge");
-        const page = Number(q.get("page") || 0);
-        const size = Number(q.get("size") || 10);
+        const badge = q.get("badge") || ""; // ดึง badge
 
         const res = await AnnounceService.getFilterAnnounceWithAgent({
           keyword,
           type,
           saleType,
-          badge,
+          badge, // ส่ง badge
           bedroomCount: bedroomCount ? Number(bedroomCount) : undefined,
           minPrice: minPrice ? Number(minPrice) : undefined,
           maxPrice: maxPrice ? Number(maxPrice) : undefined,
+          station, // ส่ง station
+          province, // ส่ง province
           page,
-          size,
+          size: itemsPerPage,
         });
 
         if (res.status === 200) {
@@ -171,11 +176,17 @@ export const Filter = () => {
           defaultKeyword={keyword}
           defaultFilter={type}
           defaultSaleType={saleType}
-          onSearch={({ keyword: kw, type: ft, saleType: st }) => {
+          defaultStation={station} // Pass defaultStation
+          defaultProvince={province} // Pass defaultProvince
+          defaultBadge={badge} // Pass defaultBadge
+          onSearch={({ keyword: kw, type: ft, saleType: st, station: stn, province: prv, badge: bdg }) => {
             const params = new URLSearchParams(location.search);
             const nextKeyword = kw?.trim() || "";
             const nextType = ft || "";
             const nextSaleType = st || saleType || "";
+            const nextStation = stn?.trim() || "";
+            const nextProvince = prv?.trim() || "";
+            const nextBadge = bdg || "";
 
             if (nextKeyword) {
               params.set("keyword", nextKeyword);
@@ -196,6 +207,24 @@ export const Filter = () => {
               params.delete("saleType");
             }
 
+            if (nextStation) {
+              params.set("station", nextStation);
+            } else {
+              params.delete("station");
+            }
+
+            if (nextProvince) {
+              params.set("province", nextProvince);
+            } else {
+              params.delete("province");
+            }
+
+            if (nextBadge) {
+              params.set("badge", nextBadge);
+            } else {
+              params.delete("badge");
+            }
+
             params.set("page", "0");
             params.set("size", String(itemsPerPage));
 
@@ -213,13 +242,17 @@ export const Filter = () => {
           <div ref={listTopRef} />
           <AnimatePresence mode="wait">
             {loading ? (
-              <motion.p
+              <motion.div
                 key="loading"
                 {...fadeUp}
-                className="text-center text-gray-500 py-10"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6"
               >
-                กำลังโหลดข้อมูล...
-              </motion.p>
+                {[...Array(6)].map((_, i) => (
+                  <motion.div key={i} {...fadeUp}>
+                    <CondoCardSkeleton />
+                  </motion.div>
+                ))}
+              </motion.div>
             ) : announces.length > 0 ? (
               <motion.div
                 key="list"
@@ -257,7 +290,7 @@ export const Filter = () => {
           </h1>
 
           {loadingAgents ? (
-            <p className="text-sm text-gray-500">กำลังโหลดผู้ประกาศแนะนำ...</p>
+            <RecommendedAgentSkeleton />
           ) : (
             <RecommendedAgent recommendedAgents={recommendedAgents} />
           )}

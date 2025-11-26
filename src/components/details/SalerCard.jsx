@@ -5,30 +5,27 @@ import { showContactPopup } from "./ContactPopup";
 import { showTermsPopup } from "./ShowTermsPopup";
 import { useAuthContext } from "../../context/AuthContext";
 import UserService from "../../services/UserService";
+import { Link } from "react-router-dom";
 
 const SalerCard = ({ agent }) => {
-  const { user } = useAuthContext();           // ปกติ context จะเป็นแบบนี้
-  const userId = user?.userId || user?.id;     // แล้วแต่ backend คุณใช้ field อะไร
-
+  const { user } = useAuthContext();
+  const userId = user?.userId || user?.id;
   const [termsAccepted, setTermsAccepted] = useState(false);
 
+  const agentProfileId = agent?.userId || agent?.agentId || agent?.id; // ✅ Check for userId, agentId, or id
+
   const handleClickTerms = async () => {
-    // 1) เปิด popup ข้อตกลง
+    // ... (rest of the function is unchanged)
     const accepted = await showTermsPopup();
     if (!accepted) return;
 
-    // 2) ถ้ายืนยันแล้ว → call API บันทึกว่ารับ terms แล้ว
     try {
       const response = await UserService.acceptTerms(userId);
-
-      if (response.status === 200 || 201) {
+      if (response.status === 200 || response.status === 201) {
         setTermsAccepted(true);
-
-        // 3) จากนั้นค่อยโชว์ popup ช่องทางติดต่อก็ได้
         const phoneMasked = "+6695904xxxx";
         const phoneFull = "+66959042353";
         const lineUrl = "https://line.me/ti/p/xxxxxxxx";
-
         showContactPopup(phoneMasked, phoneFull, lineUrl);
       }
     } catch (error) {
@@ -53,32 +50,58 @@ const SalerCard = ({ agent }) => {
           {agent?.is_verify ? "ยืนยันตัวตนแล้ว" : "ยังไม่ยืนยันตัวตน"}
         </div>
       </div>
-       
-      <div className="flex items-center gap-4 p-4 sm:p-5 ">
-        <div className="avatar ">
-          <div className="w-16 sm:w-20 rounded-full ring ring-base-200 ring-offset-2">
-            <img
-              src={
-                agent?.image ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  agent?.name
-                )}&background=0D8ABC&color=fff`
-              }
-              alt="โปรไฟล์ผู้ขาย"
-            />
+
+      <>
+        {agentProfileId ? (
+          <Link to={`/public-profile/${agentProfileId}`} className="flex items-center gap-4 p-4 sm:p-5 cursor-pointer">
+            <div className="avatar">
+              <div className="w-16 sm:w-20 rounded-full ring ring-base-200 ring-offset-2">
+                <img
+                  src={
+                    agent?.image ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      agent?.name || "A"
+                    )}&background=0D8ABC&color=fff`
+                  }
+                  alt="โปรไฟล์ผู้ขาย"
+                />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg sm:text-xl font-semibold truncate">
+                {agent?.name || "ไม่ระบุชื่อ"}
+              </h3>
+              <p className="text-sm text-base-content/70">
+                {agent?.description || "ไม่มีคำอธิบาย"}
+              </p>
+            </div>
+          </Link>
+        ) : (
+          <div className="flex items-center gap-4 p-4 sm:p-5">
+            <div className="avatar">
+              <div className="w-16 sm:w-20 rounded-full ring ring-base-200 ring-offset-2">
+                <img
+                  src={
+                    agent?.image ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      agent?.name || "A"
+                    )}&background=0D8ABC&color=fff`
+                  }
+                  alt="โปรไฟล์ผู้ขาย"
+                />
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg sm:text-xl font-semibold truncate">
+                {agent?.name || "ไม่ระบุชื่อ"}
+              </h3>
+              <p className="text-sm text-base-content/70">
+                {agent?.description || "ไม่มีคำอธิบาย"}
+              </p>
+            </div>
           </div>
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <h3 className="text-lg sm:text-xl font-semibold truncate">
-            {agent?.name}
-          </h3>
-          <p className="text-sm text-base-content/70">
-            {agent?.description}
-          </p>
-        </div>
-      </div>
-
+        )}
+      </>
 
       <div className="px-4 sm:px-5 pb-4">
         <button

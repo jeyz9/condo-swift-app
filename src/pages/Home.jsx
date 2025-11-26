@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import Hero from "../components/Hero";
 import SearchBar from "../components/SearchBar";
 import { MdOutlineAddHome, MdSell } from "react-icons/md";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import AnnounceService from "../services/AnnounceService";
 import Swal from "sweetalert2";
 import CondoCardNearby from "../components/CondoCardNearby";
@@ -13,10 +13,11 @@ import { CondoCardSkeleton } from "../components/CondoCardSkeleton";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const Home = () => {
-  const [announce, setAnnounce] = useState({});
+  const [announce, setAnnounce] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saleType, setSaleType] = useState("");
 
+  // ✅ รูป MRT (เรียงตาม index)
   const imageList = [
     "/mrt/BTS-and-MRT-Bangkok.jpg",
     "/mrt/IM2019100039MO.jpg",
@@ -29,6 +30,15 @@ export const Home = () => {
       try {
         setLoading(true);
         const response = await AnnounceService.getAnnounceWithCategory();
+        const responseFilter = await AnnounceService.getFilterAnnounceWithAgent(
+          {
+            keyword: "",
+            type: "คอนโด",
+            page: 0,
+            size: 20,
+          }
+        );
+
         setAnnounce(
           response.status === 200
             ? response.data
@@ -42,12 +52,12 @@ export const Home = () => {
       } catch (error) {
         Swal.fire({
           icon: "error",
-          title: "?????????????????????????????",
+          title: "เกิดข้อผิดพลาดในการเชื่อมต่อ",
           text:
             error.response?.data?.message ||
             error.message ||
-            "????????????????????? ????????????????",
-          confirmButtonText: "???",
+            "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
+          confirmButtonText: "ตกลง",
         });
       } finally {
         setLoading(false);
@@ -57,9 +67,11 @@ export const Home = () => {
     fetchData();
   }, []);
 
+  // ✅ ดึงข้อมูลแต่ละหมวด
   const { recommendAnnounces, nearbyPlaces, luxuryHouses, villaProvince } =
     announce;
 
+  // ✅ Animation
   const fadeUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
@@ -73,15 +85,8 @@ export const Home = () => {
     },
   });
 
-  const sectionWrapper =
-    "px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10 bg-white/80 backdrop-blur border border-[#e7dbce] rounded-3xl shadow-sm";
-  const sectionTitle =
-    "text-2xl sm:text-3xl md:text-4xl font-bold text-[#3f2c1d]";
-  const sectionLink =
-    "ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline whitespace-nowrap";
-
   return (
-    <div className="bg-gradient-to-b from-[#fdf8f2] via-[#f6ede3] to-[#f1e3d5] pb-12">
+    <>
       {/* HERO */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -101,9 +106,9 @@ export const Home = () => {
         <SearchBar selectedType={saleType} />
       </motion.div>
 
-      {/* Sale type toggles */}
+      {/* ปุ่ม “เช่า” และ “ขาย” */}
       <motion.div
-        className="flex flex-row flex-wrap justify-center mt-8 gap-4 sm:gap-5 px-4"
+        className="flex flex-row flex-wrap justify-center mt-10 gap-4 sm:gap-5"
         initial="hidden"
         animate="visible"
         variants={fadeUp}
@@ -111,53 +116,55 @@ export const Home = () => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.97 }}
-          onClick={() => setSaleType("?1??,S?1^?,?")}
-          className={`btn border-[#8C6239] font-light rounded-md w-36 text-base sm:text-lg transition-all
+          onClick={() => setSaleType("เช่า")}
+          className={`btn border-[#8C6239] font-light rounded-md w-32 text-base sm:text-lg transition-all
             ${
-              saleType === "?1??,S?1^?,?"
+              saleType === "เช่า"
                 ? "bg-[#8C6239] text-white"
                 : "bg-white text-[#8C6239] hover:bg-[#8C6239] hover:text-white"
             }`}
         >
           <MdOutlineAddHome className="text-xl sm:text-2xl" />
-          ?1??,S?1^?,?
+          เช่า
         </motion.button>
 
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.97 }}
-          onClick={() => setSaleType("?,,?,??,?")}
-          className={`btn border-[#8C6239] font-light rounded-md w-36 text-base sm:text-lg transition-all
+          onClick={() => setSaleType("ขาย")}
+          className={`btn border-[#8C6239] font-light rounded-md w-32 text-base sm:text-lg transition-all
             ${
-              saleType === "?,,?,??,?"
+              saleType === "ขาย"
                 ? "bg-[#8C6239] text-white"
                 : "bg-white text-[#8C6239] hover:bg-[#8C6239] hover:text-white"
             }`}
         >
           <MdSell className="text-xl sm:text-2xl" />
-          ?,,?,??,?
+          ขาย
         </motion.button>
       </motion.div>
 
-      {/* Recommend */}
+      {/* SECTION: คอนโดแนะนำ */}
       <motion.div
-        className={`${sectionWrapper} mt-10 mx-4 sm:mx-8 md:mx-12`}
+        className="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
       >
-        <div className="flex flex-row items-center gap-3 mb-2 mt-4">
-          <h2 className={sectionTitle}>???????????</h2>
-          <span className="h-[3px] w-12 bg-[#8C6239] rounded-full" />
-          <Link to="/filter?badge=?1??,T?,??,T?,3" className={sectionLink}>
-            ????????? {`>`}
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
+           คอนโด แนะนำ
+          <Link
+            to="/filter?badge=แนะนำ"
+            className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
+          >
+            รายละเอียดเพิ่มเติม {`>`}
           </Link>
-        </div>
+        </h2>
 
         <motion.div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <AnimatePresence>
-            {loading ? (
-              [...Array(4)].map((_, i) => (
+            {loading
+              ? [...Array(4)].map((_, i) => (
                 <motion.div
                   key={i}
                   variants={fadeDelay(i)}
@@ -167,45 +174,47 @@ export const Home = () => {
                   <CondoCardSkeleton />
                 </motion.div>
               ))
-            ) : recommendAnnounces?.length > 0 ? (
-              recommendAnnounces.map((item, i) => (
+              : recommendAnnounces?.length > 0 ? (
+              recommendAnnounces.map((announce, i) => (
                 <motion.div
-                  key={item.id}
+                  key={announce.id}
                   variants={fadeDelay(i)}
                   initial="hidden"
                   animate="visible"
                   exit="hidden"
                 >
-                  <CondoCard announce={item} />
+                  <CondoCard announce={announce} />
                 </motion.div>
               ))
             ) : (
               <div className="col-span-full text-center text-gray-500">
-                ????????????????????????
+                ไม่มีคอนโดแนะนำในขณะนี้
               </div>
             )}
           </AnimatePresence>
         </motion.div>
       </motion.div>
 
-      {/* BTS/MRT */}
+      {/* SECTION: คอนโดใกล้ BTS/MRT */}
       <motion.div
-        className={`${sectionWrapper} mt-8 mx-4 sm:mx-8 md:mx-12`}
+        className="mt-10 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
       >
-        <div className="flex flex-row items-center gap-3 mb-2 mt-4">
-          <h2 className={sectionTitle}>???? BTS/MRT</h2>
-          <span className="h-[3px] w-12 bg-[#8C6239] rounded-full" />
-          <Link to="/filter?station=" className={sectionLink}>
-            ????????? {`>`}
-          </Link>
-        </div>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
+          คอนโดใกล้ BTS/MRT
+          <a
+            href="#"
+            className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
+          >
+            รายละเอียดเพิ่มเติม {`>`}
+          </a>
+        </h2>
 
         <motion.div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {loading ? (
-            [...Array(4)].map((_, i) => (
+          {loading
+            ? [...Array(4)].map((_, i) => (
               <motion.div
                 key={i}
                 variants={fadeDelay(i)}
@@ -215,7 +224,7 @@ export const Home = () => {
                 <CondoCardSkeleton />
               </motion.div>
             ))
-          ) : nearbyPlaces?.length > 0 ? (
+                          : nearbyPlaces?.length > 0 ? (
             nearbyPlaces.map((item, i) => (
               <motion.div
                 key={item.id}
@@ -223,6 +232,7 @@ export const Home = () => {
                 initial="hidden"
                 animate="visible"
               >
+                {/* ✅ ใช้รูปเรียงตามลำดับ */}
                 <CondoCardNearby
                   item={item}
                   image={imageList[i % imageList.length]}
@@ -231,26 +241,27 @@ export const Home = () => {
             ))
           ) : (
             <div className="col-span-full text-center text-gray-500">
-              ??????????????? BTS/MRT
+              ไม่มีคอนโดใกล้ BTS/MRT ในขณะนี้
             </div>
-          )}
-        </motion.div>
+                          )}        </motion.div>
       </motion.div>
 
-      {/* Luxury */}
+      {/* SECTION: บ้าน */}
       <motion.div
-        className={`${sectionWrapper} mt-8 mx-4 sm:mx-8 md:mx-12`}
+        className="mt-10 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
       >
-        <div className="flex flex-row items-center gap-3 mb-2 mt-4">
-          <h2 className={sectionTitle}>???????????</h2>
-          <span className="h-[3px] w-12 bg-[#8C6239] rounded-full" />
-          <Link to="/filter?type=?,s?1%?,??,T" className={sectionLink}>
-            ????????? {`>`}
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
+          บ้าน แนะนำ
+          <Link
+            to="/filter?type=บ้าน"
+            className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
+          >
+            รายละเอียดเพิ่มเติม {`>`}
           </Link>
-        </div>
+        </h2>
 
         {loading ? (
           <motion.div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -280,26 +291,25 @@ export const Home = () => {
           </motion.div>
         ) : (
           <div className="mt-6 p-4 rounded-lg text-center">
-            ????????????????????
+            ยังไม่มีบ้านแนะนำในขณะนี้
           </div>
         )}
       </motion.div>
 
-      {/* Villas */}
+      {/* SECTION: วิลล่า */}
       <motion.div
-        className={`${sectionWrapper} mt-8 mx-4 sm:mx-8 md:mx-12 mb-10`}
+        className="mt-10 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
       >
-        <div className="flex flex-row items-center gap-3 mb-2 mt-4">
-          <h2 className={sectionTitle}>?????????????????????</h2>
-          <span className="h-[3px] w-12 bg-[#8C6239] rounded-full" />
-        </div>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
+          รีสอร์ต วิลล่า
+        </h2>
 
         <motion.div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {loading ? (
-            [...Array(4)].map((_, i) => (
+          {loading
+            ? [...Array(4)].map((_, i) => (
               <motion.div
                 key={i}
                 variants={fadeDelay(i)}
@@ -309,7 +319,7 @@ export const Home = () => {
                 <CondoCardSkeleton />
               </motion.div>
             ))
-          ) : villaProvince?.length > 0 ? (
+                          : villaProvince?.length > 0 ? (
             villaProvince.map((item, i) => (
               <motion.div
                 key={item.id}
@@ -322,11 +332,10 @@ export const Home = () => {
             ))
           ) : (
             <div className="col-span-full text-center text-gray-500">
-              ????????????????????????????
+              ไม่มีวิลล่าแนะนำในขณะนี้
             </div>
-          )}
-        </motion.div>
+                          )}        </motion.div>
       </motion.div>
-    </div>
+    </>
   );
 };

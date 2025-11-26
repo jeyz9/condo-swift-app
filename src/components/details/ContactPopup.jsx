@@ -24,7 +24,7 @@ export const showContactPopup = (phoneMasked, phoneFull, lineUrl) => {
         href="${lineUrl}"
         target="_blank"
         rel="noreferrer"
-        class="flex items-center justify-center w-full py-3 rounded-lg border border-[#06c755]
+        class="cursor-pointer flex items-center justify-center w-full py-3 rounded-lg border border-[#06c755]
                text-[#06c755] font-semibold text-[16px]
                hover:bg-[#06c755]/10 transition-colors duration-150"
       >

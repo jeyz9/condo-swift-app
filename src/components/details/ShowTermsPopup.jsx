@@ -40,7 +40,7 @@ export const showTermsPopup = () => {
           <button
             type="button"
             id="terms-confirm"
-            class="py-2.5 rounded-lg bg-[#8C6239] text-white font-medium text-[15px]
+            class="btn py-2.5 rounded-lg bg-[#8C6239] text-white font-medium text-[15px]
                    opacity-40 cursor-not-allowed
                    transition-colors duration-150"
           >

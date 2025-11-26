@@ -56,7 +56,42 @@ const createAnnounce = async (announce, imageFiles = []) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
-const updateAnnounce = async (id, Announce) => api.put(`${API_URL}/${id}`, Announce);
+
+
+// /api/v1/announces/editAnnounce/{announceId}
+const updateAnnounce = async (announceId, announce, imageFiles = []) => {
+  const formData = new FormData();
+
+  const payload = {
+    ...announce,
+    mapPoints: (announce?.mapPoints || []).map((point) => ({
+      lat: `${point?.lat ?? ""}`,
+      lng: `${point?.lng ?? ""}`,
+    })),
+  };
+
+  try {
+    const blob = new Blob([JSON.stringify(payload)], {
+      type: "application/json",
+    });
+    formData.append("announce", blob);
+  } catch (_error) {
+    formData.append("announce", JSON.stringify(payload));
+  }
+
+  if (Array.isArray(imageFiles)) {
+    imageFiles.forEach((file, index) => {
+      if (file) {
+        const filename = file.name || `image_${index}.jpg`;
+        formData.append("images", file, filename);
+      }
+    });
+  }
+
+  return api.put(`${API_URL}/editAnnounce/${announceId}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
 const getAnnounceById = async (id) => api.get(`${API_URL}/${id}`);
 const deleteAnnounce = async (id) => api.delete(`${API_URL}/${id}`);
 
@@ -80,6 +115,8 @@ const getFilterAnnounceWithAgent = async (arg1, arg2, arg3, arg4) => {
       bedroomCount,
       minPrice,
       maxPrice,
+      station, // ✅ เพิ่ม station
+      province, // ✅ เพิ่ม province
       page = 0,
       size = 8,
     } = arg1;
@@ -96,6 +133,8 @@ const getFilterAnnounceWithAgent = async (arg1, arg2, arg3, arg4) => {
       bedroomCount,
       minPrice,
       maxPrice,
+      station, // ✅ เพิ่ม station
+      province, // ✅ เพิ่ม province
       page,
       size,
     };
@@ -141,6 +180,8 @@ const rejectAnnounce = async (id, data) => {
   return await api.put(`${API_URL}/rejectAnnounce/${id}`, data);
 }
 
+const getBadges = async () => api.get(`${API_URL}/badges`);
+
 
 
 // ✅ export ฟังก์ชันทั้งหมดไว้ให้เรียกง่าย
@@ -156,9 +197,8 @@ const AnnounceService = {
   showAllAnnounceApprove,
   showAllAnnounceHistory,
   approveAnnounce,
-  rejectAnnounce
+  rejectAnnounce,
+  getBadges
 };
 
 export default AnnounceService;
-
-

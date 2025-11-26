@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 import LoginPopup from "./login/LoginPopup"; // ✅ import login popup
 import RegisterPopup from "./login/RegisterPopup"; // ✅ import register popup
@@ -7,7 +7,10 @@ import { useAuthContext } from "../context/AuthContext";
 import UserProfile from "./UserProfile";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import NotificationMenu from "./NotificationMenu";
+import { useNavigate } from "react-router-dom";
+
 const Navbar = () => {
+
   const menuItems = [
     { title: "หน้าแรก", path: "/" },
     { title: "เกี่ยวกับเรา", path: "/about-us" },
@@ -21,6 +24,7 @@ const Navbar = () => {
   ];
 
   const { user } = useAuthContext();
+  const navigate = useNavigate();
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -102,7 +106,12 @@ const Navbar = () => {
         {user ? (
           <>
             <NotificationMenu />
-            
+            {/* <button
+              onClick={() => navigate("/payment")}
+              className="btn btn-sm sm:btn-md bg-[#8C6239] text-white border-none hover:bg-[#704c2c] mx-2"
+            >
+              เติมเครดิต
+            </button> */}
             <UserProfile />
           </>
         ) : (

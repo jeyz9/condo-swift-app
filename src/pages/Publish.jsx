@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import AnnounceService from "../services/AnnounceService";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import { TableSkeleton } from "../components/TableSkeleton";
 
 export default function Publish() {
   const location = useLocation();
@@ -13,6 +14,7 @@ export default function Publish() {
     const [size] = useState(5);
     const [totalPages, setTotalPages] = useState(0);
     const [ ordered, setOrdered ] = useState(0);
+    const [loading, setLoading] = useState(true);
   
     const [search, setSearch] = useState("");
     const [keyword, setKeyword] = useState("");
@@ -23,6 +25,7 @@ export default function Publish() {
   
     const fetchAnnounceHistory = async (searchKey, page, size) => {
       try {
+        setLoading(true);
         const response = await AnnounceService.showAllAnnounceApprove(
           searchKey,
           page,
@@ -40,6 +43,8 @@ export default function Publish() {
         setTotalPages(pages);
       } catch (error) {
         console.error("Error fetching announce history", error);
+      } finally {
+        setLoading(false);
       }
     };
   
@@ -134,52 +139,62 @@ export default function Publish() {
   
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="table table-zebra w-full text-sm">
-            <thead className="bg-[#f8f5f1] text-[#8C6239]">
-              <tr>
-                <th>ลำดับ</th>
-                <th>อสังหาริมทรัพย์</th>
-                <th>ผู้อัปโหลด</th>
-                <th>วันที่</th>
-                <th>ราคา</th>
-                <th>วันที่ตรวจ</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-  
-            <tbody>
-              {announces.map((item, index) => (
-                <tr key={item.id} className="hover:bg-[#f7f3ef] transition">
-                  <td>{ordered + index + 1}</td>
-                  <td className="flex items-center gap-3">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-10 h-10 rounded-md object-cover"
-                    />
-                    <span className="font-medium">{item.title}</span>
-                  </td>
-                  <td>{item.agentName}</td>
-                  <td>
-                    {dayjs(item.announcementDate)
-                      .locale("th")
-                      .format("DD MMMM YYYY เวลา HH:mm น.")}
-                  </td>
-                  <td className="text-[#8C6239] font-semibold">
-                    {item.price?.toLocaleString()} ฿
-                  </td>
-                  <td>
-                    {dayjs(item.approveDate)
-                      .locale("th")
-                      .format("DD MMMM YYYY เวลา HH:mm น.")}
-                  </td>
-                  <td>
-                    <button className="btn btn-active btn-warning">ระงับ</button>
-                  </td>
+          {loading ? (
+            <TableSkeleton rows={5} cols={7} />
+          ) : announces.length > 0 ? (
+            <table className="table table-zebra w-full text-sm">
+              <thead className="bg-[#f8f5f1] text-[#8C6239]">
+                <tr>
+                  <th>ลำดับ</th>
+                  <th>อสังหาริมทรัพย์</th>
+                  <th>ผู้อัปโหลด</th>
+                  <th>วันที่</th>
+                  <th>ราคา</th>
+                  <th>วันที่ตรวจ</th>
+                  <th>Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {announces.map((item, index) => (
+                  <tr key={item.id} className="hover:bg-[#f7f3ef] transition">
+                    <td>{ordered + index + 1}</td>
+                    <td className="flex items-center gap-3">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-10 h-10 rounded-md object-cover"
+                      />
+                      <span className="font-medium">{item.title}</span>
+                    </td>
+                    <td>{item.agentName}</td>
+                    <td>
+                      {dayjs(item.announcementDate)
+                        .locale("th")
+                        .format("DD MMMM YYYY เวลา HH:mm น.")}
+                    </td>
+                    <td className="text-[#8C6239] font-semibold">
+                      {item.price?.toLocaleString()} ฿
+                    </td>
+                    <td>
+                      {dayjs(item.approveDate)
+                        .locale("th")
+                        .format("DD MMMM YYYY เวลา HH:mm น.")}
+                    </td>
+                    <td>
+                      <button className="btn btn-active btn-warning">
+                        ระงับ
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="text-center py-10 text-gray-500">
+              ไม่พบข้อมูลประกาศที่เผยแพร่แล้ว
+            </div>
+          )}
         </div>
   
         {/* Pagination */}

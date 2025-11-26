@@ -5,8 +5,11 @@ import Swal from "sweetalert2";
 import { useAuthContext } from "../../context/AuthContext";
 import AuthService from "../../services/AuthService";
 import UserService from "../../services/UserService"; // ✅ เพิ่ม import นี้
+import ChangePasswordPopup from "./ChangePasswordPopup";
 
 const HeroProfile = ({ profile }) => {
+  const [showChangePasswordPopup, setShowChangePasswordPopup] = useState(false);
+
   const { user } = useAuthContext();
   const userId = user?.userId;
   const [uploading, setUploading] = useState(false);
@@ -71,6 +74,43 @@ const HeroProfile = ({ profile }) => {
       });
     }
   };
+
+  const handleDeletePicture = async () => {
+    try {
+      const result = await Swal.fire({
+        title: "ต้องการลบรูปภาพโปรไฟล์?",
+        text: "การกระทำนี้ไม่สามารถย้อนกลับได้",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "ใช่, ลบเลย!",
+        cancelButtonText: "ยกเลิก",
+      });
+
+      if (result.isConfirmed) {
+        const res = await UserService.deleteProfilePicture(userId);
+        if (res.status === 200) {
+          await Swal.fire({
+            icon: "success",
+            title: "ลบรูปภาพสำเร็จ!",
+            timer: 1200,
+            showConfirmButton: false,
+          }).then(() => {
+            window.location.reload();
+          });
+        }
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: err.response?.data?.message || err.message,
+      });
+    }
+  };
+
+
 
   // ✅ ยืนยันตัวตน (อีเมล / เบอร์โทร)
   const handleVerify = async () => {
@@ -229,6 +269,29 @@ const HeroProfile = ({ profile }) => {
           >
             เปลี่ยนรูปโปรไฟล์
           </div>
+          {profile?.image && (
+            <div
+              onClick={handleDeletePicture}
+              className="absolute top-2 right-2 z-10 p-1.5 bg-gray-800 rounded-full opacity-0 group-hover:opacity-100
+              hover:bg-red-600 hover:scale-110 transition-all duration-200"
+              title="ลบรูปโปรไฟล์"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </div>
+          )}
           <input
             id="uploadProfile"
             type="file"
@@ -274,19 +337,50 @@ const HeroProfile = ({ profile }) => {
           </p>
         </div>
 
-        {/* ปุ่มแชร์ + ติดต่อ */}
-        <div className="flex justify-start sm:ml-auto sm:justify-start sm:items-center gap-4">
-          <PiShareFat
-            onClick={handleShare}
-            className="w-[32px] h-[32px] text-[#8C6239] hover:text-[#704e2e] hover:scale-110 transition cursor-pointer"
-          />
-          <button className="btn bg-[#8C6239] px-6 py-3 text-white hover:bg-[#7a5431]">
-            ติดต่อ
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+                {/* ปุ่มแชร์ + ติดต่อ */}
+
+                <div className="flex justify-start sm:ml-auto sm:justify-start sm:items-center gap-4">
+
+                  <PiShareFat
+
+                    onClick={handleShare}
+
+                    className="w-[32px] h-[32px] text-[#8C6239] hover:text-[#704e2e] hover:scale-110 transition cursor-pointer"
+
+                  />
+
+                  {/* <button className="btn bg-[#8C6239] px-6 py-3 text-white hover:bg-[#7a5431]">
+
+                    ติดต่อ
+
+                  </button> */}
+
+                  <button
+
+                    onClick={() => setShowChangePasswordPopup(true)}
+
+                    className="btn px-6 py-3 border border-[#8C6239] text-[#8C6239] hover:bg-[#8C6239] hover:text-white transition-colors"
+
+                  >
+
+                    เปลี่ยนรหัสผ่าน
+
+                  </button>
+
+                </div>
+
+              </div>
+
+              {showChangePasswordPopup && (
+
+                <ChangePasswordPopup onClose={() => setShowChangePasswordPopup(false)} />
+
+              )}
+
+            </div>
+
+          );
+
+        };
 
 export default HeroProfile;

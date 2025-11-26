@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import AnnounceService from "../services/AnnounceService";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
+import { TableSkeleton } from "../components/TableSkeleton";
 
 export default function HistoryTable() {
   const location = useLocation();
@@ -13,6 +14,7 @@ export default function HistoryTable() {
   const [size] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
   const [ordered, setOrdered] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
   const [keyword, setKeyword] = useState("");
@@ -23,6 +25,7 @@ export default function HistoryTable() {
 
   const fetchAnnounceHistory = async (searchKey, page, size) => {
     try {
+      setLoading(true);
       const response = await AnnounceService.showAllAnnounceHistory(
         searchKey,
         page,
@@ -40,6 +43,8 @@ export default function HistoryTable() {
       setTotalPages(pages);
     } catch (error) {
       console.error("Error fetching announce history", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -128,56 +133,72 @@ export default function HistoryTable() {
       </div>
 
       <div className="w-full overflow-x-auto">
-        <table className="table table-zebra w-full text-sm">
-          <thead className="bg-[#f8f5f1] text-[#8C6239]">
-            <tr>
-              <th>ลำดับ</th>
-              <th>อสังหาริมทรัพย์</th>
-              <th>ผู้อัปโหลด</th>
-              <th>วันที่</th>
-              <th>ราคา</th>
-              <th>การอนุมัติ</th>
-              <th>หมายเหตุ</th>
-              <th>วันที่ตรวจ</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {announces.map((item, index) => (
-              <tr key={item.id} className="hover:bg-[#f7f3ef] transition">
-                <td>{ordered + index + 1}</td>
-                <td className="flex items-center gap-3">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-10 h-10 rounded-md object-cover"
-                  />
-                  <span className="font-medium whitespace-nowrap">{item.title}</span>
-                </td>
-                <td>{item.agentName}</td>
-                <td className="whitespace-nowrap">
-                  {dayjs(item.announcementDate)
-                    .locale("th")
-                    .format("DD MMMM YYYY เวลา HH:mm น.")}
-                </td>
-                <td className="text-[#8C6239] font-semibold whitespace-nowrap">
-                  {item.price?.toLocaleString()} ฿
-                </td>
-                <td>
-                  {item.status === "APPROVED" ? <div className="w-[67px] h-[24px] text-[#418C1B] border border-[#D3F4BB] text-[12px] bg-[#F9FEF6] justify-center flex items-center rounded-full">อนุมัติ</div> : <div className="w-[67px] h-[24px] text-[#E74B50] border border-[#F8C2C7] text-[12px] bg-[#FEF6F6] justify-center flex items-center rounded-full">ไม่อนุมัติ</div>}
-                </td>
-                <td className="w-10 whitespace-nowrap">
-                  {item.remark}
-                </td>
-                <td className="whitespace-nowrap">
-                  {dayjs(item.approveDate)
-                    .locale("th")
-                    .format("DD MMMM YYYY เวลา HH:mm น.")}
-                </td>
+        {loading ? (
+          <TableSkeleton rows={5} cols={8} />
+        ) : announces.length > 0 ? (
+          <table className="table table-zebra w-full text-sm">
+            <thead className="bg-[#f8f5f1] text-[#8C6239]">
+              <tr>
+                <th>ลำดับ</th>
+                <th>อสังหาริมทรัพย์</th>
+                <th>ผู้อัปโหลด</th>
+                <th>วันที่</th>
+                <th>ราคา</th>
+                <th>การอนุมัติ</th>
+                <th>หมายเหตุ</th>
+                <th>วันที่ตรวจ</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {announces.map((item, index) => (
+                <tr key={item.id} className="hover:bg-[#f7f3ef] transition">
+                  <td>{ordered + index + 1}</td>
+                  <td className="flex items-center gap-3">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-10 h-10 rounded-md object-cover"
+                    />
+                    <span className="font-medium whitespace-nowrap">
+                      {item.title}
+                    </span>
+                  </td>
+                  <td>{item.agentName}</td>
+                  <td className="whitespace-nowrap">
+                    {dayjs(item.announcementDate)
+                      .locale("th")
+                      .format("DD MMMM YYYY เวลา HH:mm น.")}
+                  </td>
+                  <td className="text-[#8C6239] font-semibold whitespace-nowrap">
+                    {item.price?.toLocaleString()} ฿
+                  </td>
+                  <td>
+                    {item.status === "APPROVED" ? (
+                      <div className="w-[67px] h-[24px] text-[#418C1B] border border-[#D3F4BB] text-[12px] bg-[#F9FEF6] justify-center flex items-center rounded-full">
+                        อนุมัติ
+                      </div>
+                    ) : (
+                      <div className="w-[67px] h-[24px] text-[#E74B50] border border-[#F8C2C7] text-[12px] bg-[#FEF6F6] justify-center flex items-center rounded-full">
+                        ไม่อนุมัติ
+                      </div>
+                    )}
+                  </td>
+                  <td className="w-10 whitespace-nowrap">{item.remark}</td>
+                  <td className="whitespace-nowrap">
+                    {dayjs(item.approveDate)
+                      .locale("th")
+                      .format("DD MMMM YYYY เวลา HH:mm น.")}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className="text-center py-10 text-gray-500">
+            ไม่พบข้อมูลประวัติ
+          </div>
+        )}
       </div>
 
       <div className="flex justify-center items-center gap-2 mt-4">

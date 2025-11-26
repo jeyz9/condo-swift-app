@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 export const CardDetails = ({ images = [] }) => {
+
   const [currentIndex, setCurrentIndex] = useState(null);
 
   const openPopup = (index) => setCurrentIndex(index);

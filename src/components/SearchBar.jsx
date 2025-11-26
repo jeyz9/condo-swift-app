@@ -1,328 +1,524 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import Swal from "sweetalert2";
 import { FaSlidersH } from "react-icons/fa";
+import { stations } from "../data/stations";
+import AnnounceService from "../services/AnnounceService";
 
+// ประเภททรัพย์
 const propertyTypes = ["คอนโด", "บ้านเดี่ยว", "ทาวน์โฮม", "ที่ดิน"];
+
+// 77 จังหวัด
 const provinces = [
-  "กรุงเทพมหานคร",
-  "นนทบุรี",
-  "ปทุมธานี",
+  "กรุงเทพมหานคร","กระบี่","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร","ขอนแก่น",
+  "จันทบุรี","ฉะเชิงเทรา","ชลบุรี","ชัยนาท","ชัยภูมิ","ชุมพร","เชียงราย",
+  "เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก","นครปฐม","นครพนม","นครราชสีมา",
+  "นครศรีธรรมราช","นครสวรรค์","นนทบุรี","นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์",
+  "ปทุมธานี","ประจวบคีรีขันธ์","ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา",
+  "พะเยา","พังงา","พัทลุง","พิจิตร","พิษณุโลก","เพชรบุรี","เพชรบูรณ์","แพร่",
+  "ภูเก็ต","มหาสารคาม","มุกดาหาร","แม่ฮ่องสอน","ยะลา","ยโสธร","ร้อยเอ็ด",
+  "ระนอง","ระยอง","ราชบุรี","ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ",
+  "สกลนคร","สงขลา","สตูล","สมุทรปราการ","สมุทรสงคราม","สมุทรสาคร","สระแก้ว",
+  "สระบุรี","สิงห์บุรี","สุโขทัย","สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์",
+  "หนองคาย","หนองบัวลำภู","อ่างทอง","อำนาจเจริญ","อุดรธานี","อุตรดิตถ์",
+  "อุทัยธานี","อุบลราชธานี"
+];
+
+export const bangkokStations = [
+  // 🚈 BTS Sukhumvit Line
+  "หมอชิต",
+  "สะพานควาย",
+  "อารีย์",
+  "อนุสาวรีย์ชัยสมรภูมิ",
+  "พญาไท",
+  "ราชเทวี",
+  "สยาม",
+  "ชิดลม",
+  "เพลินจิต",
+  "นานา",
+  "อโศก",
+  "พร้อมพงษ์",
+  "ทองหล่อ",
+  "เอกมัย",
+  "พระโขนง",
+  "อ่อนนุช",
+  "บางจาก",
+  "ปุณณวิถี",
+  "อุดมสุข",
+  "บางนา",
+  "แบริ่ง",
   "สมุทรปราการ",
-  "เชียงใหม่",
-  "ขอนแก่น",
-  "ภูเก็ต",
-  "ชลบุรี",
-  "ระยอง",
-  "สงขลา",
+  "ปู่เจ้า",
+  "ช้างเอราวัณ",
+  "สำโรง",
+  "ปากน้ำ",
+  "ศรีนครินทร์",
+  "แพรกษา",
+  "สายลวด",
+  "เคหะฯ",
+
+  // 🚈 BTS Silom Line
+  "สนามกีฬาแห่งชาติ",
+  "ราชดำริ",
+  "ศาลาแดง",
+  "ช่องนนทรี",
+  "สุรศักดิ์",
+  "สะพานตากสิน",
+  "กรุงธนบุรี",
+  "วงเวียนใหญ่",
+  "โพธิ์นิมิตร",
+  "ตลาดพลู",
+  "วุฒากาศ",
+  "บางหว้า",
+
+  // 🌟 BTS Gold Line
+  "กรุงธนบุรี (สายสีทอง)",
+  "เจริญนคร",
+  "คลองสาน",
+
+  // 🚇 MRT Blue Line
+  "หัวลำโพง",
+  "วัดมังกร",
+  "สามย่าน",
+  "ลุมพินี",
+  "คลองเตย",
+  "ศูนย์ประชุมแห่งชาติสิริกิติ์",
+  "สุขุมวิท",
+  "เพชรบุรี",
+  "พระราม 9",
+  "ศูนย์วัฒนธรรมแห่งประเทศไทย",
+  "ห้วยขวาง",
+  "สุทธิสาร",
+  "รัชดาภิเษก",
+  "ลาดพร้าว",
+  "พหลโยธิน",
+  "สวนจตุจักร",
+  "กำแพงเพชร",
+  "บางซื่อ",
+  "เตาปูน",
+  "บางโพ",
+  "บางอ้อ",
+  "บางพลัด",
+  "สิรินธร",
+  "บางยี่ขัน",
+  "บางขุนนนท์",
+  "ไฟฉาย",
+  "จรัญฯ 13",
+  "ท่าพระ",
+  "วัดสิงห์",
+  "บางแค",
+  "หลักสอง",
+  "ภาษีเจริญ",
+  "เพชรเกษม 48",
+  "สายไหม",
+  "พุทธมณฑลสาย 2",   // (ถ้าสายใหม่เปิด กำลังเพิ่ม)
+  
+  // 🚇 MRT Purple Line
+  "คลองบางไผ่",
+  "ตลาดบางใหญ่",
+  "สามแยกบางใหญ่",
+  "บางพลู",
+  "บางรักใหญ่",
+  "บางรักน้อยท่าอิฐ",
+  "ไทรม้า",
+  "แยกนนทบุรี 1",
+  "นนทบุรี 1",
+  "พระนั่งเกล้า",
+  "แยกติวานนท์",
+  "กระทรวงสาธารณสุข",
+  "ศูนย์ราชการนนทบุรี",
+  "แคราย",
+  "บางกระสอ",
+  "วงศ์สว่าง",
+  "บางซ่อน",
+  "เตาปูน",
+
+  // 🚆 Airport Rail Link
+  "พญาไท (ARL)",
+  "ราชปรารภ",
+  "มักกะสัน",
+  "รามคำแหง",
+  "หัวหมาก",
+  "บ้านทับช้าง",
+  "ลาดกระบัง",
+  "สุวรรณภูมิ",
+
+  // 🚌 BRT Bus Rapid Transit
+  "สาทร (BRT)",
+  "อาคารสงเคราะห์",
+  "เทคนิคกรุงเทพ",
+  "ถนนจันทน์",
+  "นราธิวาส",
+  "ราษฎร์บูรณะ",
+  "วัดปริวาส",
+  "พระราม 3",
+  "เจริญราษฎร์",
+  "สะพานพระราม 9"
+];
+
+
+// ประเภทการขาย
+const saleTypes = [
+  { label: "ทั้งหมด", value: "" },
+  { label: "ขาย", value: "SELL" },
+  { label: "เช่า", value: "RENT" },
 ];
 
 export default function SearchBarWithFilter({ selectedType = "" }) {
   const [searchText, setSearchText] = useState("");
+
+  const [badgeOptions, setBadgeOptions] = useState([]);
+
   const [filters, setFilters] = useState({
     type: "",
     province: "",
     station: "",
     saleType: selectedType || "",
     bedroomCount: 0,
-    badge: "",
+    badge: [],
     minPrice: 0,
     maxPrice: 10000000,
   });
 
+  const [tempFilters, setTempFilters] = useState(filters);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
   const navigate = useNavigate();
 
-  // sync saleType จากหน้า Home (ขาย / เช่า)
+  // ดึง badge
   useEffect(() => {
-    setFilters((prev) => {
-      const next = selectedType || "";
-      if ((prev.saleType || "") === next) return prev;
-      return { ...prev, saleType: next };
-    });
+    AnnounceService.getBadges()
+      .then((res) => {
+        if (res.data && Array.isArray(res.data)) {
+          setBadgeOptions(res.data);
+        }
+      })
+      .catch(() => {
+        setBadgeOptions(["ราคาพิเศษ", "โครงการใหม่", "หายาก"]);
+      });
+  }, []);
+
+  // sync saleType
+  useEffect(() => {
+    setFilters((prev) => ({ ...prev, saleType: selectedType }));
+    setTempFilters((prev) => ({ ...prev, saleType: selectedType }));
   }, [selectedType]);
 
-  // ฟังก์ชันค้นหา → ยิงไปหน้า /filter
+  // ทำ search
   const handleSearch = () => {
     const f = filters;
-    const currentSaleType = f.saleType || selectedType || "";
 
     const params = {
-      keyword: searchText?.trim() || "",
+      keyword: searchText || "",
       type: f.type || "",
-      station: f.station || "",
       province: f.province || "",
-      saleType: currentSaleType || "",
-      bedroomCount: f.bedroomCount > 0 ? f.bedroomCount : undefined,
-      badge: f.badge || "",
-      minPrice: f.minPrice > 0 ? f.minPrice : undefined,
-      maxPrice:
-        f.maxPrice > 0 && f.maxPrice < 10000000 ? f.maxPrice : undefined,
+      station: f.station || "",
+      saleType: f.saleType || "",
+      bedroomCount: f.bedroomCount || "",
+      badge: f.badge.join(",") || "",
+      minPrice: f.minPrice,
+      maxPrice: f.maxPrice,
       page: 0,
       size: 10,
     };
 
-    const queryParams = Object.entries(params)
-      .filter(([_, value]) => {
-        if (value === undefined || value === null) return false;
-        if (typeof value === "string" && value === "") return false;
-        return true;
-      })
-      .map(([k, v]) => encodeURIComponent(k) + "=" + encodeURIComponent(v))
-      .join("&");
-
-    navigate("/filter?" + queryParams);
+    navigate(`/filter?${new URLSearchParams(params).toString()}`);
   };
 
-  // Popup ตัวกรอง
-  const openFilterPopup = async () => {
-    await Swal.fire({
-      title: "ตัวกรองการค้นหา",
-      width: 520,
-      background: "#fff",
-      confirmButtonColor: "#8C6239",
-      cancelButtonColor: "#aaa",
-      confirmButtonText: "ใช้ตัวกรอง",
-      cancelButtonText: "ยกเลิก",
-      showCancelButton: true,
-      customClass: {
-        popup:
-          "rounded-3xl p-0 overflow-hidden shadow-2xl border border-[#8C6239]/30",
-        confirmButton: "px-6 py-2 rounded-full text-sm",
-        cancelButton: "px-6 py-2 rounded-full text-sm",
-      },
-      html: `
-        <div class="p-6 space-y-6 font-sans text-gray-700">
-          <div>
-            <label class="block font-semibold text-[#8C6239] mb-1 text-sm">ประเภททรัพย์</label>
-            <select id="filter-type" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
-              <option value="">ทั้งหมด</option>
-              ${propertyTypes
-                .map(
-                  (t) =>
-                    `<option value="${t}" ${
-                      filters.type === t ? "selected" : ""
-                    }>${t}</option>`
-                )
-                .join("")}
-            </select>
-          </div>
+  const handleTempChange = (name, value) => {
+    setTempFilters((prev) => ({ ...prev, [name]: value }));
+  };
 
-          <div>
-            <label class="block font-semibold text-[#8C6239] mb-1 text-sm">จังหวัดยอดนิยม</label>
-            <select id="filter-province" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
-              <option value="">ทั้งหมด</option>
-              ${provinces
-                .map(
-                  (p) =>
-                    `<option value="${p}" ${
-                      filters.province === p ? "selected" : ""
-                    }>${p}</option>`
-                )
-                .join("")}
-            </select>
-          </div>
-
-          <div>
-            <label class="block font-semibold text-[#8C6239] mb-2 text-sm">จำนวนห้องนอน</label>
-            <div class="grid grid-cols-5 gap-2">
-              ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-                .map(
-                  (n) => `
-                  <button type="button"
-                    class="btn bedroom-btn border rounded-lg py-1.5 text-sm ${
-                      filters.bedroomCount === n
-                        ? "active-bedroom bg-[#8C6239] text-white border-[#8C6239]"
-                        : "border-gray-300 hover:bg-[#f4f1ed]"
-                    }"
-                    data-value="${n}"
-                  >${n} ห้อง</button>`
-                )
-                .join("")}
-            </div>
-          </div>
-
-          <div>
-            <label class="block font-semibold text-[#8C6239] mb-2 text-sm">ช่วงราคา (บาท)</label>
-
-            <div class="mb-2 flex justify-between text-xs text-gray-600">
-              <span>ต่ำสุด: <span id="price-min-value">
-                ${(filters.minPrice || 0).toLocaleString("th-TH")}
-              </span></span>
-              <span>สูงสุด: <span id="price-max-value">
-                ${(filters.maxPrice || 10000000).toLocaleString("th-TH")}
-              </span></span>
-            </div>
-
-            <input
-              id="price-min-range"
-              type="range"
-              min="0"
-              max="10000000"
-              step="50000"
-              value="${filters.minPrice || 0}"
-              class="w-full price-range"
-            />
-
-            <input
-              id="price-max-range"
-              type="range"
-              min="0"
-              max="10000000"
-              step="50000"
-              value="${filters.maxPrice || 10000000}"
-              class="w-full mt-2 price-range"
-            />
-          </div>
-        </div>
-      `,
-      didOpen: (popup) => {
-        // ปุ่มห้องนอน
-        const bedroomButtons = popup.querySelectorAll(".bedroom-btn");
-        bedroomButtons.forEach((btn) => {
-          btn.addEventListener("click", () => {
-            bedroomButtons.forEach((b) => {
-              b.classList.remove(
-                "active-bedroom",
-                "bg-[#8C6239]",
-                "text-white",
-                "border-[#8C6239]"
-              );
-              b.classList.add("border-gray-300");
-            });
-
-            btn.classList.add(
-              "active-bedroom",
-              "bg-[#8C6239]",
-              "text-white",
-              "border-[#8C6239]"
-            );
-            btn.classList.remove("border-gray-300");
-          });
-        });
-
-        // slider ราคา
-        const minRange = popup.querySelector("#price-min-range");
-        const maxRange = popup.querySelector("#price-max-range");
-        const minLabel = popup.querySelector("#price-min-value");
-        const maxLabel = popup.querySelector("#price-max-value");
-
-        const format = (v) => Number(v || 0).toLocaleString("th-TH");
-
-        const updateGradient = (input) => {
-          const min = Number(input.min);
-          const max = Number(input.max);
-          const val = Number(input.value);
-          const percent = ((val - min) / (max - min)) * 100;
-
-          input.style.background = `
-            linear-gradient(
-              to right,
-              #8C6239 ${percent}%,
-              #e5e7eb ${percent}%
-            )
-          `;
-        };
-
-        const syncMin = () => {
-          if (Number(minRange.value) > Number(maxRange.value)) {
-            minRange.value = maxRange.value;
-          }
-          minLabel.textContent = format(minRange.value);
-          updateGradient(minRange);
-        };
-
-        const syncMax = () => {
-          if (Number(maxRange.value) < Number(minRange.value)) {
-            maxRange.value = minRange.value;
-          }
-          maxLabel.textContent = format(maxRange.value);
-          updateGradient(maxRange);
-        };
-
-        // initial
-        syncMin();
-        syncMax();
-
-        // event
-        minRange.addEventListener("input", syncMin);
-        maxRange.addEventListener("input", syncMax);
-      },
-      preConfirm: () => {
-        const typeEl = document.getElementById("filter-type");
-        const provEl = document.getElementById("filter-province");
-        const selectedBedroom = document.querySelector(".active-bedroom");
-        const minRangeEl = document.getElementById("price-min-range");
-        const maxRangeEl = document.getElementById("price-max-range");
-
-        const minPrice = Number(minRangeEl?.value || 0);
-        const maxPrice = Number(maxRangeEl?.value || 10000000);
-
-        if (minPrice > maxPrice) {
-          Swal.showValidationMessage("ราคาต่ำสุดต้องไม่เกินราคาสูงสุด");
-          return false;
-        }
-
-        return {
-          type: typeEl?.value || "",
-          province: provEl?.value || "",
-          saleType: filters.saleType || selectedType || "",
-          bedroomCount: selectedBedroom
-            ? Number(selectedBedroom.dataset.value)
-            : 0,
-          minPrice,
-          maxPrice,
-        };
-      },
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        setFilters(result.value);
-      }
+  const toggleBadge = (b) => {
+    setTempFilters((prev) => {
+      const exists = prev.badge.includes(b);
+      return {
+        ...prev,
+        badge: exists ? prev.badge.filter((i) => i !== b) : [...prev.badge, b],
+      };
     });
   };
 
+  const clearFilters = () => {
+    const cleared = {
+      type: "",
+      province: "",
+      station: "",
+      saleType: "",
+      bedroomCount: 0,
+      badge: [],
+      minPrice: 0,
+      maxPrice: 10000000,
+    };
+    setTempFilters(cleared);
+    setFilters(cleared);
+  };
+
+  const applyFilters = () => {
+    setFilters(tempFilters);
+    setIsFilterOpen(false);
+  };
+
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSearch();
-      }}
-      className="relative mx-auto flex w-full max-w-3xl items-center px-3"
-    >
-      <div className="relative w-full h-[60px]">
-        <input
-          type="text"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          placeholder="พิมพ์ชื่อโครงการหรือจังหวัด"
-          className="w-full rounded-xl bg-white/95 py-3 pl-12 pr-24 text-gray-700 shadow-sm focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#8C6239]/60"
-        />
-        <svg
-          className="absolute left-4 top-1/2 h-5 w-5 -translate-y-4 text-gray-400"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+    <>
+      {/* SEARCH BAR */}
+      <div className="w-full flex justify-center mt-6 mb-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSearch();
+          }}
+          className="w-full max-w-4xl px-4"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"
-          />
-        </svg>
+          <div className="relative w-full h-[64px] rounded-2xl border border-[#e7dbce] bg-white shadow-lg flex items-center px-4 gap-3">
 
-        <FaSlidersH
-          onClick={openFilterPopup}
-          className="text-[#8C6239] hover:text-[#704c29] absolute right-18 top-6 w-[44px] h-[44px] -translate-y-1/2 rounded-lg px-3 py-2 flex items-center gap-2 cursor-pointer transition"
-        />
+            {/* icon */}
+            <svg
+              className="h-5 w-5 text-[#8C6239]"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z" />
+            </svg>
 
-        <button
-          type="submit"
-          className="btn absolute right-2 top-1 bg-[#8C6239] text-white rounded-lg px-3 py-2 text-sm hover:bg-[#6f4f2e] transition"
-        >
-          ค้นหา
-        </button>
+            <input
+              type="text"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder="ค้นหาโครงการ ทำเล หรือคำสำคัญ..."
+              className="flex-1 bg-transparent focus:outline-none text-gray-800 placeholder:text-gray-400"
+            />
+
+            <button
+              type="button"
+              onClick={() => setIsFilterOpen(true)}
+              className="btn btn-outline border-[#e7dbce] text-[#8C6239] bg-white hover:bg-[#f7ede2]"
+            >
+              <FaSlidersH />
+              ตัวกรอง
+            </button>
+
+            <button
+              type="submit"
+              className="btn bg-[#8C6239] text-white border-none hover:bg-[#704c2c]"
+            >
+              ค้นหา
+            </button>
+
+          </div>
+        </form>
       </div>
-    </form>
+
+      {/* FILTER MODAL */}
+      <dialog className={`modal ${isFilterOpen ? "modal-open" : ""}`}>
+        <div className="modal-box max-w-3xl bg-white rounded-2xl p-6 space-y-6">
+
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold text-[#8C6239]">
+              ตัวกรองการค้นหา
+            </h2>
+            <button onClick={() => setIsFilterOpen(false)} className="btn btn-ghost btn-sm">✕</button>
+          </div>
+
+          {/* ประเภททรัพย์ */}
+          <section>
+            <h3 className="font-medium text-gray-700 mb-2">ประเภททรัพย์</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {propertyTypes.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => handleTempChange("type", t)}
+                  className={`btn btn-sm rounded-full ${
+                    tempFilters.type === t
+                      ? "bg-[#8C6239] text-white"
+                      : "btn-outline border-[#e7dbce]"
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* ประเภทประกาศ */}
+          <section>
+            <h3 className="font-medium text-gray-700 mb-2">ประเภทประกาศ</h3>
+            <div className="flex flex-wrap gap-2">
+              {saleTypes.map((s) => (
+                <button
+                  key={s.value + "saleType"}
+                  type="button"
+                  onClick={() => handleTempChange("saleType", s.value)}
+                  className={`btn btn-sm rounded-full ${
+                    tempFilters.saleType === s.value
+                      ? "bg-[#8C6239] text-white"
+                      : "btn-outline border-[#e7dbce]"
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* จังหวัด + สถานี */}
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h3 className="font-medium text-gray-700 mb-2">จังหวัด</h3>
+              <select
+                value={tempFilters.province}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  handleTempChange("province", value);
+                  if (value !== "กรุงเทพมหานคร") handleTempChange("station", "");
+                }}
+                className="select select-bordered w-full bg-white cursor-pointer"
+              >
+                <option value="">ทั้งหมด</option>
+                {provinces.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <h3 className="font-medium text-gray-700 mb-2">สถานี (ถ้ามี)</h3>
+              <select
+                value={tempFilters.station}
+                onChange={(e) => handleTempChange("station", e.target.value)}
+                disabled={tempFilters.province !== "กรุงเทพมหานคร"}
+                className="select select-bordered w-full bg-white cursor-pointer"
+              >
+                <option value="">
+                  {tempFilters.province === "กรุงเทพมหานคร"
+                    ? "สถานีทั้งหมด"
+                    : "เลือกกรุงเทพมหานครก่อน"}
+                </option>
+                {tempFilters.province === "กรุงเทพมหานคร" &&
+                  bangkokStations.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+              </select>
+            </div>
+          </section>
+
+          {/* ราคา */}
+          <section>
+            <h3 className="font-medium text-gray-700 mb-2 text-center">ช่วงราคา</h3>
+
+            <div className="flex justify-between text-sm mb-2">
+              <span>{tempFilters.minPrice.toLocaleString()} บาท</span>
+              <span>{tempFilters.maxPrice.toLocaleString()} บาท</span>
+            </div>
+
+            <input
+              type="range"
+              min="0"
+              max="10000000"
+              step="50000"
+              value={tempFilters.minPrice}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                if (v <= tempFilters.maxPrice) handleTempChange("minPrice", v);
+              }}
+              className="range range-xs [--range-shdw:#8C6239] w-full"
+            />
+
+            <input
+              type="range"
+              min="0"
+              max="10000000"
+              step="50000"
+              value={tempFilters.maxPrice}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                if (v >= tempFilters.minPrice) handleTempChange("maxPrice", v);
+              }}
+              className="range range-xs [--range-shdw:#8C6239] mt-2 w-full"
+            />
+          </section>
+
+          {/* ห้องนอน */}
+          <section>
+            <h3 className="font-medium text-gray-700 mb-2">จำนวนห้องนอน</h3>
+            <div className="flex flex-wrap gap-2">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() =>
+                    handleTempChange(
+                      "bedroomCount",
+                      tempFilters.bedroomCount === n ? 0 : n
+                    )
+                  }
+                  className={`btn btn-sm rounded-full ${
+                    tempFilters.bedroomCount === n
+                      ? "bg-[#8C6239] text-white"
+                      : "btn-outline border-[#e7dbce]"
+                  }`}
+                >
+                  {n} ห้อง
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Badge */}
+          <section>
+            <h3 className="font-medium text-gray-700 mb-2">ป้ายกำกับ (Badge)</h3>
+            <div className="flex flex-wrap gap-2">
+              {badgeOptions.map((b) => (
+                <button
+                  key={b}
+                  type="button"
+                  onClick={() => toggleBadge(b)}
+                  className={`btn btn-sm rounded-full ${
+                    tempFilters.badge.includes(b)
+                      ? "bg-[#8C6239] text-white"
+                      : "btn-outline border-[#e7dbce]"
+                  }`}
+                >
+                  {b}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Action */}
+          <div className="modal-action flex justify-between">
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="btn btn-ghost text-gray-600"
+            >
+              ล้างตัวกรอง
+            </button>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setIsFilterOpen(false)}
+                className="btn bg-gray-100 text-gray-700"
+              >
+                ปิด
+              </button>
+
+              <button
+                type="button"
+                onClick={applyFilters}
+                className="btn bg-[#8C6239] text-white"
+              >
+                ใช้ตัวกรอง
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </dialog>
+    </>
   );
 }

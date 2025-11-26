@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import { motion } from "framer-motion";
 import { IoArrowBack } from "react-icons/io5";
 import { MdNotificationsActive } from "react-icons/md";
+import { NotificationDetailSkeleton } from "./NotificationDetailSkeleton";
 
 export default function NotificationDetail() {
   const { user } = useAuthContext();
@@ -35,12 +36,7 @@ export default function NotificationDetail() {
     if (userId) fetchData();
   }, [notifyId, userId]);
 
-  if (!detail)
-    return (
-      <div className="flex justify-center items-center h-[60vh] text-gray-400 text-lg">
-        กำลังโหลดข้อมูล...
-      </div>
-    );
+  if (!detail) return <NotificationDetailSkeleton />;
 
   return (
     <motion.div
