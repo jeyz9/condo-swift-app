@@ -2,21 +2,22 @@ import React from "react";
 import { Outlet } from "react-router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+
 export const MainLayout = () => {
   return (
-    <div className="flex flex-col min-h-screen">
-      <div className="fixed top-0 left-0 right-0 z-50">
+    <div className="flex min-h-screen flex-col">
+      {/* Navbar สำหรับผู้ใช้ทั่วไป */}
+      <header className="fixed inset-x-0 top-0 z-50">
         <Navbar />
-      </div>
-      <main className="flex-grow mt-16 mb-20 min-h-[calc(100vh-9rem)]">
-        {" "}
-        <Outlet />{" "}
+      </header>
+
+      {/* เนื้อหา */}
+      <main className="flex-grow pt-20 pb-16 sm:pt-17">
+        <Outlet />
       </main>
-      <div className="mt-60">
+
+      {/* Footer */}
       <Footer />
-      
     </div>
-    </div>
-    
   );
 };

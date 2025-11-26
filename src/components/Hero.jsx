@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const Hero = () => {
   return (
     <div
-      className="hero min-h-[440px] w-full bg-base-200"
+      className="hero min-h-[440px] w-full bg-base-200 -mt-8"
       style={{ backgroundImage: `url(${CondoHero})` }}
     >
       <div

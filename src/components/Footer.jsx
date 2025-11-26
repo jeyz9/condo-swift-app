@@ -13,24 +13,25 @@ const Footer = () => {
         </aside>
 
         <nav className="text-white">
-          <h6 className="footer-title">Info</h6>
-          <a className="link link-hover">Branding</a>
-          <a className="link link-hover">Design</a>
-          <a className="link link-hover">Marketing</a>
-          <a className="link link-hover">Advertisement</a>
+          <h6 className="footer-title">ข้อมูล / About</h6>
+          <Link to="/about-us" className="link link-hover">
+            เกี่ยวกับเรา
+          </Link>
+          <a href="mailto:support@condoswift.com" className="link link-hover">
+            ติดต่อเรา
+          </a>
+          <a href="tel:+6621234567" className="link link-hover">
+            +66 2 123 4567
+          </a>
         </nav>
         <nav className="text-white">
-          <h6 className="footer-title">About</h6>
-          <a className="link link-hover">About us</a>
-          <a className="link link-hover">Contact</a>
-          <a className="link link-hover">Jobs</a>
-          <a className="link link-hover">Press kit</a>
-        </nav>
-        <nav className="text-white">
-          <h6 className="footer-title">Contact</h6>
-          <a className="link link-hover">Terms of use</a>
-          <a className="link link-hover">Privacy policy</a>
-          <a className="link link-hover">Cookie policy</a>
+          <h6 className="footer-title">กฎหมาย / Legal</h6>
+          <Link to="/terms-of-service" className="link link-hover">
+            ข้อกำหนดการใช้บริการ
+          </Link>
+          <Link to="/privacy-policy" className="link link-hover">
+            นโยบายความเป็นส่วนตัว
+          </Link>
         </nav>
       </footer>
       <div className="bg-[#8C6239] h-32">

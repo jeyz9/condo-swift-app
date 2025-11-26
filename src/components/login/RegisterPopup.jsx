@@ -14,6 +14,7 @@ export default function RegisterPopup({ isOpen, onClose }) {
     is_agent: false,
     is_agree: false,
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   // ✅ Animation settings
   const backdropVariant = {
@@ -71,6 +72,7 @@ export default function RegisterPopup({ isOpen, onClose }) {
       return;
     }
 
+    setIsLoading(true);
     try {
       const res = await AuthService.register(formData);
       if (res.status === 201) {
@@ -85,9 +87,11 @@ export default function RegisterPopup({ isOpen, onClose }) {
       Swal.fire({
         icon: "error",
         title: "ไม่สามารถสมัครสมาชิกได้",
-        text: error?.response?.data?.message || error.message,
+        text: error?.response?.data || error.message,
         confirmButtonColor: "#8C6239",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -273,11 +277,11 @@ export default function RegisterPopup({ isOpen, onClose }) {
                     />
                     <span className="text-sm text-gray-700 break-words">
                       ยอมรับเงื่อนไข{" "}
-                      <a href="#" className="text-[#8C6239] hover:underline">
+                      <a href="/terms-of-service" className="text-[#8C6239] hover:underline">
                         ข้อตกลงการใช้งาน
                       </a>{" "}
                       และ{" "}
-                      <a href="#" className="text-[#8C6239] hover:underline">
+                      <a href="/privacy-policy" className="text-[#8C6239] hover:underline">
                         ความเป็นส่วนตัว
                       </a>
                     </span>
@@ -285,9 +289,11 @@ export default function RegisterPopup({ isOpen, onClose }) {
 
                   <button
                     type="submit"
-                    className="w-full bg-[#8C6239] hover:bg-[#6f4f2e] text-white font-semibold py-2 rounded-lg transition mt-3"
+                    className="w-full bg-[#8C6239] hover:bg-[#6f4f2e] text-white font-semibold py-2 rounded-lg transition mt-3 btn"
+                    disabled={isLoading}
                   >
-                    สมัครสมาชิก
+                    {isLoading && <span className="loading loading-spinner"></span>}
+                    {isLoading ? "กำลังสมัคร..." : "สมัครสมาชิก"}
                   </button>
                 </form>
 

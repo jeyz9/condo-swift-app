@@ -1,24 +1,30 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 import LoginPopup from "./login/LoginPopup"; // ✅ import login popup
 import RegisterPopup from "./login/RegisterPopup"; // ✅ import register popup
 import { useAuthContext } from "../context/AuthContext";
 import UserProfile from "./UserProfile";
+import { IoMdNotificationsOutline } from "react-icons/io";
+import NotificationMenu from "./NotificationMenu";
+import { useNavigate } from "react-router-dom";
+
 const Navbar = () => {
+
   const menuItems = [
     { title: "หน้าแรก", path: "/" },
-    { title: "เกี่ยวกับเรา", path: "/about" },
+    { title: "เกี่ยวกับเรา", path: "/about-us" },
     {
       title: "บริการ",
       submenu: [
-        { title: "บริการ 1", path: "/service1" },
-        { title: "บริการ 2", path: "/service2" },
+        { title: "เช่า", path: "/filter?saleType=เช่า&page=0&size=10" },
+        { title: "ขาย", path: "/filter?saleType=ขาย&page=0&size=10" },
       ],
     },
   ];
 
   const { user } = useAuthContext();
+  const navigate = useNavigate();
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -97,15 +103,24 @@ const Navbar = () => {
 
       {/* ขวา */}
       <div className="navbar-end">
-         {user ? (
-          <UserProfile/>
+        {user ? (
+          <>
+            <NotificationMenu />
+            {/* <button
+              onClick={() => navigate("/payment")}
+              className="btn btn-sm sm:btn-md bg-[#8C6239] text-white border-none hover:bg-[#704c2c] mx-2"
+            >
+              เติมเครดิต
+            </button> */}
+            <UserProfile />
+          </>
         ) : (
-        <button
-          onClick={() => setIsLoginOpen(true)}
-          className="btn bg-[#8C6239] text-white font-light rounded-md sm:w-32 text-sm sm:text-base"
-        >
-          เข้าสู่ระบบ
-        </button>
+          <button
+            onClick={() => setIsLoginOpen(true)}
+            className="btn bg-[#8C6239] text-white font-light rounded-md sm:w-32 text-sm sm:text-base"
+          >
+            เข้าสู่ระบบ
+          </button>
         )}
         {/* ✅ Login Popup */}
         <LoginPopup

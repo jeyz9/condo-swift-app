@@ -32,3 +32,38 @@ h1[class~="break-all"] {
 body {
   font-family: "IBM Plex Sans Thai", sans-serif;
 }
+
+.swal2-popup .price-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
+
+/* thumb */
+.swal2-popup .price-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #8c6239;
+  border: 2px solid #fefce8;
+  cursor: pointer;
+}
+
+.swal2-popup .price-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #8c6239;
+  border: 2px solid #fefce8;
+  cursor: pointer;
+}
+
+.swal2-popup .price-range::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
