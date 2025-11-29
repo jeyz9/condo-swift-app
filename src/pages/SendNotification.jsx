@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import NotificationService from "../services/์NotificationService";
 import Swal from "sweetalert2";
 import { FaBell, FaPaperPlane, FaUserFriends } from "react-icons/fa";
@@ -6,8 +6,19 @@ import { FaBell, FaPaperPlane, FaUserFriends } from "react-icons/fa";
 export default function SendNotification() {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
-  const [userIdInput, setUserIdInput] = useState("");
+  const [rawuserId, setRawuserId] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const parseduserId = useMemo(() => {
+    return rawuserId
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean)
+      .map((id) => {
+        const asNumber = Number(id);
+        return Number.isNaN(asNumber) ? id : asNumber;
+      });
+  }, [rawuserId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,21 +31,11 @@ export default function SendNotification() {
       return;
     }
 
-    const trimmed = userIdInput.trim();
-    if (!trimmed) {
+    if (parseduserId.length === 0) {
       Swal.fire({
         icon: "warning",
-        title: "ต้องระบุ userId",
-        text: "กรุณากรอก userId (ตัวเลข)",
-      });
-      return;
-    }
-
-    const parsedId = Number(trimmed);
-    if (Number.isNaN(parsedId)) {
-      Swal.fire({
-        icon: "warning",
-        title: "userId ต้องเป็นตัวเลข",
+        title: "ต้องระบุ userId อย่างน้อย 1 รายการ",
+        text: "กรุณากรอก userId คั่นด้วย comma",
       });
       return;
     }
@@ -44,18 +45,18 @@ export default function SendNotification() {
       await NotificationService.sendNotification({
         title: title.trim(),
         message: message.trim(),
-        userId: parsedId,
+        userId: parseduserId,
       });
 
       Swal.fire({
         icon: "success",
         title: "ส่งแจ้งเตือนเรียบร้อย",
-        text: `ส่งไปยังผู้ใช้ ${parsedId}`,
+        text: `ส่งไปยัง ${parseduserId.length} ผู้ใช้`,
       });
 
       setTitle("");
       setMessage("");
-      setUserIdInput("");
+      setRawuserId("");
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -72,7 +73,7 @@ export default function SendNotification() {
     setMessage(
       "ระบบจะปรับปรุงภายใน 30 นาทีข้างหน้า การใช้งานอาจสะดุดเล็กน้อย ขออภัยในความไม่สะดวกค่ะ"
     );
-    setUserIdInput("1001");
+    setRawuserId("1001, 1002");
   };
 
   return (
@@ -142,17 +143,17 @@ export default function SendNotification() {
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
               <FaUserFriends className="text-[#8C6239]" />
-              Target user id
+              Target user ids
             </label>
             <input
               type="text"
-              value={userIdInput}
-              onChange={(e) => setUserIdInput(e.target.value)}
-              placeholder="เช่น 1001"
+              value={rawuserId}
+              onChange={(e) => setRawuserId(e.target.value)}
+              placeholder="เช่น 1001,1002"
               className="input input-bordered w-full"
             />
             <p className="text-xs text-gray-400">
-              ระบุ userId เป็นตัวเลข (จำเป็น)
+              ระบุ userId คั่นด้วย comma (จำเป็น)
             </p>
           </div>
 
@@ -163,7 +164,7 @@ export default function SendNotification() {
               onClick={() => {
                 setTitle("");
                 setMessage("");
-                setUserIdInput("");
+                setRawuserId("");
               }}
               disabled={loading}
             >
@@ -202,10 +203,14 @@ export default function SendNotification() {
             <p className="text-sm font-semibold text-gray-700 mb-1">
               Audience
             </p>
-            {userIdInput ? (
-              <p className="text-sm text-gray-700">จะส่งให้ userId: {userIdInput}</p>
+            {parseduserId.length > 0 ? (
+              <ul className="text-sm text-gray-700 list-disc list-inside space-y-1 max-h-32 overflow-y-auto">
+                {parseduserId.map((id) => (
+                  <li key={id}>{id}</li>
+                ))}
+              </ul>
             ) : (
-              <p className="text-sm text-gray-400">Waiting for target user id.</p>
+              <p className="text-sm text-gray-400">Waiting for target user ids.</p>
             )}
           </div>
         </div>
