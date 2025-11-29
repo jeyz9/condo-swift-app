@@ -261,7 +261,7 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
   return (
     <>
       {/* SEARCH BAR */}
-      <div className="w-full flex justify-center mt-6 mb-4">
+      <div className="w-full flex justify-center -mt-1 mb-4">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -294,7 +294,7 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
             <button
               type="button"
               onClick={() => setIsFilterOpen(true)}
-              className="btn btn-outline border-[#e7dbce] text-[#8C6239] bg-white hover:bg-[#f7ede2]"
+              className="btn btn-outline border-[#e7dbce] text-[#8C6239] bg-white hover:bg-[#f7ede2] rounded-md"
             >
               <FaSlidersH />
               ตัวกรอง

@@ -22,6 +22,7 @@ import ShareAnnounce from "../pages/ShareAnnounce.jsx";
 import { ResetPassword } from "../pages/ResetPassword.jsx";
 import Bookmarks from "../pages/Bookmarks.jsx";
 import {Payment} from "../pages/Payment.jsx";
+import SendNotification from "../pages/SendNotification.jsx";
 
 const router = createBrowserRouter([
   // 🏠 Layout หลักสำหรับผู้ใช้ทั่วไป
@@ -56,6 +57,7 @@ const router = createBrowserRouter([
       { path: "announce/pending", element: <PendingTable />},
       // 👇 ถ้ามีหน้าอื่นในอนาคต เช่น:
       { path: "announce/details/:id", element: <ShareAnnounce /> },
+      { path: "notifications/send", element: <SendNotification /> },
       // { path: "users", element: <ManageUsers /> },
     ],
   },
