@@ -79,7 +79,7 @@ export default function HistoryTable() {
               : "text-gray-600 hover:text-[#8C6239]"
           }`}
         >
-          ประกาศรอตรวจ
+          รออนุมัติ
         </Link>
 
         <Link
@@ -101,7 +101,7 @@ export default function HistoryTable() {
               : "text-gray-600 hover:text-[#8C6239]"
           }`}
         >
-          ประวัติการตรวจ
+          ประวัติ
         </Link>
 
         <div className="relative ml-auto w-48">

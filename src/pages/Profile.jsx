@@ -9,6 +9,7 @@ import { RentCard } from "../components/profile/RentCard";
 import SellCard from "../components/profile/SellCard";
 import { Share2 } from "lucide-react"; // 📤 icon แชร์
 import { ProfileSkeleton } from "./ProfileSkeleton";
+import { useNavigate } from "react-router";
 
 const FILTER_TABS = [
   { label: "เช่า", value: "เช่า" },
@@ -18,6 +19,7 @@ const FILTER_TABS = [
 export const Profile = () => {
   const { user } = useAuthContext();
   const { userId: paramId } = useParams(); // ✅ รับ userId จาก URL เช่น /profile/2
+  const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
   const [activeTab, setActiveTab] = useState("เช่า");
@@ -86,7 +88,11 @@ export const Profile = () => {
 
   return (
     <div className="flex flex-col items-center gap-y-10">
-      <HeroProfile profile={profile} />
+      <div className="w-full flex justify-center">
+        <div className="w-full max-w-6xl px-6 flex items-center justify-between">
+          <HeroProfile profile={profile} />
+        </div>
+      </div>
       <ProfileDetail profile={profile} />
 
       <section className="w-full max-w-6xl px-6 pb-16">

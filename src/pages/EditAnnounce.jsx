@@ -11,9 +11,10 @@ import { CardDetails } from "../components/details/CardDetails";
 import GrayscaleMap from "../components/details/GrayscaleMap";
 import AnnounceService from "../services/AnnounceService";
 import UserService from "../services/UserService";
+import ProvinceService from "../services/ProvinceService";
 
 // 📚 Data
-import { provinces } from "../data/provinces";
+import { provinces as fallbackProvinces } from "../data/provinces";
 import { stations } from "../data/stations";
 
 // 🧱 Icons
@@ -53,6 +54,7 @@ export const EditAnnounce = () => {
   const [loading, setLoading] = useState(true);
 
   const [announce, setAnnounce] = useState(null);
+  const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
 
   useEffect(() => {
     const fetchAnnounceData = async () => {
@@ -101,6 +103,23 @@ export const EditAnnounce = () => {
 
     fetchAnnounceData();
   }, [id, user, navigate]);
+
+  useEffect(() => {
+    ProvinceService.getProvinces()
+      .then((res) => {
+        const raw = res?.data;
+        const list = Array.isArray(raw) ? raw : [];
+        const names = list
+          .map((item) =>
+            typeof item === "string"
+              ? item
+              : item?.provinceName || item?.name || item?.title
+          )
+          .filter(Boolean);
+        setProvinceOptions(names.length > 0 ? names : fallbackProvinces);
+      })
+      .catch(() => setProvinceOptions(fallbackProvinces));
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -216,6 +235,16 @@ export const EditAnnounce = () => {
           className="input input-bordered w-full mb-6 rounded-xl"
         />
 
+        <label className="block font-medium text-gray-700 mb-2">จังหวัด</label>
+        <SearchableDropdown
+          options={provinceOptions}
+          value={announce.province || ""}
+          onChange={(value) =>
+            setAnnounce((prev) => ({ ...prev, province: value }))
+          }
+          placeholder="เลือกจังหวัด"
+        />
+
         {/* Image Upload Section */}
         <h2 className="text-xl font-semibold text-green-700 mb-4 mt-6">
           รูปภาพประกาศ (สูงสุด 5 รูป)
@@ -288,5 +317,3 @@ export const EditAnnounce = () => {
     </div>
   );
 };
-
-

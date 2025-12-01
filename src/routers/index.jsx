@@ -23,6 +23,9 @@ import { ResetPassword } from "../pages/ResetPassword.jsx";
 import Bookmarks from "../pages/Bookmarks.jsx";
 import {Payment} from "../pages/Payment.jsx";
 import SendNotification from "../pages/SendNotification.jsx";
+import AdminBadges from "../pages/AdminBadges.jsx";
+import AdminAssignBadge from "../pages/AdminAssignBadge.jsx";
+import EditProfile from "../pages/EditProfile.jsx";
 
 const router = createBrowserRouter([
   // 🏠 Layout หลักสำหรับผู้ใช้ทั่วไป
@@ -36,6 +39,7 @@ const router = createBrowserRouter([
       { path: "/add-announce", element: <AddAnnounce /> },
       { path: "/edit-announce/:id", element: <EditAnnounce /> },
       { path: "/profile", element: <Profile /> },
+      { path: "/profile/edit", element: <EditProfile /> },
       { path: "/public-profile/:userId", element: <PublicProfile /> },
       { path: "/about-us", element: <About /> },
       { path: "/terms-of-service", element: <TermsOfService /> },
@@ -58,6 +62,8 @@ const router = createBrowserRouter([
       // 👇 ถ้ามีหน้าอื่นในอนาคต เช่น:
       { path: "announce/details/:id", element: <ShareAnnounce /> },
       { path: "notifications/send", element: <SendNotification /> },
+      { path: "badges/manage", element: <AdminBadges /> },
+      { path: "badges/assign", element: <AdminAssignBadge /> },
       // { path: "users", element: <ManageUsers /> },
     ],
   },

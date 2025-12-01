@@ -6,6 +6,7 @@ import { showTermsPopup } from "./ShowTermsPopup";
 import { useAuthContext } from "../../context/AuthContext";
 import UserService from "../../services/UserService";
 import { Link } from "react-router-dom";
+import { FaPhoneAlt, FaLine } from "react-icons/fa";
 
 const SalerCard = ({ agent }) => {
   const { user } = useAuthContext();
@@ -13,9 +14,28 @@ const SalerCard = ({ agent }) => {
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const agentProfileId = agent?.userId || agent?.agentId || agent?.id; // ✅ Check for userId, agentId, or id
+  const phoneNumber = agent?.phone;
+  const lineId = agent?.lineId;
+
+  const termsKey = userId ? `terms_accepted_${userId}` : null;
+
+  React.useEffect(() => {
+    if (termsKey && localStorage.getItem(termsKey) === "true") {
+      setTermsAccepted(true);
+    }
+  }, [termsKey]);
 
   const handleClickTerms = async () => {
-    // ... (rest of the function is unchanged)
+    if (termsAccepted) {
+      const phoneMasked = phoneNumber
+        ? phoneNumber.replace(/(\d{3})\d+(\d{2})/, "$1xxxxx$2")
+        : "ไม่พบ";
+      const phoneFull = phoneNumber || "ไม่พบเบอร์";
+      const lineUrl = lineId ? `https://line.me/ti/p/${lineId}` : "";
+      showContactPopup(phoneMasked, phoneFull, lineUrl);
+      return;
+    }
+
     const accepted = await showTermsPopup();
     if (!accepted) return;
 
@@ -23,9 +43,12 @@ const SalerCard = ({ agent }) => {
       const response = await UserService.acceptTerms(userId);
       if (response.status === 200 || response.status === 201) {
         setTermsAccepted(true);
-        const phoneMasked = "+6695904xxxx";
-        const phoneFull = "+66959042353";
-        const lineUrl = "https://line.me/ti/p/xxxxxxxx";
+        if (termsKey) localStorage.setItem(termsKey, "true");
+        const phoneMasked = phoneNumber
+          ? phoneNumber.replace(/(\d{3})\d+(\d{2})/, "$1xxxxx$2")
+          : "ไม่พบ";
+        const phoneFull = phoneNumber || "ไม่พบเบอร์";
+        const lineUrl = lineId ? `https://line.me/ti/p/${lineId}` : "";
         showContactPopup(phoneMasked, phoneFull, lineUrl);
       }
     } catch (error) {

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import Hero from "../components/Hero";
 import SearchBar from "../components/SearchBar";
 import { MdOutlineAddHome, MdSell } from "react-icons/md";

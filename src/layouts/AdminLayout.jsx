@@ -31,6 +31,15 @@ export const AdminLayout = () => {
     loadFirstAnnounce();
   }, [isActive]);
 
+  useEffect(() => {
+    if (location.pathname.startsWith("/admin/announce")) {
+      setOpen((prev) => ({ ...prev, announce: true }));
+    }
+    if (location.pathname.startsWith("/admin/badges")) {
+      setOpen((prev) => ({ ...prev, badge: true }));
+    }
+  }, [location.pathname]);
+
   return (
     <div className="flex min-h-screen bg-gray-50 text-[#8C6239]">
       <aside
@@ -116,16 +125,24 @@ export const AdminLayout = () => {
             {open.badge && (
               <div className="mt-2 flex flex-col space-y-2">
                 <Link
-                  to={``}
-                  className={`pl-16 py-2 cursor-pointer select-none rounded-e-md space-y-2 transition`}
+                  to={`/admin/badges/manage`}
+                  className={`pl-16 py-2 cursor-pointer select-none rounded-e-md space-y-2 transition ${
+                    isActive("/admin/badges/manage")
+                      ? "bg-[#704c2c] text-white"
+                      : "hover:bg-[#8C623910] hover:text-[#704c2c]"
+                  }`}
                 >
-                  ตั้งค่าแบดจ์ (เร็วๆ นี้)
+                  จัดการแบดจ์
                 </Link>
                 <Link
-                  to={``}
-                  className={`pl-16 py-2 cursor-pointer select-none rounded-e-md space-y-2 transition}`}
+                  to={`/admin/badges/assign`}
+                  className={`pl-16 py-2 cursor-pointer select-none rounded-e-md space-y-2 transition ${
+                    isActive("/admin/badges/assign")
+                      ? "bg-[#704c2c] text-white"
+                      : "hover:bg-[#8C623910] hover:text-[#704c2c]"
+                  }`}
                 >
-                  ประวัติการใช้แบดจ์ (เร็วๆ นี้)
+                  เพิ่มแบดจ์ให้ประกาศ
                 </Link>
               </div>
             )}

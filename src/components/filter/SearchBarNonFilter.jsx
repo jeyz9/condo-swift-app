@@ -8,23 +8,8 @@ import {
   FaBed,
   FaGem,
 } from "react-icons/fa";
-
-// Define THAI_PROVINCES
-const THAI_PROVINCES = [
-  "กรุงเทพมหานคร", "กระบี่", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น",
-  "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร",
-  "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก",
-  "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี",
-  "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์",
-  "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง",
-  "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต",
-  "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด",
-  "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "เลย", "ศรีสะเกษ",
-  "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร",
-  "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี",
-  "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี",
-  "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"
-];
+import ProvinceService from "../../services/ProvinceService";
+import { provinces as fallbackProvinces } from "../../data/provinces";
 
 // Define BTS_MRT_LINES
 const BTS_MRT_LINES = [
@@ -56,6 +41,7 @@ export default function SearchBarNonFilter({
     province: defaultProvince || "", // Initialize province state
     badge: defaultBadge || "", // Initialize badge state
   });
+  const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
 
   const navigate = useNavigate();
 
@@ -118,6 +104,23 @@ export default function SearchBarNonFilter({
       badge: defaultBadge || "",
     }));
   }, [defaultBadge]);
+
+  useEffect(() => {
+    ProvinceService.getProvinces()
+      .then((res) => {
+        const raw = res?.data;
+        const list = Array.isArray(raw) ? raw : [];
+        const names = list
+          .map((item) =>
+            typeof item === "string"
+              ? item
+              : item?.provinceName || item?.name || item?.title
+          )
+          .filter(Boolean);
+        setProvinceOptions(names.length > 0 ? names : fallbackProvinces);
+      })
+      .catch(() => setProvinceOptions(fallbackProvinces));
+  }, []);
 
   // ✅ รวม filter → สร้าง query แล้วไปหน้า /filter
   const goFilter = (overrides = {}) => {
@@ -242,12 +245,14 @@ export default function SearchBarNonFilter({
             <label class="block font-semibold text-[#8C6239] mb-1 text-sm">จังหวัด</label>
             <select id="filter-province" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
               <option value="">ทั้งหมด</option>
-              ${THAI_PROVINCES.map(
-                (province) =>
-                  `<option value="${province}" ${
-                    filters.province === province ? "selected" : ""
-                  }>${province}</option>`
-              ).join("")}
+              ${provinceOptions
+                .map(
+                  (province) =>
+                    `<option value="${province}" ${
+                      filters.province === province ? "selected" : ""
+                    }>${province}</option>`
+                )
+                .join("")}
             </select>
           </div>
 

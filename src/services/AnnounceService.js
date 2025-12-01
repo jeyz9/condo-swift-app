@@ -180,7 +180,7 @@ const rejectAnnounce = async (id, data) => {
   return await api.put(`${API_URL}/rejectAnnounce/${id}`, data);
 }
 
-const getBadges = async () => api.get(`${API_URL}/badges`);
+
 
 
 

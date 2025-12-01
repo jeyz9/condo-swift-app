@@ -88,7 +88,7 @@ export default function PendingTable() {
               : "text-gray-600 hover:text-[#8C6239]"
           }`}
         >
-          ประกาศรอตรวจ
+          รออนุมัติ
         </Link>
 
         <Link
@@ -110,7 +110,7 @@ export default function PendingTable() {
               : "text-gray-600 hover:text-[#8C6239]"
           }`}
         >
-          ประวัติการตรวจ
+          ประวัติ
         </Link>
 
         {/* ---------------------- Search Input ---------------------- */}

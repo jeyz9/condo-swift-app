@@ -6,10 +6,10 @@ import { useAuthContext } from "../../context/AuthContext";
 import AuthService from "../../services/AuthService";
 import UserService from "../../services/UserService"; // ✅ เพิ่ม import นี้
 import ChangePasswordPopup from "./ChangePasswordPopup";
-
+import { useNavigate } from "react-router";
 const HeroProfile = ({ profile }) => {
   const [showChangePasswordPopup, setShowChangePasswordPopup] = useState(false);
-
+  const navigate = useNavigate();
   const { user } = useAuthContext();
   const userId = user?.userId;
   const [uploading, setUploading] = useState(false);
@@ -109,8 +109,6 @@ const HeroProfile = ({ profile }) => {
       });
     }
   };
-
-
 
   // ✅ ยืนยันตัวตน (อีเมล / เบอร์โทร)
   const handleVerify = async () => {
@@ -250,137 +248,139 @@ const HeroProfile = ({ profile }) => {
 
   return (
     <div className="w-full">
-      <div className="w-full h-[320px] bg-[#E3E3E3]" />
+      <div className="inset-0 w-full h-[220px] sm:h-[260px] md:h-[320px] bg-[#E3E3E3]" />
 
-      <div className="relative -mt-[100px] flex flex-col gap-6 px-6 sm:flex-row sm:items-end sm:justify-between sm:px-12">
+      <div className="relative -mt-[80px] sm:-mt-[100px] flex flex-col gap-6 px-4 sm:px-6 lg:px-12">
         {/* ✅ รูปโปรไฟล์ที่ hover แล้วเปลี่ยนได้ */}
-        <div className="flex items-center gap-6 sm:ml-[100px] relative group cursor-pointer">
-          <img
-            src={avatarSrc}
-            alt="profile"
-            className={`h-[180px] w-[180px] rounded-full border-4 border-white object-cover shadow-lg transition 
+        <div className="flex flex-col sm:flex-row sm:items-start lg:items-end sm:justify-between gap-6">
+          <div className="flex items-center gap-4 sm:gap-6 sm:ml-[60px] lg:ml-[100px] relative group cursor-pointer self-start">
+            <img
+              src={avatarSrc}
+              alt="profile"
+              className={`h-[140px] w-[140px] sm:h-[180px] sm:w-[180px] rounded-full border-4 border-white object-cover shadow-lg transition 
               ${uploading ? "opacity-60" : "group-hover:opacity-70"}`}
-            onClick={() => document.getElementById("uploadProfile").click()}
-          />
-          <div
-            className="absolute inset-0 w-[180px] h-[180px] rounded-full flex items-center justify-center 
-              bg-black/40 opacity-0 group-hover:opacity-100 transition text-white text-sm"
-            onClick={() => document.getElementById("uploadProfile").click()}
-          >
-            เปลี่ยนรูปโปรไฟล์
-          </div>
-          {profile?.image && (
+              onClick={() => document.getElementById("uploadProfile").click()}
+            />
             <div
-              onClick={handleDeletePicture}
-              className="absolute top-2 right-2 z-10 p-1.5 bg-gray-800 rounded-full opacity-0 group-hover:opacity-100
-              hover:bg-red-600 hover:scale-110 transition-all duration-200"
-              title="ลบรูปโปรไฟล์"
+              className="absolute inset-0 w-[140px] h-[140px] sm:w-[180px] sm:h-[180px] rounded-full flex items-center justify-center 
+              bg-black/40 opacity-0 group-hover:opacity-100 transition text-white text-xs sm:text-sm"
+              onClick={() => document.getElementById("uploadProfile").click()}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              เปลี่ยนรูปโปรไฟล์
             </div>
-          )}
-          <input
-            id="uploadProfile"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleUpload}
-          />
+            {profile?.image && (
+              <div
+                onClick={handleDeletePicture}
+                className="absolute top-1 right-1 sm:top-2 sm:right-2 z-10 p-1.5 bg-gray-800 rounded-full opacity-0 group-hover:opacity-100
+              hover:bg-red-600 hover:scale-110 transition-all duration-200"
+                title="ลบรูปโปรไฟล์"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </div>
+            )}
+            <input
+              id="uploadProfile"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleUpload}
+            />
+          </div>
+
+          <div className="flex-1 space-y-3 sm:space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-wrap">
+              <h2 className="text-3xl sm:text-[42px] font-semibold text-gray-800 flex items-center gap-2 flex-wrap">
+                {displayName}
+              </h2>
+              {emailVerified && phoneVerified ? (
+                <div className="relative inline-flex items-center select-none gap-2 px-4 sm:px-6 py-2.5 rounded-full text-white text-sm sm:text-base overflow-hidden shadow-lg backdrop-blur-md bg-white/10 border border-white/30 hover:scale-105 transition-transform duration-300">
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 bg-[length:400%_400%] animate-gradient-x opacity-90 mix-blend-overlay" />
+                  <div className="absolute inset-0 overflow-hidden rounded-full">
+                    <div className="absolute inset-y-0 left-0 w-1/3 bg-white/40 blur-xl animate-shimmer"></div>
+                  </div>
+                  <div className="relative flex items-center gap-2 z-10">
+                    <GoVerified className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px]" />
+                    <span className="tracking-wide drop-shadow-sm text-xs sm:text-sm">
+                      ยืนยันตัวตนแล้ว
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={handleVerify}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#8C6239] text-white text-sm sm:text-base 
+              font-normal hover:bg-[#704e2e] transition h-auto leading-none w-fit"
+                >
+                  <GoVerified className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px]" />
+                  ยืนยันตัวตน
+                </button>
+              )}
+            </div>
+
+            <p className="max-w-xl text-sm sm:text-base text-gray-600 ">
+              {displayDescription}
+            </p>
+          </div>
         </div>
 
-        <div className="space-y-15">
-          <h2 className="text-[52px] font-medium text-gray-800 flex items-center gap-3 flex-wrap">
-            {displayName}
-            {emailVerified && phoneVerified ? (
-<div className="relative flex items-center select-none gap-2 px-6 py-2.5 rounded-full text-white font-medium text-base overflow-hidden shadow-lg backdrop-blur-md bg-white/10 border border-white/30 hover:scale-105 transition-transform duration-300">
-  {/* 🌈 Gradient เคลื่อนไหว */}
-  <div className="absolute inset-0 bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 bg-[length:400%_400%] animate-gradient-x opacity-90 mix-blend-overlay" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2 sm:mt-4 max-w-3xl">
+          <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-[#8C6239]/10 flex items-center justify-center text-[#8C6239]">
+              <PiShareFat className="w-[18px] h-[18px]" />
+            </div>
+            <div className="flex-1">
+              <p className="text-xs text-gray-500">แชร์โปรไฟล์</p>
+              <p className="font-semibold text-gray-800 break-all">
+                คัดลอกลิงก์โปรไฟล์ของคุณ
+              </p>
+            </div>
+            <button
+              onClick={handleShare}
+              className="btn btn-xs bg-[#8C6239] text-white hover:bg-[#704e2e]"
+            >
+              คัดลอก
+            </button>
+          </div>
 
-  {/* ✨ แสงวิ่งผ่าน */}
-  <div className="absolute inset-0 overflow-hidden rounded-full">
-    <div className="absolute inset-y-0 left-0 w-1/3 bg-white/40 blur-xl animate-shimmer"></div>
-  </div>
-
-  {/* เนื้อหา */}
-  <div className="relative flex items-center gap-2 z-10">
-    <GoVerified className="w-[18px] h-[18px]" />
-    <span className="tracking-wide drop-shadow-sm">ยืนยันตัวตนแล้ว</span>
-  </div>
-</div>
-            ) : (
+          <div className="flex flex-wrap sm:flex-nowrap justify-start sm:justify-end sm:items-center gap-3 sm:gap-4">
+            <button
+              onClick={() => setShowChangePasswordPopup(true)}
+              className="btn px-5 sm:px-6 py-2 sm:py-3 border border-[#8C6239] text-[#8C6239] hover:bg-[#8C6239] hover:text-white transition-colors w-full sm:w-auto"
+            >
+              เปลี่ยนรหัสผ่าน
+            </button>
+            {userId && (
               <button
-                onClick={handleVerify}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#8C6239] text-white text-base 
-              font-normal hover:bg-[#704e2e] transition h-auto leading-none"
+                className="btn btn-outline border-[#8C6239] text-[#8C6239] hover:bg-[#8C6239] hover:text-white w-full sm:w-auto"
+                onClick={() => navigate("/profile/edit")}
               >
-                <GoVerified className="w-[18px] h-[18px]" />
-                ยืนยันตัวตน
+                แก้ไขโปรไฟล์
               </button>
             )}
-          </h2>
-
-          <p className="max-w-[360px] text-[14px] text-gray-600 ">
-            {displayDescription}
-          </p>
+          </div>
         </div>
+      </div>
 
-                {/* ปุ่มแชร์ + ติดต่อ */}
-
-                <div className="flex justify-start sm:ml-auto sm:justify-start sm:items-center gap-4">
-
-                  <PiShareFat
-
-                    onClick={handleShare}
-
-                    className="w-[32px] h-[32px] text-[#8C6239] hover:text-[#704e2e] hover:scale-110 transition cursor-pointer"
-
-                  />
-
-                  {/* <button className="btn bg-[#8C6239] px-6 py-3 text-white hover:bg-[#7a5431]">
-
-                    ติดต่อ
-
-                  </button> */}
-
-                  <button
-
-                    onClick={() => setShowChangePasswordPopup(true)}
-
-                    className="btn px-6 py-3 border border-[#8C6239] text-[#8C6239] hover:bg-[#8C6239] hover:text-white transition-colors"
-
-                  >
-
-                    เปลี่ยนรหัสผ่าน
-
-                  </button>
-
-                </div>
-
-              </div>
-
-              {showChangePasswordPopup && (
-
-                <ChangePasswordPopup onClose={() => setShowChangePasswordPopup(false)} />
-
-              )}
-
-            </div>
-
-          );
-
-        };
+      {showChangePasswordPopup && (
+        <ChangePasswordPopup
+          onClose={() => setShowChangePasswordPopup(false)}
+        />
+      )}
+    </div>
+  );
+};
 
 export default HeroProfile;

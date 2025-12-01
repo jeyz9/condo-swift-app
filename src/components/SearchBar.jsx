@@ -2,26 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { FaSlidersH } from "react-icons/fa";
 import { stations } from "../data/stations";
-import AnnounceService from "../services/AnnounceService";
+import BadgesService from "../services/BadgesService";
+import ProvinceService from "../services/ProvinceService";
+import { Badge } from "lucide-react";
 
 // ประเภททรัพย์
 const propertyTypes = ["คอนโด", "บ้านเดี่ยว", "ทาวน์โฮม", "ที่ดิน"];
 
-// 77 จังหวัด
-const provinces = [
-  "กรุงเทพมหานคร","กระบี่","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร","ขอนแก่น",
-  "จันทบุรี","ฉะเชิงเทรา","ชลบุรี","ชัยนาท","ชัยภูมิ","ชุมพร","เชียงราย",
-  "เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก","นครปฐม","นครพนม","นครราชสีมา",
-  "นครศรีธรรมราช","นครสวรรค์","นนทบุรี","นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์",
-  "ปทุมธานี","ประจวบคีรีขันธ์","ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา",
-  "พะเยา","พังงา","พัทลุง","พิจิตร","พิษณุโลก","เพชรบุรี","เพชรบูรณ์","แพร่",
-  "ภูเก็ต","มหาสารคาม","มุกดาหาร","แม่ฮ่องสอน","ยะลา","ยโสธร","ร้อยเอ็ด",
-  "ระนอง","ระยอง","ราชบุรี","ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ",
-  "สกลนคร","สงขลา","สตูล","สมุทรปราการ","สมุทรสงคราม","สมุทรสาคร","สระแก้ว",
-  "สระบุรี","สิงห์บุรี","สุโขทัย","สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์",
-  "หนองคาย","หนองบัวลำภู","อ่างทอง","อำนาจเจริญ","อุดรธานี","อุตรดิตถ์",
-  "อุทัยธานี","อุบลราชธานี"
-];
+import { provinces as fallbackProvinces } from "../data/provinces";
 
 export const bangkokStations = [
   // 🚈 BTS Sukhumvit Line
@@ -167,6 +155,7 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
   const [searchText, setSearchText] = useState("");
 
   const [badgeOptions, setBadgeOptions] = useState([]);
+  const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
 
   const [filters, setFilters] = useState({
     type: "",
@@ -186,7 +175,7 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
 
   // ดึง badge
   useEffect(() => {
-    AnnounceService.getBadges()
+    BadgesService.getAllBadges()
       .then((res) => {
         if (res.data && Array.isArray(res.data)) {
           setBadgeOptions(res.data);
@@ -195,6 +184,24 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
       .catch(() => {
         setBadgeOptions(["ราคาพิเศษ", "โครงการใหม่", "หายาก"]);
       });
+  }, []);
+
+  // ดึง province
+  useEffect(() => {
+    ProvinceService.getProvinces()
+      .then((res) => {
+        const raw = res?.data;
+        const list = Array.isArray(raw) ? raw : [];
+        const names = list
+          .map((item) =>
+            typeof item === "string"
+              ? item
+              : item?.provinceName || item?.name || item?.title
+          )
+          .filter(Boolean);
+        setProvinceOptions(names.length > 0 ? names : fallbackProvinces);
+      })
+      .catch(() => setProvinceOptions(fallbackProvinces));
   }, []);
 
   // sync saleType
@@ -378,7 +385,7 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
                 className="select select-bordered w-full bg-white cursor-pointer"
               >
                 <option value="">ทั้งหมด</option>
-                {provinces.map((p) => (
+                {provinceOptions.map((p) => (
                   <option key={p} value={p}>{p}</option>
                 ))}
               </select>
@@ -473,16 +480,16 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
             <div className="flex flex-wrap gap-2">
               {badgeOptions.map((b) => (
                 <button
-                  key={b}
+                  key={b.id}
                   type="button"
-                  onClick={() => toggleBadge(b)}
+                  onClick={() => toggleBadge(b.badgeName)}
                   className={`btn btn-sm rounded-full ${
-                    tempFilters.badge.includes(b)
+                    tempFilters.badge.includes(b.badgeName)
                       ? "bg-[#8C6239] text-white"
                       : "btn-outline border-[#e7dbce]"
                   }`}
                 >
-                  {b}
+                  {b.badgeName}
                 </button>
               ))}
             </div>

@@ -45,6 +45,10 @@ const removeFromBookmark = async (announceId) => {
   return await api.put(`${API_URL}/removeFromBookmark/${announceId}`);
 };
 
+const editProfile = async (data) => {
+  return await api.put(`${API_URL}/editProfile`, data);
+};
+
 export default {
   profilePublic,
   uploadProfilePicture,
@@ -54,4 +58,5 @@ export default {
   showAllAnnounceBookmark,
   bookmarkAnnounce,
   removeFromBookmark,
+  editProfile,
 };

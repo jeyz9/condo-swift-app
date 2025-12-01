@@ -11,9 +11,10 @@ import { CardDetails } from "../components/details/CardDetails";
 import GrayscaleMap from "../components/details/GrayscaleMap";
 import AnnounceService from "../services/AnnounceService";
 import UserService from "../services/UserService";
+import ProvinceService from "../services/ProvinceService";
 
 // 📚 Data
-import { provinces } from "../data/provinces";
+import { provinces as fallbackProvinces } from "../data/provinces";
 
 
 // 🧱 Icons
@@ -51,6 +52,7 @@ export const AddAnnounce = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [canPostFreely, setCanPostFreely] = useState(false);
   const [accountAgeChecked, setAccountAgeChecked] = useState(false);
+  const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
   const [announce, setAnnounce] = useState({
     title: "",
     location: "",
@@ -116,6 +118,23 @@ export const AddAnnounce = () => {
       setAnnounce((prev) => ({ ...prev, userId: user?.userId || 0 }));
     }
   }, [user]);
+
+  useEffect(() => {
+    ProvinceService.getProvinces()
+      .then((res) => {
+        const raw = res?.data;
+        const list = Array.isArray(raw) ? raw : [];
+        const names = list
+          .map((item) =>
+            typeof item === "string"
+              ? item
+              : item?.provinceName || item?.name || item?.title
+          )
+          .filter(Boolean);
+        setProvinceOptions(names.length > 0 ? names : fallbackProvinces);
+      })
+      .catch(() => setProvinceOptions(fallbackProvinces));
+  }, []);
 
   useEffect(() => {
     let ignore = false;
@@ -632,7 +651,7 @@ const handleDropdownChange = (field, value) => {
                 จังหวัด
               </label>
               <SearchableDropdown
-                options={provinces}
+                options={provinceOptions}
                 value={announce.province}
                 onChange={(value) => handleDropdownChange("province", value)}
                 placeholder="เลือกจังหวัด"
