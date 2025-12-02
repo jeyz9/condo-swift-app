@@ -5,7 +5,7 @@ import { MdNotificationsActive } from "react-icons/md";
 export const NotificationDetailSkeleton = () => {
   return (
     <div
-      className="max-w-2xl mx-auto mt-10 px-6 sm:px-10 py-8 bg-gradient-to-br from-white via-[#f9f7f4] to-[#f3eee9] rounded-2xl shadow-lg border border-[#e8e2da]/50 relative overflow-hidden animate-pulse"
+      className="max-w-2xl mx-auto mt-10 px-6 sm:px-10 py-8 bg-gradient-to-br bg-white rounded-2xl shadow-lg border border-[#e8e2da]/50 relative overflow-hidden animate-pulse"
     >
       <div className="absolute top-0 left-0 w-full h-1 bg-gray-300" />
 

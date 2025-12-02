@@ -88,10 +88,8 @@ export const Profile = () => {
 
   return (
     <div className="flex flex-col items-center gap-y-10">
-      <div className="w-full flex justify-center">
-        <div className="w-full max-w-6xl px-6 flex items-center justify-between">
-          <HeroProfile profile={profile} />
-        </div>
+      <div className="w-full">
+        <HeroProfile profile={profile} />
       </div>
       <ProfileDetail profile={profile} />
 

@@ -6,19 +6,16 @@ import { FaBell, FaPaperPlane, FaUserFriends } from "react-icons/fa";
 export default function SendNotification() {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
-  const [rawuserId, setRawuserId] = useState("");
+  const [rawUserId, setRawUserId] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const parseduserId = useMemo(() => {
-    return rawuserId
-      .split(",")
-      .map((id) => id.trim())
-      .filter(Boolean)
-      .map((id) => {
-        const asNumber = Number(id);
-        return Number.isNaN(asNumber) ? id : asNumber;
-      });
-  }, [rawuserId]);
+  // parse single ID -> number | null | NaN
+  const parsedUserId = useMemo(() => {
+    const s = rawUserId.trim();
+    if (!s) return null;
+    if (!/^\d+$/.test(s)) return Number.NaN;
+    return Number(s);
+  }, [rawUserId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,32 +28,43 @@ export default function SendNotification() {
       return;
     }
 
-    if (parseduserId.length === 0) {
+    if (parsedUserId === null) {
       Swal.fire({
         icon: "warning",
-        title: "ต้องระบุ userId อย่างน้อย 1 รายการ",
-        text: "กรุณากรอก userId คั่นด้วย comma",
+        title: "ต้องระบุ userId (ตัวเลขเดี่ยว)",
+        text: "กรุณากรอก userId เช่น 1001",
+      });
+      return;
+    }
+
+    if (Number.isNaN(parsedUserId)) {
+      Swal.fire({
+        icon: "warning",
+        title: "userId ต้องเป็นตัวเลขเท่านั้น",
+        text: "ลบตัวอักษรหรือเครื่องหมายที่ไม่ใช่ตัวเลขออก",
       });
       return;
     }
 
     try {
       setLoading(true);
+
+      // ส่งเป็นเลขตัวเดียว (number) ไปยัง service
       await NotificationService.sendNotification({
         title: title.trim(),
         message: message.trim(),
-        userId: parseduserId,
+        userId: parsedUserId,
       });
 
       Swal.fire({
         icon: "success",
         title: "ส่งแจ้งเตือนเรียบร้อย",
-        text: `ส่งไปยัง ${parseduserId.length} ผู้ใช้`,
+        text: `ส่งไปยัง userId: ${parsedUserId}`,
       });
 
       setTitle("");
       setMessage("");
-      setRawuserId("");
+      setRawUserId("");
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -73,7 +81,7 @@ export default function SendNotification() {
     setMessage(
       "ระบบจะปรับปรุงภายใน 30 นาทีข้างหน้า การใช้งานอาจสะดุดเล็กน้อย ขออภัยในความไม่สะดวกค่ะ"
     );
-    setRawuserId("1001, 1002");
+    setRawUserId("1001");
   };
 
   return (
@@ -143,17 +151,17 @@ export default function SendNotification() {
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
               <FaUserFriends className="text-[#8C6239]" />
-              Target user ids
+              Target user id
             </label>
             <input
               type="text"
-              value={rawuserId}
-              onChange={(e) => setRawuserId(e.target.value)}
-              placeholder="เช่น 1001,1002"
+              value={rawUserId}
+              onChange={(e) => setRawUserId(e.target.value)}
+              placeholder="เช่น 1001"
               className="input input-bordered w-full"
             />
             <p className="text-xs text-gray-400">
-              ระบุ userId คั่นด้วย comma (จำเป็น)
+              ระบุ userId เดียวเป็นตัวเลข (จำเป็น)
             </p>
           </div>
 
@@ -164,7 +172,7 @@ export default function SendNotification() {
               onClick={() => {
                 setTitle("");
                 setMessage("");
-                setRawuserId("");
+                setRawUserId("");
               }}
               disabled={loading}
             >
@@ -203,14 +211,10 @@ export default function SendNotification() {
             <p className="text-sm font-semibold text-gray-700 mb-1">
               Audience
             </p>
-            {parseduserId.length > 0 ? (
-              <ul className="text-sm text-gray-700 list-disc list-inside space-y-1 max-h-32 overflow-y-auto">
-                {parseduserId.map((id) => (
-                  <li key={id}>{id}</li>
-                ))}
-              </ul>
+            {parsedUserId !== null && !Number.isNaN(parsedUserId) ? (
+              <div className="text-sm text-gray-700">{parsedUserId}</div>
             ) : (
-              <p className="text-sm text-gray-400">Waiting for target user ids.</p>
+              <p className="text-sm text-gray-400">Waiting for target user id.</p>
             )}
           </div>
         </div>

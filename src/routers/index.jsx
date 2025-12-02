@@ -26,7 +26,7 @@ import SendNotification from "../pages/SendNotification.jsx";
 import AdminBadges from "../pages/AdminBadges.jsx";
 import AdminAssignBadge from "../pages/AdminAssignBadge.jsx";
 import EditProfile from "../pages/EditProfile.jsx";
-
+import NotFound from "../pages/NotFound.jsx";
 const router = createBrowserRouter([
   // 🏠 Layout หลักสำหรับผู้ใช้ทั่วไป
   {
@@ -47,7 +47,8 @@ const router = createBrowserRouter([
       { path: "/notifications/:notifyId", element:<NotificationDetail />},
       { path: "/reset-password", element: <ResetPassword /> },
       { path: "/bookmarks", element: <Bookmarks /> },
-      // { path: "/payment", element: <Payment /> },
+      // catch-all สำหรับ path ที่ไม่ตรง
+      { path: "*", element: <NotFound /> },
     ],
   },
 
@@ -65,6 +66,8 @@ const router = createBrowserRouter([
       { path: "badges/manage", element: <AdminBadges /> },
       { path: "badges/assign", element: <AdminAssignBadge /> },
       // { path: "users", element: <ManageUsers /> },
+      // admin-specific catch-all (ไม่ให้ตกไปหน้า public)
+      { path: "*", element: <NotFound /> },
     ],
   },
 ]);

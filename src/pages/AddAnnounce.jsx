@@ -120,7 +120,7 @@ export const AddAnnounce = () => {
   }, [user]);
 
   useEffect(() => {
-    ProvinceService.getProvinces()
+    ProvinceService.getAllProvinces()
       .then((res) => {
         const raw = res?.data;
         const list = Array.isArray(raw) ? raw : [];

@@ -7,7 +7,7 @@ const getAllProvinces = async () => {
 }
 
 const ProvinceService = {
-    getAllProvinces,
+    getAllProvinces
 }
 
 export default ProvinceService

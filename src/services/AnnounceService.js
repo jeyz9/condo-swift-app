@@ -198,7 +198,6 @@ const AnnounceService = {
   showAllAnnounceHistory,
   approveAnnounce,
   rejectAnnounce,
-  getBadges
 };
 
 export default AnnounceService;

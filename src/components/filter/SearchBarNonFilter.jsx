@@ -106,7 +106,7 @@ export default function SearchBarNonFilter({
   }, [defaultBadge]);
 
   useEffect(() => {
-    ProvinceService.getProvinces()
+    ProvinceService.getAllProvinces()
       .then((res) => {
         const raw = res?.data;
         const list = Array.isArray(raw) ? raw : [];
