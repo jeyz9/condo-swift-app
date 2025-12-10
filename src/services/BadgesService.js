@@ -48,8 +48,11 @@ const addBadge = async (data) => api.post(`${API_URL}/addedBadge`, data);
  * Adds a badge to an announcement.
  * @param {object} data - The announcement badge data
  */
-const addAnnounceBadge = async (data) =>
-  api.post(`${API_URL}/addAnnounceBadge`, data);
+const addAnnounceBadge = async (announceId, badgeId) =>
+  api.post(`${API_URL}/addAnnounceBadge?announceId=${announceId}&badgeId=${badgeId}`);
+
+// const addAnnounceBadge = async (data) =>
+//   api.post(`${API_URL}/addAnnounceBadge?announceId=${data.announceId}&badgeId=${data.badgeId}`)
 
 /**
  * PUT /api/v1/badges/updatedBadge/{id}
@@ -67,13 +70,18 @@ const updateBadge = async (id, data) =>
  */
 const deleteBadge = async (id) => api.delete(`${API_URL}/deletedBadge/${id}`);
 
+const deleteAnnounceBadge = async (announceId, badgeId) => {
+  return await api.delete(`${API_URL}/deleteBadgeFromAnnounce?announceId=${announceId}&badgeId=${badgeId}`)
+}
+
 const BadgesService = {
   getAllBadges,
   filterBadges,
   addBadge,
   addAnnounceBadge,
   updateBadge,
-  deleteBadge,
+  deleteBadge, 
+  deleteAnnounceBadge
 };
 
 export default BadgesService;

@@ -180,8 +180,9 @@ const rejectAnnounce = async (id, data) => {
   return await api.put(`${API_URL}/rejectAnnounce/${id}`, data);
 }
 
-
-
+const getAllAnnouncesWithBadges = async (keyword, badges, page, size) => {
+  return await api.get(`${API_URL}/showAllAnnounceBadges?keyword=${keyword}&badges=${badges}&page=${page}&size=${size}`)
+}
 
 
 // ✅ export ฟังก์ชันทั้งหมดไว้ให้เรียกง่าย
@@ -198,6 +199,7 @@ const AnnounceService = {
   showAllAnnounceHistory,
   approveAnnounce,
   rejectAnnounce,
+  getAllAnnouncesWithBadges,
 };
 
 export default AnnounceService;
