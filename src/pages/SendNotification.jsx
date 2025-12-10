@@ -6,16 +6,26 @@ import { FaBell, FaPaperPlane, FaUserFriends } from "react-icons/fa";
 export default function SendNotification() {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
-  const [rawUserId, setRawUserId] = useState("");
+  const [rawUserIds, setRawUserIds] = useState("");
+  const [sendType, setSendType] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // parse single ID -> number | null | NaN
-  const parsedUserId = useMemo(() => {
-    const s = rawUserId.trim();
-    if (!s) return null;
-    if (!/^\d+$/.test(s)) return Number.NaN;
-    return Number(s);
-  }, [rawUserId]);
+  // parse comma separated IDs -> number[] | empty | invalid
+  const parsedUserIds = useMemo(() => {
+    const ids = rawUserIds
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    if (ids.length === 0) return { type: "empty", value: [] };
+
+    const numbers = ids.map((id) => Number(id));
+    if (numbers.some((n) => Number.isNaN(n))) {
+      return { type: "invalid", value: [] };
+    }
+
+    return { type: "valid", value: numbers };
+  }, [rawUserIds]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,19 +38,30 @@ export default function SendNotification() {
       return;
     }
 
-    if (parsedUserId === null) {
+    if (!sendType.trim()) {
       Swal.fire({
         icon: "warning",
-        title: "ต้องระบุ userId (ตัวเลขเดี่ยว)",
-        text: "กรุณากรอก userId เช่น 1001",
+        title: "ต้องระบุ sendType",
+        text: "เลือก ALL หรือ SELECTED",
       });
       return;
     }
 
-    if (Number.isNaN(parsedUserId)) {
+    const requiresUserIds = sendType === "SELECTED";
+
+    if (requiresUserIds && parsedUserIds.type === "empty") {
       Swal.fire({
         icon: "warning",
-        title: "userId ต้องเป็นตัวเลขเท่านั้น",
+        title: "ต้องระบุ userIds (ตัวเลขอย่างน้อย 1 รายการ)",
+        text: "กรอกด้วยเครื่องหมายคั่นจุลภาค เช่น 1001,1002",
+      });
+      return;
+    }
+
+    if (requiresUserIds && parsedUserIds.type === "invalid") {
+      Swal.fire({
+        icon: "warning",
+        title: "userIds ต้องเป็นตัวเลขเท่านั้น",
         text: "ลบตัวอักษรหรือเครื่องหมายที่ไม่ใช่ตัวเลขออก",
       });
       return;
@@ -49,22 +70,27 @@ export default function SendNotification() {
     try {
       setLoading(true);
 
-      // ส่งเป็นเลขตัวเดียว (number) ไปยัง service
+      // ส่งเป็น array ของ userIds และ sendType ตามสเปกใหม่
       await NotificationService.sendNotification({
         title: title.trim(),
         message: message.trim(),
-        userId: parsedUserId,
+        userIds: requiresUserIds ? parsedUserIds.value : [],
+        sendType: sendType.trim(),
       });
 
       Swal.fire({
         icon: "success",
         title: "ส่งแจ้งเตือนเรียบร้อย",
-        text: `ส่งไปยัง userId: ${parsedUserId}`,
+        text:
+          sendType === "ALL"
+            ? "ส่งไปยังผู้ใช้ทั้งหมด"
+            : `ส่งไปยัง userIds: ${parsedUserIds.value.join(", ")} (${sendType.trim()})`,
       });
 
       setTitle("");
       setMessage("");
-      setRawUserId("");
+      setRawUserIds("");
+      setSendType("");
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -81,7 +107,8 @@ export default function SendNotification() {
     setMessage(
       "ระบบจะปรับปรุงภายใน 30 นาทีข้างหน้า การใช้งานอาจสะดุดเล็กน้อย ขออภัยในความไม่สะดวกค่ะ"
     );
-    setRawUserId("1001");
+    setRawUserIds("1001, 1002");
+    setSendType("SELECTED");
   };
 
   return (
@@ -149,19 +176,40 @@ export default function SendNotification() {
           </div>
 
           <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Send type</label>
+            <select
+              className="select select-bordered w-full"
+              value={sendType}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSendType(val);
+                if (val === "ALL") setRawUserIds("");
+              }}
+            >
+              <option value="">เลือก send type</option>
+              <option value="ALL">ALL</option>
+              <option value="SELECTED">SELECTED</option>
+            </select>
+            <p className="text-xs text-gray-400">
+              เลือก ALL เพื่อส่งถึงทุกคน หรือ SELECTED เพื่อส่งเฉพาะ userIds
+            </p>
+          </div>
+
+          <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
               <FaUserFriends className="text-[#8C6239]" />
-              Target user id
+              Target user ids
             </label>
             <input
               type="text"
-              value={rawUserId}
-              onChange={(e) => setRawUserId(e.target.value)}
-              placeholder="เช่น 1001"
+              value={rawUserIds}
+              onChange={(e) => setRawUserIds(e.target.value)}
+              placeholder="เช่น 1001, 1002"
               className="input input-bordered w-full"
+              disabled={sendType === "ALL"}
             />
             <p className="text-xs text-gray-400">
-              ระบุ userId เดียวเป็นตัวเลข (จำเป็น)
+              ระบุ userIds หลายรายการคั่นด้วยจุลภาค (จำเป็นเมื่อเลือก SELECTED)
             </p>
           </div>
 
@@ -172,7 +220,8 @@ export default function SendNotification() {
               onClick={() => {
                 setTitle("");
                 setMessage("");
-                setRawUserId("");
+                setRawUserIds("");
+                setSendType("");
               }}
               disabled={loading}
             >
@@ -211,11 +260,26 @@ export default function SendNotification() {
             <p className="text-sm font-semibold text-gray-700 mb-1">
               Audience
             </p>
-            {parsedUserId !== null && !Number.isNaN(parsedUserId) ? (
-              <div className="text-sm text-gray-700">{parsedUserId}</div>
+            {sendType === "ALL" ? (
+              <div className="text-sm text-gray-700">All users</div>
+            ) : parsedUserIds.type === "valid" ? (
+              <div className="text-sm text-gray-700">
+                {parsedUserIds.value.join(", ")}
+              </div>
+            ) : parsedUserIds.type === "invalid" ? (
+              <p className="text-sm text-red-500">userIds ต้องเป็นตัวเลขเท่านั้น</p>
             ) : (
-              <p className="text-sm text-gray-400">Waiting for target user id.</p>
+              <p className="text-sm text-gray-400">Waiting for target user ids.</p>
             )}
+
+            <div className="mt-3">
+              <p className="text-sm font-semibold text-gray-700 mb-1">Send type</p>
+              {sendType ? (
+                <span className="text-sm text-gray-700">{sendType}</span>
+              ) : (
+                <span className="text-sm text-gray-400">Waiting for send type.</span>
+              )}
+            </div>
           </div>
         </div>
       </div>

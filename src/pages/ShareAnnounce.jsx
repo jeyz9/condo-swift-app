@@ -25,6 +25,7 @@ const ShareAnnounce = () => {
 
 
   const handleApprove = async () => {
+    try {
     const confirmed = await Swal.fire({
       title: "ยืนยันการอนุมัติ?",
       text: "คุณต้องการอนุมัติประกาศนี้ใช่หรือไม่?",
@@ -47,8 +48,14 @@ const ShareAnnounce = () => {
     });
 
     goNextOrBack();
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "อนุมัติไม่สำเร็จ",
+      text: error?.response?.data?.message || error.message, 
+    });
+  }
   };
-
 
   const handleReject = async () => {
     const { value: remark, isConfirmed } = await Swal.fire({
@@ -152,5 +159,4 @@ const ShareAnnounce = () => {
     </>
   );
 };
-
 export default ShareAnnounce;

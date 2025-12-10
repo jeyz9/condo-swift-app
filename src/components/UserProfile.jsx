@@ -10,6 +10,27 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(true);
 
   const displayName = profile?.name?.trim() || "ไม่ระบุชื่อ";
+  const normalizeRoles = (raw) => {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === "string") {
+      return raw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+    return [];
+  };
+  const roles =
+    normalizeRoles(user?.roles).length > 0
+      ? normalizeRoles(user?.roles)
+      : normalizeRoles(user?.user?.roles);
+  const normalizedRoles = roles
+    .map((r) => r?.toString?.() || "")
+    .map((r) => r.replace(/^ROLE_/i, "").toUpperCase())
+    .filter(Boolean);
+  const isAdmin =
+    normalizedRoles.includes("ADMIN") || normalizedRoles.includes("SUPER_ADMIN");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -124,6 +145,16 @@ const UserProfile = () => {
               บุ๊คมาร์ก
             </Link>
           </li>
+          {isAdmin && (
+            <li>
+              <Link
+                to="/admin/dashboard"
+                className="text-sm text-gray-700"
+              >
+                แผงผู้ดูแลระบบ
+              </Link>
+            </li>
+          )}
           <li className="mt-1">
             <button
               onClick={handleLogout}

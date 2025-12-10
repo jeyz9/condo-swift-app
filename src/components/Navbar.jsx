@@ -1,15 +1,16 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // ✅ ใช้ react-router-dom
 import { FaBars } from "react-icons/fa";
-import LoginPopup from "./login/LoginPopup"; // ✅ import login popup
-import RegisterPopup from "./login/RegisterPopup"; // ✅ import register popup
+import LoginPopup from "./login/LoginPopup";
+import RegisterPopup from "./login/RegisterPopup";
 import { useAuthContext } from "../context/AuthContext";
 import UserProfile from "./UserProfile";
-import { IoMdNotificationsOutline } from "react-icons/io";
 import NotificationMenu from "./NotificationMenu";
-import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+  const { user } = useAuthContext();           // ✅ เรียก hook ข้างใน component
+  const roles = user?.roles || "";            // ✅ ดึง roles จาก user
+  const navigate = useNavigate();
 
   const menuItems = [
     { title: "หน้าแรก", path: "/" },
@@ -19,12 +20,14 @@ const Navbar = () => {
       submenu: [
         { title: "เช่า", path: "/filter?saleType=เช่า&page=0&size=10" },
         { title: "ขาย", path: "/filter?saleType=ขาย&page=0&size=10" },
+
+        // ✅ เพิ่มเมนู "ระบบหลังบ้าน" เฉพาะ ROLE_ADMIN
+        ...(roles.includes("ROLE_ADMIN")
+          ? [{ title: "ระบบผู้ดูแล", path: "/admin/dashboard" }]
+          : []),
       ],
     },
   ];
-
-  const { user } = useAuthContext();
-  const navigate = useNavigate();
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -122,7 +125,8 @@ const Navbar = () => {
             เข้าสู่ระบบ
           </button>
         )}
-        {/* ✅ Login Popup */}
+
+        {/* Login Popup */}
         <LoginPopup
           isOpen={isLoginOpen}
           onClose={() => setIsLoginOpen(false)}
@@ -132,6 +136,8 @@ const Navbar = () => {
             setIsRegisterOpen(true);
           }}
         />
+
+        {/* Register Popup */}
         <RegisterPopup
           isOpen={isRegisterOpen}
           onClose={() => setIsRegisterOpen(false)}

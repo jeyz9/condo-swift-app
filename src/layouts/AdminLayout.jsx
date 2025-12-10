@@ -61,7 +61,7 @@ export const AdminLayout = () => {
         <nav className="w-full pr-10">
           <div>
             <div
-              className={`flex items-center justify-between cursor-pointer select-none pl-10 pr-5 py-2 rounded-e-md transition  ${
+              className={`mt-2 flex items-center justify-between cursor-pointer select-none pl-10 pr-5 py-2 rounded-e-md transition  ${
                 open.announce
                   ? "bg-[#8C623910] text-[#704c2c]"
                   : "hover:bg-[#8C623910] hover:text-[#704c2c]"
@@ -194,6 +194,7 @@ export const AdminLayout = () => {
         <div className="px-6 pb-10">
           <Outlet />
         </div>
+
       </main>
     </div>
   );

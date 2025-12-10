@@ -27,6 +27,8 @@ import AdminBadges from "../pages/AdminBadges.jsx";
 import AdminAssignBadge from "../pages/AdminAssignBadge.jsx";
 import EditProfile from "../pages/EditProfile.jsx";
 import NotFound from "../pages/NotFound.jsx";
+import RequireRole from "../components/RequireRole.jsx";
+import Forbidden from "../pages/Forbidden.jsx";
 const router = createBrowserRouter([
   // 🏠 Layout หลักสำหรับผู้ใช้ทั่วไป
   {
@@ -47,6 +49,7 @@ const router = createBrowserRouter([
       { path: "/notifications/:notifyId", element:<NotificationDetail />},
       { path: "/reset-password", element: <ResetPassword /> },
       { path: "/bookmarks", element: <Bookmarks /> },
+      { path: "/forbidden", element: <Forbidden /> },
       // catch-all สำหรับ path ที่ไม่ตรง
       { path: "*", element: <NotFound /> },
     ],
@@ -54,7 +57,11 @@ const router = createBrowserRouter([
 
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: (
+      <RequireRole>
+        <AdminLayout />
+      </RequireRole>
+    ),
     children: [
       { path: "dashboard", element: <Dashboard /> },
       { path: "announce/history", element: <HistoryTable /> },

@@ -11,8 +11,11 @@ import CondoCardVilla from "../components/CondoCardVilla";
 import { CondoCard } from "../components/CondoCard";
 import { CondoCardSkeleton } from "../components/CondoCardSkeleton";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuthContext } from "../context/AuthContext";
 
 export const Home = () => {
+  const user = useAuthContext()
+  console.log("user roles in Home:", user?.user?.roles);
   const [announce, setAnnounce] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saleType, setSaleType] = useState("");

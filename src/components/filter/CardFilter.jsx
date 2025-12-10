@@ -67,6 +67,8 @@ const CardFilter = ({ announce }) => {
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   const agent = announce?.agent || {};
+
+  console.log("announce in CardFilter:", announce);
   const badges = useMemo(() => {
     if (Array.isArray(announce?.badgeSet)) return announce.badgeSet;
     if (Array.isArray(announce?.badges)) return announce.badges;
