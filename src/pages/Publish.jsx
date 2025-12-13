@@ -136,7 +136,7 @@ export default function Publish() {
           <table className="table table-zebra w-full text-sm">
             <thead className="bg-[#f8f5f1] text-[#8C6239]">
               <tr>
-                <th>#</th>
+                <th>ลำดับ</th>
                 <th>ประกาศ</th>
                 <th>ตัวแทน</th>
                 <th>วันที่ลงประกาศ</th>

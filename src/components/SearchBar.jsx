@@ -301,15 +301,15 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
             <button
               type="button"
               onClick={() => setIsFilterOpen(true)}
-              className="btn btn-outline border-[#e7dbce] text-[#8C6239] bg-white hover:bg-[#f7ede2] rounded-md"
+              className="btn btn-sm sm:btn-md btn-outline border-[#e7dbce] text-[#8C6239] bg-white hover:bg-[#f7ede2] rounded-md"
             >
               <FaSlidersH />
-              ตัวกรอง
+              <span className="hidden sm:inline">ตัวกรอง</span>
             </button>
 
             <button
               type="submit"
-              className="btn bg-[#8C6239] text-white border-none hover:bg-[#704c2c]"
+              className="btn btn-sm sm:btn-md bg-[#8C6239] text-white border-none hover:bg-[#704c2c]"
             >
               ค้นหา
             </button>
@@ -320,7 +320,7 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
 
       {/* FILTER MODAL */}
       <dialog className={`modal ${isFilterOpen ? "modal-open" : ""}`}>
-        <div className="modal-box max-w-3xl bg-white rounded-2xl p-6 space-y-6">
+        <div className="modal-box w-11/12 max-w-3xl bg-white rounded-2xl p-6 space-y-6">
 
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold text-[#8C6239]">

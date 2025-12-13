@@ -29,6 +29,7 @@ import EditProfile from "../pages/EditProfile.jsx";
 import NotFound from "../pages/NotFound.jsx";
 import RequireRole from "../components/RequireRole.jsx";
 import Forbidden from "../pages/Forbidden.jsx";
+import RequireVerification from "../components/RequireVerification.jsx";
 const router = createBrowserRouter([
   // 🏠 Layout หลักสำหรับผู้ใช้ทั่วไป
   {
@@ -38,8 +39,8 @@ const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/detail/:id", element: <Detail /> },
       { path: "/filter", element: <Filter /> },
-      { path: "/add-announce", element: <AddAnnounce /> },
-      { path: "/edit-announce/:id", element: <EditAnnounce /> },
+      { path: "/add-announce", element: <RequireVerification><AddAnnounce /></RequireVerification> },
+      { path: "/edit-announce/:id", element: <RequireVerification><EditAnnounce /></RequireVerification> },
       { path: "/profile", element: <Profile /> },
       { path: "/profile/edit", element: <EditProfile /> },
       { path: "/public-profile/:userId", element: <PublicProfile /> },

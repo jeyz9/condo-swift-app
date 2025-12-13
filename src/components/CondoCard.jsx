@@ -72,7 +72,7 @@ export const CondoCard = ({ announce, isLoading }) => {
             ฿{price}
           </h2>
           <h3 className="card-title text-base sm:text-xl md:text-2xl">
-            {announce?.title ?? "ไม่ระบุชื่อประกาศ"}
+            {announce?.title ?? "ยังไม่เข้าสู่ระบบประกาศ"}
           </h3>
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm sm:text-base">
             <p className="flex items-center gap-1">

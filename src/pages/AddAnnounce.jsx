@@ -902,7 +902,7 @@ const handleDropdownChange = (field, value) => {
                 </p>
                 <p>
                   <span className="font-semibold">ผู้ลงประกาศ:</span>{" "}
-                  {displayName || "ไม่ระบุชื่อผู้ประกาศ"}
+                  {displayName || "ยังไม่เข้าสู่ระบบผู้ประกาศ"}
                 </p>
               </div>
             </div>

@@ -5,7 +5,7 @@ import { FaAngleUp, FaAngleDown } from "react-icons/fa6";
 import AnnounceService from "../services/AnnounceService";
 
 export const AdminLayout = () => {
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(window.innerWidth >= 1024);
   const location = useLocation();
   const toggleDrawer = () => setDrawerOpen((prev) => !prev);
   const [open, setOpen] = useState({
@@ -30,6 +30,18 @@ export const AdminLayout = () => {
 
     loadFirstAnnounce();
   }, [isActive]);
+
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth >= 1024) {
+        setDrawerOpen(true);
+      } else {
+        setDrawerOpen(false);
+      }
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (location.pathname.startsWith("/admin/announce")) {
@@ -174,7 +186,7 @@ export const AdminLayout = () => {
 
       <header
         className={`fixed top-0 right-0 h-14 bg-white shadow-sm border-b border-gray-200 flex items-center px-6 transition-all duration-300 z-30 ${
-          drawerOpen ? "left-64" : "left-0"
+          drawerOpen ? "lg:left-64" : "left-0"
         }`}
       >
         <button
@@ -188,7 +200,7 @@ export const AdminLayout = () => {
 
       <main
         className={`flex-1 overflow-x-auto pt-16 transition-all duration-300 ${
-          drawerOpen ? "ml-64" : "ml-0"
+          drawerOpen ? "lg:ml-64" : "ml-0"
         }`}
       >
         <div className="px-6 pb-10">

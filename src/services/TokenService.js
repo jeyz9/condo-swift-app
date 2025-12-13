@@ -23,7 +23,7 @@ const setUser = (user) => {
       token: user.accessToken || user.token, 
     };
 
-    // ❗ ปิด secure ตอน dev, เปิดเฉพาะโปรดักชัน
+    // ปิด secure ตอน dev, เปิดเฉพาะโปรดักชัน
     const isProd = window.location.protocol === "https:";
 
     Cookies.set(TOKEN_KEY, JSON.stringify(tokenData), {

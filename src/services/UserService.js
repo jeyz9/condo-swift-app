@@ -49,6 +49,10 @@ const editProfile = async (data) => {
   return await api.put(`${API_URL}/editProfile`, data);
 };
 
+const showUserDetails = async () => {
+  return await api.get(`${API_URL}/showUserDetails`);
+};
+
 export default {
   profilePublic,
   uploadProfilePicture,
@@ -59,4 +63,5 @@ export default {
   bookmarkAnnounce,
   removeFromBookmark,
   editProfile,
+  showUserDetails,
 };

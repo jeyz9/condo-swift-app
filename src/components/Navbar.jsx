@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"; // ✅ ใช้ react-router-dom
 import { FaBars } from "react-icons/fa";
 import LoginPopup from "./login/LoginPopup";
@@ -6,12 +6,57 @@ import RegisterPopup from "./login/RegisterPopup";
 import { useAuthContext } from "../context/AuthContext";
 import UserProfile from "./UserProfile";
 import NotificationMenu from "./NotificationMenu";
+import UserService from "../services/UserService";
+import Swal from "sweetalert2";
 
 const Navbar = () => {
   const { user } = useAuthContext();           // ✅ เรียก hook ข้างใน component
   const roles = user?.roles || "";            // ✅ ดึง roles จาก user
   const navigate = useNavigate();
+  const [profile, setProfile] = useState(null);
 
+  useEffect(() => {
+    if (user?.userId) {
+      UserService.profilePublic(user.userId)
+        .then((res) => {
+          if (res.status === 200) {
+            setProfile(res.data);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to fetch profile:", err);
+        });
+    }
+  }, [user?.userId]);
+
+  const handleAddAnnounceClick = () => {
+    if (!user) {
+      Swal.fire({
+        icon: "info",
+        title: "กรุณาเข้าสู่ระบบ",
+        text: "คุณต้องเข้าสู่ระบบเพื่อลงประกาศ",
+        confirmButtonText: "ตกลง",
+      });
+      return;
+    }
+
+    if (profile && profile.emailVerified && profile.phoneVerified) {
+      navigate("/add-announce");
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "คุณยังไม่ได้ยืนยันตัวตน",
+        text: "กรุณายืนยันตัวตนทั้งอีเมลและเบอร์โทรศัพท์ก่อนลงประกาศ",
+        confirmButtonText: "ไปที่หน้าโปรไฟล์",
+        showCancelButton: true,
+        cancelButtonText: "ยกเลิก",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/profile");
+        }
+      });
+    }
+  };
   const menuItems = [
     { title: "หน้าแรก", path: "/" },
     { title: "เกี่ยวกับเรา", path: "/about-us" },
@@ -108,6 +153,12 @@ const Navbar = () => {
       <div className="navbar-end">
         {user ? (
           <>
+            <button
+              onClick={() => handleAddAnnounceClick()}
+              className="btn btn-sm sm:btn-md bg-[#8C6239] text-white border-none hover:bg-[#704c2c] mx-2"
+            >
+              ลงประกาศ
+            </button>
             <NotificationMenu />
             {/* <button
               onClick={() => navigate("/payment")}

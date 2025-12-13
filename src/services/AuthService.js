@@ -82,6 +82,19 @@ const verifyOtp = async (otpCode) => {
   ;
 };
 
+const changePassword = async (payloadOrOldPassword, newPassword, confirmPassword) => {
+  const payload =
+    typeof payloadOrOldPassword === "object" && payloadOrOldPassword !== null
+      ? payloadOrOldPassword
+      : {
+          oldPassword: payloadOrOldPassword,
+          newPassword,
+          confirmPassword,
+        };
+
+  return await api.post(buildUrl("/changePassword"), payload);
+};
+
 /* -------------------------------
  ✅ Export รวมทั้งหมด
 --------------------------------*/
@@ -92,9 +105,7 @@ const AuthService = {
   sendVerify,
   sendOtp,
   verifyOtp,
-  changePassword: async (oldPassword, newPassword, confirmPassword) => {
-    return await api.post(buildUrl("/changePassword"), { oldPassword, newPassword, confirmPassword });
-  },
+  changePassword,
   sendEmailResetPassword: async (email) => {
     return await api.post(buildUrl(`/sendEmailResetPassword?email=${email}`));
   },

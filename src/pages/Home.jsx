@@ -149,7 +149,7 @@ export const Home = () => {
 
       {/* SECTION: คอนโดแนะนำ */}
       <motion.div
-        className="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8"
+        className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
@@ -200,7 +200,7 @@ export const Home = () => {
 
       {/* SECTION: คอนโดใกล้ BTS/MRT */}
       <motion.div
-        className="mt-10 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8"
+        className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
@@ -251,7 +251,7 @@ export const Home = () => {
 
       {/* SECTION: บ้าน */}
       <motion.div
-        className="mt-10 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8"
+        className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
@@ -301,7 +301,7 @@ export const Home = () => {
 
       {/* SECTION: วิลล่า */}
       <motion.div
-        className="mt-10 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8"
+        className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         variants={fadeUp}
         initial="hidden"
         animate="visible"

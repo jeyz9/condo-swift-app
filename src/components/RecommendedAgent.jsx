@@ -129,7 +129,7 @@ const RecommendedAgent = ({ recommendedAgents }) => {
 
               <div className="flex-1 min-w-0">
                 <h3 className="text-lg sm:text-xl font-semibold truncate">
-                  {agent?.name || "ไม่ระบุชื่อ"}
+                  {agent?.name || "ยังไม่เข้าสู่ระบบ"}
                 </h3>
                 <p className="text-sm text-base-content/70 line-clamp-2">
                   {agent?.description || agent?.bio || "ยังไม่มีคำอธิบาย"}
