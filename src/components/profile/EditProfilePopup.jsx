@@ -3,10 +3,12 @@ import UserService from '../../services/UserService';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { User, FileText, Phone, Mail, MessageSquare } from 'lucide-react';
+import { useAuthContext } from '../../context/AuthContext';
 
 const MySwal = withReactContent(Swal);
 
 const EditProfilePopup = ({ onClose, onProfileUpdate }) => {
+  const { logout } = useAuthContext();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -14,6 +16,7 @@ const EditProfilePopup = ({ onClose, onProfileUpdate }) => {
     email: '',
     lineId: '',
   });
+  const [initialData, setInitialData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
 
@@ -22,13 +25,15 @@ const EditProfilePopup = ({ onClose, onProfileUpdate }) => {
       try {
         const res = await UserService.showUserDetails();
         if (res.status === 200) {
-          setFormData({
+          const nextData = {
             name: res.data.name || '',
             description: res.data.description || '',
             phone: res.data.phone || '',
             email: res.data.email || '',
             lineId: res.data.lineId || '',
-          });
+          };
+          setFormData(nextData);
+          setInitialData(nextData);
         }
       } catch (err) {
         MySwal.fire({
@@ -51,6 +56,8 @@ const EditProfilePopup = ({ onClose, onProfileUpdate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    const emailChanged = initialData ? formData.email !== initialData.email : false;
+    const phoneChanged = initialData ? formData.phone !== initialData.phone : false;
     try {
       const res = await UserService.editProfile(formData);
       if (res.status === 200) {
@@ -61,6 +68,12 @@ const EditProfilePopup = ({ onClose, onProfileUpdate }) => {
           timer: 1500,
         });
         onProfileUpdate(formData);
+        // If sensitive contact info changed, force logout and return home
+        if (emailChanged || phoneChanged) {
+          logout();
+          window.location.href = '/';
+          return;
+        }
         onClose();
       }
     } catch (err) {

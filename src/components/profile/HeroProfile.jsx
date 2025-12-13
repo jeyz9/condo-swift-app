@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PiShareFat } from "react-icons/pi";
 import { GoVerified } from "react-icons/go";
 import Swal from "sweetalert2";
@@ -6,13 +6,59 @@ import { useAuthContext } from "../../context/AuthContext";
 import AuthService from "../../services/AuthService";
 import UserService from "../../services/UserService";
 
+const extractErrorMessage = (error, fallbackMessage) => {
+  const data = error?.response?.data;
+
+  if (typeof data === "string") {
+    return data;
+  }
+
+  if (data?.message && typeof data.message === "string") {
+    return data.message;
+  }
+
+  if (Array.isArray(data?.errors)) {
+    const messages = data.errors.filter((item) => typeof item === "string");
+    if (messages.length) {
+      return messages.join(", ");
+    }
+  }
+
+  if (data && typeof data === "object") {
+    const values = Object.values(data).filter((item) => typeof item === "string");
+    if (values.length) {
+      return values.join(", ");
+    }
+    try {
+      const serialized = JSON.stringify(data);
+      if (serialized !== "{}") return serialized;
+    } catch {
+      // ignore
+    }
+  }
+
+  return error?.message || fallbackMessage;
+};
+
 const HeroProfile = ({ profile }) => {
   const [uploading, setUploading] = useState(false);
   const { user } = useAuthContext();
   const userId = user?.userId;
 
-  const emailVerified = profile?.emailVerified;
-  const phoneVerified = profile?.phoneVerified;
+  const [verificationStatus, setVerificationStatus] = useState({
+    emailVerified: !!profile?.emailVerified,
+    phoneVerified: !!profile?.phoneVerified,
+  });
+
+  useEffect(() => {
+    setVerificationStatus({
+      emailVerified: !!profile?.emailVerified,
+      phoneVerified: !!profile?.phoneVerified,
+    });
+  }, [profile?.emailVerified, profile?.phoneVerified]);
+
+  const emailVerified = verificationStatus.emailVerified;
+  const phoneVerified = verificationStatus.phoneVerified;
   console.log("email verified:", emailVerified);
   console.log("phone verified:", phoneVerified)
   const displayName = profile?.name?.trim() || "ยังไม่เข้าสู่ระบบ";
@@ -162,13 +208,14 @@ const HeroProfile = ({ profile }) => {
       }
     } catch (error) {
       Swal.close();
+      const errorMessage = extractErrorMessage(
+        error,
+        "Unable to send the verification request. Please try again."
+      );
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
-        text:
-          error?.response?.data ||
-          error?.message ||
-          "ไม่สามารถส่งรหัสยืนยันได้",
+        text: errorMessage,
         confirmButtonColor: "#8C6239",
       });
     }
@@ -220,14 +267,19 @@ const HeroProfile = ({ profile }) => {
             title: "ยืนยัน OTP สำเร็จ!",
             confirmButtonColor: "#8C6239",
           });
+          setVerificationStatus((prev) => ({ ...prev, phoneVerified: true }));
           localStorage.removeItem("otpToken");
           localStorage.removeItem("otpRefno");
         }
       } catch (err) {
+        const errorMessage = extractErrorMessage(
+          err,
+          "Unable to verify the OTP. Please try again."
+        );
         Swal.fire({
           icon: "error",
           title: "OTP ไม่ถูกต้อง",
-          text: err.response?.data?.message || "โปรดลองอีกครั้ง",
+          text: errorMessage,
           confirmButtonColor: "#8C6239",
         });
       }
