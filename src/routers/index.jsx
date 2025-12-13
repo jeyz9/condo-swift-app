@@ -30,6 +30,7 @@ import NotFound from "../pages/NotFound.jsx";
 import RequireRole from "../components/RequireRole.jsx";
 import Forbidden from "../pages/Forbidden.jsx";
 import RequireVerification from "../components/RequireVerification.jsx";
+import VerifyEmail from "../pages/verifyEmail.jsx";
 const router = createBrowserRouter([
   // 🏠 Layout หลักสำหรับผู้ใช้ทั่วไป
   {
@@ -51,6 +52,7 @@ const router = createBrowserRouter([
       { path: "/reset-password", element: <ResetPassword /> },
       { path: "/bookmarks", element: <Bookmarks /> },
       { path: "/forbidden", element: <Forbidden /> },
+      { path: "/verify-email/verify", element: <VerifyEmail /> },
       // catch-all สำหรับ path ที่ไม่ตรง
       { path: "*", element: <NotFound /> },
     ],

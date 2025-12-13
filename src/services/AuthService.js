@@ -95,6 +95,10 @@ const changePassword = async (payloadOrOldPassword, newPassword, confirmPassword
   return await api.post(buildUrl("/changePassword"), payload);
 };
 
+const verifyEmail = async (token) => {
+  // Backend expects GET with token in query params
+  return await api.get(buildUrl(`/verify-email?token=${token}`));
+};
 /* -------------------------------
  ✅ Export รวมทั้งหมด
 --------------------------------*/
@@ -111,7 +115,8 @@ const AuthService = {
   },
   resetPassword: async (token, newPassword, confirmPassword) => {
     return await api.post(buildUrl(`/resetPassword?token=${token}`), { newPassword, confirmPassword });
-  }
+  },
+  verifyEmail
 };
 
 export default AuthService;

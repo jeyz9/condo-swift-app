@@ -232,7 +232,7 @@ const HeroProfile = ({ profile }) => {
           ${[...Array(6)]
             .map(
               (_, i) =>
-                `<input id="otp-${i}" maxlength="1" class="w-10 h-12 text-center border border-gray-300 rounded-lg text-lg font-medium focus:ring-2 focus:ring-[#8C6239] outline-none" />`
+                `<input type="number" id="otp-${i}" maxlength="1" class="w-10 h-12 text-center border border-gray-300 rounded-lg text-lg font-medium focus:ring-2 focus:ring-[#8C6239] outline-none" />`
             )
             .join("")}
         </div>
@@ -242,15 +242,50 @@ const HeroProfile = ({ profile }) => {
       cancelButtonText: "ยกเลิก",
       confirmButtonColor: "#8C6239",
       didOpen: () => {
-        inputs.forEach((input, idx) =>
-          input?.addEventListener("input", (e) => {
-            if (e.target.value && idx < inputs.length - 1)
-              inputs[idx + 1].focus();
-          })
-        );
+        const otpInputs = Array.from({ length: 6 }, (_, i) => document.getElementById(`otp-${i}`));
+        
+        // Focus the first input on open
+        otpInputs[0]?.focus();
+
+        otpInputs.forEach((input, idx) => {
+          if (!input) return;
+
+          // Auto-forward
+          input.addEventListener('input', () => {
+            if (input.value && idx < otpInputs.length - 1) {
+              otpInputs[idx + 1]?.focus();
+            }
+          });
+
+          // Auto-backward on backspace
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !input.value && idx > 0) {
+              otpInputs[idx - 1]?.focus();
+            }
+          });
+        });
+
+        // Handle paste on the first input
+        otpInputs[0]?.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const pastedData = e.clipboardData?.getData('text').trim().slice(0, 6);
+          if (pastedData) {
+            pastedData.split('').forEach((char, index) => {
+              if (otpInputs[index]) {
+                otpInputs[index].value = char;
+              }
+            });
+            // Focus the last input that was filled
+            const lastIndex = Math.min(pastedData.length, otpInputs.length) - 1;
+            if (lastIndex >= 0) {
+              otpInputs[lastIndex]?.focus();
+            }
+          }
+        });
       },
       preConfirm: () => {
-        const otp = inputs.map((inp) => inp.value.trim()).join("");
+        const otpInputs = Array.from({ length: 6 }, (_, i) => document.getElementById(`otp-${i}`));
+        const otp = otpInputs.map((inp) => inp?.value?.trim() || '').join("");
         if (otp.length !== 6) {
           Swal.showValidationMessage("กรุณากรอก OTP ให้ครบ 6 หลัก");
           return false;

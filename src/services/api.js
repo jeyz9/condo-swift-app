@@ -14,7 +14,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // ❌ ห้ามแนบ token กับ login หรือ register
-    const excluded = ["/auth/login", "/auth/register"];
+    const excluded = ["/auth/login", "/auth/register", "/auth/verify-email"];
     const isExcluded = excluded.some((url) => config.url?.includes(url));
 
     if (!isExcluded) {

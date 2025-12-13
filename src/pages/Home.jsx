@@ -101,7 +101,7 @@ export const Home = () => {
 
       {/* SEARCH BAR */}
       <motion.div
-        className="relative -top-6 text-gray-600 p-2"
+        className="relative -top-6 text-gray-600 p-2 -mt-2"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
@@ -111,7 +111,7 @@ export const Home = () => {
 
       {/* ปุ่ม “เช่า” และ “ขาย” */}
       <motion.div
-        className="flex flex-row flex-wrap justify-center mt-10 gap-4 sm:gap-5"
+        className="flex flex-row flex-wrap justify-center  gap-4 sm:gap-5"
         initial="hidden"
         animate="visible"
         variants={fadeUp}

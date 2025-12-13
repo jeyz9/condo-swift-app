@@ -71,7 +71,7 @@ const Hero = () => {
           </p>
           <button
             onClick={handleAddAnnounceClick}
-            className="btn bg-[#8C6239] text-white font-light rounded-md w-32 border-none shadow-none mt-6"
+            className="btn bg-[#8C6239] text-white font-light rounded-md w-32 border-none shadow-none mb-10 "
           >
             ลงประกาศใหม่
           </button>

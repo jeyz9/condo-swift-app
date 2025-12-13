@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import Swal from "sweetalert2";
 import {
@@ -10,10 +10,11 @@ import {
 } from "react-icons/fa";
 import ProvinceService from "../../services/ProvinceService";
 import { provinces as fallbackProvinces } from "../../data/provinces";
+import { stations as fallbackStations } from "../../data/stations";
 
 const propertyTypes = ["คอนโด", "บ้านเดี่ยว", "ทาวน์โฮม", "ที่ดิน"];
 
-const fallbackStationOptions = [];
+const fallbackStationOptions = fallbackStations.map(station => ({ value: station, label: station }));
 
 export default function SearchBarNonFilter({
   defaultKeyword = "",
@@ -56,14 +57,14 @@ export default function SearchBarNonFilter({
   const formatPriceLabel = (min, max) => {
     const hasMin = min !== "" && min !== null && min !== undefined;
     const hasMax = max !== "" && max !== null && max !== undefined;
-    if (!hasMin && !hasMax) return "????";
+    if (!hasMin && !hasMax) return "ราคา";
 
     const minStr = hasMin
       ? `THB ${Number(min).toLocaleString("en-US")}`
       : "THB 0";
     const maxStr = hasMax
       ? `THB ${Number(max).toLocaleString("en-US")}`
-      : "????????";
+      : "ไม่จำกัด";
 
     return `${minStr} - ${maxStr}`;
   };
@@ -104,63 +105,147 @@ export default function SearchBarNonFilter({
     }));
   }, [defaultBadge]);
 
-  useEffect(() => {
-    ProvinceService.getAllProvinces()
-      .then((res) => {
-        const raw = res?.data;
-        const list = Array.isArray(raw) ? raw : [];
-        const names = list
-          .map((item) =>
-            typeof item === "string"
-              ? item
-              : item?.provinceName || item?.name || item?.title
-          )
-          .filter(Boolean);
-        setProvinceOptions(names.length > 0 ? names : fallbackProvinces);
-      })
-      .catch(() => setProvinceOptions(fallbackProvinces));
-  }, []);
+    useEffect(() => {
 
-  // ? ??? filter ? ????? query ?????????? /filter
-  useEffect(() => {
-    ProvinceService.getAllStations()
-      .then((res) => {
-        const raw = res?.data;
-        const list = Array.isArray(raw)
-          ? raw
-          : Array.isArray(raw?.stations)
-          ? raw.stations
-          : Array.isArray(raw?.data)
-          ? raw.data
-          : [];
+      ProvinceService.getAllProvinces()
 
-        const options = list
-          .map((item) => {
-            if (typeof item === "string") {
-              return { value: item, label: item };
+        .then((res) => {
+
+          const raw = res?.data;
+
+          const list = Array.isArray(raw) ? raw : [];
+
+          const names = list
+
+            .map((item) =>
+
+              typeof item === "string"
+
+                ? item
+
+                : item?.provinceName || item?.name || item?.title
+
+            )
+
+            .filter(Boolean);
+
+          setProvinceOptions(names.length > 0 ? names : fallbackProvinces);
+
+        })
+
+        .catch(() => setProvinceOptions(fallbackProvinces));
+
+    }, []);
+
+  
+
+    // ? ??? filter ? ????? query ?????????? /filter
+
+      useEffect(() => {
+
+        console.log("Attempting to fetch stations from service...");
+
+        ProvinceService.getAllStations()
+
+          .then((res) => {
+
+            console.log("Successfully received response for stations:", res);
+
+            const raw = res?.data;
+
+            const list = Array.isArray(raw)
+
+              ? raw
+
+              : Array.isArray(raw?.stations)
+
+              ? raw.stations
+
+              : Array.isArray(raw?.data)
+
+              ? raw.data
+
+              : [];
+
+    
+
+            console.log("Parsed station list:", list);
+
+    
+
+            const options = list
+
+              .map((item) => {
+
+                if (typeof item === "string") {
+
+                  return { value: item, label: item };
+
+                }
+
+    
+
+                if (!item) return null;
+
+    
+
+                const value = item.name || item.stationName || item.title;
+
+                if (!value) return null;
+
+    
+
+                const type = item.stationType || item.type || item.line;
+
+                const label =
+
+                  type && typeof type === "string"
+
+                    ? `${value} (${type.toUpperCase()})`
+
+                    : value;
+
+    
+
+                return { value, label };
+
+              })
+
+              .filter(Boolean);
+
+    
+
+            console.log("Formatted station options:", options);
+
+    
+
+            if (options.length > 0) {
+
+              setStationOptions(options);
+
+            } else {
+
+              console.log("No station options found from service, using fallback.");
+
+              setStationOptions(fallbackStationOptions);
+
             }
 
-            if (!item) return null;
-
-            const value = item.name || item.stationName || item.title;
-            if (!value) return null;
-
-            const type = item.stationType || item.type || item.line;
-            const label =
-              type && typeof type === "string"
-                ? `${value} (${type.toUpperCase()})`
-                : value;
-
-            return { value, label };
           })
-          .filter(Boolean);
 
-        setStationOptions(options.length > 0 ? options : fallbackStationOptions);
-      })
-      .catch(() => setStationOptions(fallbackStationOptions));
-  }, []);
+          .catch((err) => {
 
-  const goFilter = (overrides = {}) => {
+            console.error("Failed to fetch stations, using fallback. Error:", err);
+
+            setStationOptions(fallbackStationOptions);
+
+          });
+
+      }, []);
+
+  
+
+    const goFilter = (overrides = {}) => {
     const merged = {
       keyword: (overrides.keyword ?? searchText)?.trim(),
       type: overrides.type ?? filters.type,
@@ -240,13 +325,13 @@ export default function SearchBarNonFilter({
 
   const handleAllFilter = async () => {
     const result = await Swal.fire({
-      title: "??????????????",
+      title: "ตัวกรองทั้งหมด",
       width: 520,
       background: "#fff",
       confirmButtonColor: "#8C6239",
       cancelButtonColor: "#aaa",
-      confirmButtonText: "??????????",
-      cancelButtonText: "??????",
+      confirmButtonText: "ค้นหา",
+      cancelButtonText: "ยกเลิก",
       showCancelButton: true,
       customClass: {
         popup:
@@ -255,20 +340,20 @@ export default function SearchBarNonFilter({
       html: `
         <div class="p-6 space-y-6 font-sans text-gray-700 text-left">
           <div>
-            <label class="block font-semibold text-[#8C6239] mb-1 text-sm">?????????????</label>
+            <label class="block font-semibold text-[#8C6239] mb-1 text-sm">ประเภทอสังหาฯ</label>
             <select id="filter-type" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
-              <option value="">???????</option>
-              <option value="?????" ${filters.type === "?????" ? "selected" : ""}>?????</option>
-              <option value="???????" ${filters.type === "???????" ? "selected" : ""}>???????</option>
-              <option value="??????" ${filters.type === "??????" ? "selected" : ""}>??????</option>
-              <option value="??????" ${filters.type === "??????" ? "selected" : ""}>??????</option>
+              <option value="">ทั้งหมด</option>
+              <option value="คอนโด" ${filters.type === "คอนโด" ? "selected" : ""}>คอนโด</option>
+              <option value="บ้านเดี่ยว" ${filters.type === "บ้านเดี่ยว" ? "selected" : ""}>บ้านเดี่ยว</option>
+              <option value="ทาวน์โฮม" ${filters.type === "ทาวน์โฮม" ? "selected" : ""}>ทาวน์โฮม</option>
+              <option value="ที่ดิน" ${filters.type === "ที่ดิน" ? "selected" : ""}>ที่ดิน</option>
             </select>
           </div>
 
           <div>
-            <label class="block font-semibold text-[#8C6239] mb-1 text-sm">????? (BTS/MRT)</label>
+            <label class="block font-semibold text-[#8C6239] mb-1 text-sm">สถานี (BTS/MRT)</label>
             <select id="filter-station" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
-              <option value="">???????</option>
+              <option value="">ทั้งหมด</option>
               ${stationOptions
                 .map(
                   (station) =>
@@ -281,9 +366,9 @@ export default function SearchBarNonFilter({
           </div>
 
           <div>
-            <label class="block font-semibold text-[#8C6239] mb-1 text-sm">???????</label>
+            <label class="block font-semibold text-[#8C6239] mb-1 text-sm">จังหวัด</label>
             <select id="filter-province" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
-              <option value="">???????</option>
+              <option value="">ทั้งหมด</option>
               ${provinceOptions
                 .map(
                   (province) =>
@@ -296,38 +381,38 @@ export default function SearchBarNonFilter({
           </div>
 
           <div>
-            <label class="block font-semibold text-[#8C6239] mb-2 text-sm">????????????</label>
-            <input id="bedroomCount" type="number" min="0" placeholder="???? 2" value="${
+            <label class="block font-semibold text-[#8C6239] mb-2 text-sm">จำนวนห้องนอน</label>
+            <input id="bedroomCount" type="number" min="0" placeholder="เช่น 2" value="${
               filters.bedroomCount || ""
             }" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm"/>
           </div>
 
           <div>
-            <label class="block font-semibold text-[#8C6239] mb-2 text-sm">???????? (???)</label>
+            <label class="block font-semibold text-[#8C6239] mb-2 text-sm">ราคา (บาท)</label>
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="text-xs text-gray-600">??????</label>
+                <label class="text-xs text-gray-600">ราคาต่ำสุด</label>
                 <input id="minPrice" type="number" min="0" step="1000" placeholder="0" value="${
                   filters.minPrice || ""
                 }" class="w-full border border-gray-300 rounded-md p-1.5 text-sm" />
               </div>
               <div>
-                <label class="text-xs text-gray-600">??????</label>
-                <input id="maxPrice" type="number" min="0" step="1000" placeholder="????????" value="${
+                <label class="text-xs text-gray-600">ราคาสูงสุด</label>
+                <input id="maxPrice" type="number" min="0" step="1000" placeholder="ไม่จำกัด" value="${
                   filters.maxPrice || ""
                 }" class="w-full border border-gray-300 rounded-md p-1.5 text-sm" />
               </div>
             </div>
-            <p class="mt-1 text-[11px] text-gray-500">???????? = ????????</p>
+            <p class="mt-1 text-[11px] text-gray-500">เว้นว่าง = ไม่จำกัด</p>
                     </div>
           
                     <div>
-                      <label class="block font-semibold text-[#8C6239] mb-1 text-sm">??????????</label>
+                      <label class="block font-semibold text-[#8C6239] mb-1 text-sm">ประเภทประกาศ</label>
                       <select id="filter-badge" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
-                        <option value="">???????</option>
-                        <option value="??????" ${filters.badge === "??????" ? "selected" : ""}>??????</option>
-                        <option value="????????" ${filters.badge === "????????" ? "selected" : ""}>????????</option>
-                        <option value="?????" ${filters.badge === "?????" ? "selected" : ""}>?????</option>
+                        <option value="">ทั้งหมด</option>
+                        <option value="ราคาพิเศษ" ${filters.badge === "ราคาพิเศษ" ? "selected" : ""}>ราคาพิเศษ</option>
+                        <option value="ประกาศใหม่" ${filters.badge === "ประกาศใหม่" ? "selected" : ""}>ประกาศใหม่</option>
+                        <option value="แนะนำ" ${filters.badge === "แนะนำ" ? "selected" : ""}>แนะนำ</option>
                       </select>
                     </div>
                   </div>
@@ -346,12 +431,12 @@ export default function SearchBarNonFilter({
                   );
           
                   if (min === null || max === null) {
-                    Swal.showValidationMessage("?????????????????????????????????");
+                    Swal.showValidationMessage("กรุณากรอกราคาให้ถูกต้อง");
                     return false;
                   }
           
                   if (min !== "" && max !== "" && Number(min) > Number(max)) {
-                    Swal.showValidationMessage("??????????????????????????????????");
+                    Swal.showValidationMessage("ราคาสูงสุดต้องมากกว่าราคาต่ำสุด");
                     return false;
                   }
           
@@ -421,12 +506,12 @@ export default function SearchBarNonFilter({
     ];
 
     const { value, isConfirmed } = await Swal.fire({
-      title: "????????????? (???)",
+      title: "ค้นหาตามราคา (บาท)",
       width: 520,
       background: "#fff",
       confirmButtonColor: "#8C6239",
       cancelButtonColor: "#aaa",
-      confirmButtonText: "??????",
+      confirmButtonText: "ตกลง",
       showCancelButton: true,
       customClass: {
         popup:
@@ -438,7 +523,7 @@ export default function SearchBarNonFilter({
           <div class="flex flex-col gap-4 text-left font-sans text-gray-700">
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs text-gray-500 mb-1">???????????</label>
+                <label class="block text-xs text-gray-500 mb-1">ราคาต่ำสุด</label>
                 <input
                   id="price-min-input"
                   type="number"
@@ -451,13 +536,13 @@ export default function SearchBarNonFilter({
                 />
               </div>
               <div>
-                <label class="block text-xs text-gray-500 mb-1">??????????</label>
+                <label class="block text-xs text-gray-500 mb-1">ราคาสูงสุด</label>
                 <input
                   id="price-max-input"
                   type="number"
                   min="0"
                   step="1000"
-                  placeholder="????????"
+                  placeholder="ไม่จำกัด"
                   class="swal2-input"
                   style="width:100%;margin:0;"
                   value="${filters.maxPrice || ""}"
@@ -466,7 +551,7 @@ export default function SearchBarNonFilter({
             </div>
 
             <div class="mt-2">
-              <p class="text-xs text-gray-500 mb-2">????????????:</p>
+              <p class="text-xs text-gray-500 mb-2">ทางลัดราคา:</p>
               <div class="flex flex-wrap gap-2" id="price-shortcuts">
                 ${shortcuts
                   .map(
@@ -486,7 +571,7 @@ export default function SearchBarNonFilter({
             </div>
 
             <p class="text-[11px] text-gray-400 mt-1">
-              ????????????????????????????? ???? <span class="font-semibold text-gray-500">1500000</span>
+              สามารถเว้นว่างเพื่อไม่จำกัดราคาได้
             </p>
           </div>
         </div>
@@ -512,12 +597,12 @@ export default function SearchBarNonFilter({
         const max = normalizePriceValue(maxRaw);
 
         if (min === null || max === null) {
-          Swal.showValidationMessage("?????????????????????????????????");
+          Swal.showValidationMessage("กรุณากรอกราคาให้ถูกต้อง");
           return false;
         }
 
         if (min !== "" && max !== "" && Number(min) > Number(max)) {
-          Swal.showValidationMessage("??????????????????????????????????");
+          Swal.showValidationMessage("ราคาสูงสุดต้องมากกว่าราคาต่ำสุด");
           return false;
         }
 
@@ -545,11 +630,11 @@ export default function SearchBarNonFilter({
 
   const handleBedroom = async () => {
     const { value, isConfirmed } = await Swal.fire({
-      title: "????????????",
+      title: "จำนวนห้องนอน",
       input: "number",
       inputValue: filters.bedroomCount || "",
-      inputPlaceholder: "???? 2",
-      confirmButtonText: "????",
+      inputPlaceholder: "เช่น 2",
+      confirmButtonText: "ตกลง",
       showCancelButton: true,
       confirmButtonColor: "#8C6239",
       cancelButtonColor: "#aaa",
@@ -572,10 +657,10 @@ export default function SearchBarNonFilter({
   const priceLabel = formatPriceLabel(filters.minPrice, filters.maxPrice);
 
   const filterButtons = [
-    { icon: <FaFilter />, label: "??????????????", action: handleAllFilter },
+    { icon: <FaFilter />, label: "ตัวกรองทั้งหมด", action: handleAllFilter },
     {
       icon: <FaBuilding />,
-      label: filters.type || "?????????????",
+      label: filters.type || "ประเภทอสังหาฯ",
       action: handlePropertyType,
     },
     {
@@ -587,8 +672,8 @@ export default function SearchBarNonFilter({
       icon: <FaBed />,
       label:
         filters.bedroomCount && Number(filters.bedroomCount) > 0
-          ? `${filters.bedroomCount} ???????`
-          : "???????",
+          ? `${filters.bedroomCount} ห้องนอน`
+          : "จำนวนห้องนอน",
       action: handleBedroom,
     },
     // {
@@ -611,7 +696,7 @@ export default function SearchBarNonFilter({
             type="text"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            placeholder="?????????? ???? ???????????..."
+            placeholder="ค้นหาทำเล หรือชื่อโครงการ..."
             className="input input-ghost w-full h-11 sm:h-[60px] px-3 sm:px-4 focus:outline-none text-gray-700"
           />
         </div>
@@ -622,16 +707,16 @@ export default function SearchBarNonFilter({
             onChange={(e) => setSaleType(e.target.value)}
             className="select select-bordered rounded-xl text-sm h-10 sm:h-[44px] border-gray-300 w-full sm:w-auto"
           >
-            <option value="">???????</option>
-            <option value="???">???</option>
-            <option value="????">????</option>
+            <option value="">ทั้งหมด</option>
+            <option value="ขาย">ขาย</option>
+            <option value="เช่า">เช่า</option>
           </select>
 
           <button
             type="submit"
-            className="btn bg-[#8C6239] border-none rounded-xl text-white font-medium px-5 sm:px-6 h-10 sm:h-[44px] hover:bg-[#704c2c] w-full sm:w-auto"
+            className="btn bg-[#8C6239] border-none rounded-xl text-white font-medium px-5 sm:px-6 h-10 sm:h-[44px] hover:bg-[#704c2c] w-full sm:w-auto mr-2"
           >
-            ?????
+            ค้นหา
           </button>
         </div>
       </form>
