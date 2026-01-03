@@ -1,5 +1,7 @@
 import axios from "axios";
-import TokenService from "./TokenService"; // Using TokenService is more robust
+import TokenService from "./TokenService";
+import Swal from "sweetalert2";
+import AuthService from "./AuthService";
 
 const DEFAULT_BASE_URL = "https://condo-swift.onrender.com";
 const baseURL = import.meta.env.VITE_BASE_URL || DEFAULT_BASE_URL;
@@ -10,28 +12,30 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// ✅ Request Interceptor (แนบ token เฉพาะ API ที่จำเป็น)
+// Request Interceptor to attach the token
 api.interceptors.request.use(
   (config) => {
-    // ❌ ห้ามแนบ token กับ login หรือ register
-    const excluded = ["/auth/login", "/auth/register", "/auth/verify-email"];
+    const excluded = ["/auth/login", "/auth/register", "/auth/verify-email", "/api/v1/selector/showAllAnnounceTypes"];
     const isExcluded = excluded.some((url) => config.url?.includes(url));
 
     if (!isExcluded) {
-      const token = TokenService.getLocalAccessToken(); // ✅ Use TokenService
+      const token = TokenService.getLocalAccessToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        console.log("✅ Attached token for:", config.url);
       }
-    } else {
-      console.log("🚫 Skip token for:", config.url);
-      delete config.headers.Authorization; // ✅ ตัด header ทิ้งกันพลาด
     }
-
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-export default api;
+// Response Interceptor to handle 401 errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Pass all errors through to be handled by the component's catch block.
+    return Promise.reject(error);
+  }
+);
 
+export default api;

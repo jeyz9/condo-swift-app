@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { IoArrowBack } from "react-icons/io5";
 import { MdNotificationsActive } from "react-icons/md";
 import { NotificationDetailSkeleton } from "./NotificationDetailSkeleton";
+import { extractErrorMessage } from "../utils/errorUtils";
 
 export default function NotificationDetail() {
   const { user } = useAuthContext();
@@ -29,7 +30,7 @@ export default function NotificationDetail() {
         Swal.fire({
           icon: "error",
           title: "ไม่สามารถโหลดรายละเอียดได้",
-          text: err.response?.data || err.message,
+          text: extractErrorMessage(err, "เกิดข้อผิดพลาดที่ไม่คาดคิด"),
         });
       }
     };

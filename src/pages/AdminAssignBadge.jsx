@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import BadgesService from "../services/BadgesService";
+import { extractErrorMessage } from "../utils/errorUtils";
 import AnnounceService from "../services/AnnounceService";
 
 export default function AdminAssignBadge() {
@@ -31,12 +31,12 @@ export default function AdminAssignBadge() {
         10
       );
 
-      const resBad = await BadgesService.getAllBadges();
+      const resBad = await AnnounceService.getAllBadges();
 
       setAnnounces(resAnn.data?.data || []);
       setBadges(resBad.data || []);
     } catch (e) {
-      Swal.fire("Error", "โหลดข้อมูลไม่สำเร็จ", "error");
+      Swal.fire("Error", extractErrorMessage(e, "โหลดข้อมูลไม่สำเร็จ"), "error");
     } finally {
       setLoading(false);
     }
@@ -54,7 +54,7 @@ export default function AdminAssignBadge() {
     }
 
     try {
-      await BadgesService.addAnnounceBadge(
+      await AnnounceService.addAnnounceBadge(
         selectedAnnounceId,
         selectedBadgeId
       );
@@ -64,7 +64,7 @@ export default function AdminAssignBadge() {
       setSelectedAnnounceId(null);
       await loadData(keyword, filterBadge);
     } catch (e) {
-      Swal.fire("ผิดพลาด", e?.response?.data?.message || e.message, "error");
+      Swal.fire("ผิดพลาด", extractErrorMessage(e, "เกิดข้อผิดพลาด"), "error");
     }
   };
 
@@ -80,11 +80,11 @@ export default function AdminAssignBadge() {
     if (!confirm.isConfirmed) return;
 
     try {
-      await BadgesService.deleteAnnounceBadge(announceId, badgeId);
+      await AnnounceService.deleteAnnounceBadge(announceId, badgeId);
       Swal.fire("สำเร็จ", "ลบ badge แล้ว", "success");
       await loadData(keyword, filterBadge);
     } catch (e) {
-      Swal.fire("ผิดพลาด", e?.response?.data?.message || e.message, "error");
+      Swal.fire("ผิดพลาด", extractErrorMessage(e, "เกิดข้อผิดพลาด"), "error");
     }
   };
 

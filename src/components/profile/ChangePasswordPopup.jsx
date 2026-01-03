@@ -3,6 +3,7 @@ import AuthService from '../../services/AuthService';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { useNavigate } from 'react-router-dom';
+import { extractErrorMessage } from '../../utils/errorUtils';
 import { useAuthContext } from '../../context/AuthContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
@@ -57,10 +58,9 @@ const ChangePasswordPopup = ({ onClose }) => {
       MySwal.fire({
         icon: 'error',
         title: 'เกิดข้อผิดพลาด',
-        text: error.response?.data?.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้',
+        text: extractErrorMessage(error, 'ไม่สามารถเปลี่ยนรหัสผ่านได้'),
         confirmButtonText: 'ตกลง',
       });
-      console.error('Error changing password:', error);
     } finally {
       setIsLoading(false);
     }

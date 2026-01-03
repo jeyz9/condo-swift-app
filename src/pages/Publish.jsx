@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router";
 import AnnounceService from "../services/AnnounceService";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
@@ -173,9 +173,11 @@ export default function Publish() {
                       .format("DD MMMM YYYY เวลา HH:mm น.")}
                   </td>
                   <td>
+                   <a href={`pending/${item?.id}`} >
                     <button className="btn btn-active btn-warning">
                       ดูรายละเอียด
                     </button>
+                   </a>
                   </td>
                 </tr>
               ))}

@@ -1,4 +1,5 @@
-import api from "./api"; // <— axios instance มี interceptor token, header ฯลฯ
+import api from "./api";
+import BadgesService from "./BadgesService";
 
 const DEFAULT_BASE_URL = "https://condo-swift.onrender.com";
 const baseUrl =
@@ -59,7 +60,12 @@ const createAnnounce = async (announce, imageFiles = []) => {
 
 
 // /api/v1/announces/editAnnounce/{announceId}
-const updateAnnounce = async (announceId, announce, imageFiles = []) => {
+const updateAnnounce = async (
+  announceId,
+  announce,
+  imageFiles = [],
+  imagesToRemove = []
+) => {
   const formData = new FormData();
 
   const payload = {
@@ -88,6 +94,11 @@ const updateAnnounce = async (announceId, announce, imageFiles = []) => {
     });
   }
 
+  // ✅ Append IDs of images to remove
+  if (Array.isArray(imagesToRemove) && imagesToRemove.length > 0) {
+    formData.append("removeImageIds", JSON.stringify(imagesToRemove));
+  }
+
   return api.put(`${API_URL}/editAnnounce/${announceId}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
@@ -97,6 +108,7 @@ const deleteAnnounce = async (id) => api.delete(`${API_URL}/${id}`);
 
 // 🔍 Announce Detail
 const showAnnounceDetail = async (id) => api.get(`${API_URL}/showAnnounceDetails/${id}`);
+const showAnnouncePendingDetails = async (id) => api.get(`${API_URL}/showAnnouncePendingDetails/${id}`);
 
 // 📦 รวม category ทั้งหมด
 const getAnnounceWithCategory = async () => api.get(`${API_URL}/showAnnounceWithCategory`);
@@ -184,6 +196,11 @@ const getAllAnnouncesWithBadges = async (keyword, badges, page, size) => {
   return await api.get(`${API_URL}/showAllAnnounceBadges?keyword=${keyword}&badges=${badges}&page=${page}&size=${size}`)
 }
 
+const showAllAnnounceDraft = async () => {
+  return await api.get(`${API_URL}/showAllAnnounceDraft`);
+};
+
+
 
 // ✅ export ฟังก์ชันทั้งหมดไว้ให้เรียกง่าย
 const AnnounceService = {
@@ -192,6 +209,7 @@ const AnnounceService = {
   updateAnnounce,
   getAnnounceById,
   showAnnounceDetail,
+  showAnnouncePendingDetails,
   getAnnounceWithCategory,
   getFilterAnnounceWithAgent,
   showAllAnnouncePending,
@@ -200,6 +218,13 @@ const AnnounceService = {
   approveAnnounce,
   rejectAnnounce,
   getAllAnnouncesWithBadges,
+  showAllAnnounceDraft,
+  getAllBadges: BadgesService.getAllBadges,
+  addBadge: BadgesService.addBadge,
+  updateBadge: BadgesService.updateBadge,
+  deleteBadge: BadgesService.deleteBadge,
+  addAnnounceBadge: BadgesService.addAnnounceBadge,
+  deleteAnnounceBadge: BadgesService.deleteAnnounceBadge,
 };
 
 export default AnnounceService;

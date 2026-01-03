@@ -12,10 +12,10 @@ import { CondoCard } from "../components/CondoCard";
 import { CondoCardSkeleton } from "../components/CondoCardSkeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthContext } from "../context/AuthContext";
+import { extractErrorMessage } from "../utils/errorUtils";
 
 export const Home = () => {
   const user = useAuthContext()
-  console.log("user roles in Home:", user?.user?.roles);
   const [announce, setAnnounce] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saleType, setSaleType] = useState("");
@@ -56,10 +56,7 @@ export const Home = () => {
         Swal.fire({
           icon: "error",
           title: "เกิดข้อผิดพลาดในการเชื่อมต่อ",
-          text:
-            error.response?.data?.message ||
-            error.message ||
-            "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
+          text: extractErrorMessage(error, "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"),
           confirmButtonText: "ตกลง",
         });
       } finally {
@@ -157,7 +154,7 @@ export const Home = () => {
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
            คอนโด แนะนำ
           <Link
-            to="/filter?badge=แนะนำ"
+            to="/filter?badge=แนะนำ&type=คอนโด"
             className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
           >
             รายละเอียดเพิ่มเติม {`>`}
@@ -211,7 +208,7 @@ export const Home = () => {
             href="#"
             className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
           >
-            รายละเอียดเพิ่มเติม {`>`}
+           
           </a>
         </h2>
 
@@ -259,7 +256,7 @@ export const Home = () => {
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
           บ้าน แนะนำ
           <Link
-            to="/filter?type=บ้าน"
+            to="/filter?type=บ้านหรู"
             className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
           >
             รายละเอียดเพิ่มเติม {`>`}

@@ -9,7 +9,8 @@ const Hero = () => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
-
+  const roles = user?.roles 
+  console.log("user:", roles)
   useEffect(() => {
     if (user?.userId) {
       UserService.profilePublic(user.userId)
@@ -69,15 +70,19 @@ const Hero = () => {
           <p className="relative top-35 mb-50 text-base sm:text-lg">
             แพลตฟอร์มซื้อ-ขายคอนโดที่เชื่อถือได้ เรียบง่าย และปลอดภัย
           </p>
+
+         {roles?.includes("ROLE_AGENT") && (
           <button
             onClick={handleAddAnnounceClick}
             className="btn bg-[#8C6239] text-white font-light rounded-md w-32 border-none shadow-none mb-10 "
           >
             ลงประกาศใหม่
           </button>
+          )}
         </div>
       </div>
     </div>
+    
   );
 };
 

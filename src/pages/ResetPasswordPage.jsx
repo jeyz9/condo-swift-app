@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import AuthService from '../services/AuthService';
 import Swal from 'sweetalert2';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { extractErrorMessage } from '../utils/errorUtils';
 
 function ResetPasswordPage() {
   const location = useLocation();
@@ -70,11 +71,11 @@ function ResetPasswordPage() {
         navigate('/'); // Redirect to login page
       });
     } catch (error) {
-      setMessage(`Error: ${error.response?.data?.message || error.message}`);
+      setMessage(extractErrorMessage(error, "เกิดข้อผิดพลาดที่ไม่คาดคิด"));
       Swal.fire({
         icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: error.response?.data?.message || 'ไม่สามารถรีเซ็ตรหัสผ่านได้',
+        title: 'รีเซ็ตรหัสผ่านไม่สำเร็จ',
+        text: extractErrorMessage(error, "เกิดข้อผิดพลาดที่ไม่คาดคิด"),
         confirmButtonText: 'ตกลง',
       });
       console.error(error);

@@ -29,6 +29,7 @@ const Navbar = () => {
     }
   }, [user?.userId]);
 
+  console.log("roles:" ,  roles)
   const handleAddAnnounceClick = () => {
     if (!user) {
       Swal.fire({
@@ -153,19 +154,15 @@ const Navbar = () => {
       <div className="navbar-end">
         {user ? (
           <>
-            <button
-              onClick={() => handleAddAnnounceClick()}
-              className="btn btn-sm sm:btn-md bg-[#8C6239] text-white border-none hover:bg-[#704c2c] mx-2"
-            >
-              ลงประกาศ
-            </button>
+            {roles.includes("ROLE_AGENT") && (
+              <button
+                onClick={() => handleAddAnnounceClick()}
+                className="btn btn-sm sm:btn-md bg-[#8C6239] text-white border-none hover:bg-[#704c2c] mx-2"
+              >
+                ลงประกาศ
+              </button>
+            )}
             <NotificationMenu />
-            {/* <button
-              onClick={() => navigate("/payment")}
-              className="btn btn-sm sm:btn-md bg-[#8C6239] text-white border-none hover:bg-[#704c2c] mx-2"
-            >
-              เติมเครดิต
-            </button> */}
             <UserProfile />
           </>
         ) : (
@@ -192,6 +189,10 @@ const Navbar = () => {
         <RegisterPopup
           isOpen={isRegisterOpen}
           onClose={() => setIsRegisterOpen(false)}
+          onOpenLogin={() => {
+            setIsRegisterOpen(false);
+            setIsLoginOpen(true);
+          }}
         />
       </div>
     </div>

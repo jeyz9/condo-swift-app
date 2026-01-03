@@ -166,7 +166,7 @@ export default function PendingTable() {
                   key={item.id}
                   className="hover:bg-[#f7f3ef] transition select-none cursor-pointer"
                   onClick={() =>
-                    navigate(`/admin/announce/details/${item.id}`)
+                    navigate(`/admin/announce/pending/${item.id}`)
                   }
                 >
                   <td>{ordered + index + 1}</td>

@@ -6,39 +6,7 @@ import { useAuthContext } from "../../context/AuthContext";
 import AuthService from "../../services/AuthService";
 import UserService from "../../services/UserService";
 
-const extractErrorMessage = (error, fallbackMessage) => {
-  const data = error?.response?.data;
-
-  if (typeof data === "string") {
-    return data;
-  }
-
-  if (data?.message && typeof data.message === "string") {
-    return data.message;
-  }
-
-  if (Array.isArray(data?.errors)) {
-    const messages = data.errors.filter((item) => typeof item === "string");
-    if (messages.length) {
-      return messages.join(", ");
-    }
-  }
-
-  if (data && typeof data === "object") {
-    const values = Object.values(data).filter((item) => typeof item === "string");
-    if (values.length) {
-      return values.join(", ");
-    }
-    try {
-      const serialized = JSON.stringify(data);
-      if (serialized !== "{}") return serialized;
-    } catch {
-      // ignore
-    }
-  }
-
-  return error?.message || fallbackMessage;
-};
+import { extractErrorMessage } from "../../utils/errorUtils";
 
 const HeroProfile = ({ profile }) => {
   const [uploading, setUploading] = useState(false);
@@ -90,7 +58,7 @@ const HeroProfile = ({ profile }) => {
       Swal.fire({
         icon: "error",
         title: "อัปโหลดไม่สำเร็จ",
-        text: err.response?.data?.message || err.message,
+        text: extractErrorMessage(err, "An unknown error occurred during upload."),
       });
     } finally {
       setUploading(false);
@@ -124,7 +92,7 @@ const HeroProfile = ({ profile }) => {
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
-        text: err.response?.data?.message || err.message,
+        text: extractErrorMessage(err, "Could not delete the profile picture."),
       });
     }
   };
@@ -243,7 +211,59 @@ const HeroProfile = ({ profile }) => {
       confirmButtonColor: "#8C6239",
       didOpen: () => {
         const otpInputs = Array.from({ length: 6 }, (_, i) => document.getElementById(`otp-${i}`));
+        const resendOtpElement = document.getElementById('resend-otp');
+        let cooldownInterval;
+
+        const startCooldown = (seconds) => {
+          let remaining = seconds;
+          resendOtpElement.style.pointerEvents = 'none';
+          resendOtpElement.style.color = '#9CA3AF'; // gray-400
+
+          clearInterval(cooldownInterval);
+          cooldownInterval = setInterval(() => {
+            if (remaining > 0) {
+              resendOtpElement.textContent = `ส่งอีกครั้งใน (${remaining}s)`;
+              remaining--;
+            } else {
+              clearInterval(cooldownInterval);
+              resendOtpElement.textContent = 'ส่งอีกครั้ง';
+              resendOtpElement.style.pointerEvents = 'auto';
+              resendOtpElement.style.color = '#8C6239';
+            }
+          }, 1000);
+        };
         
+        resendOtpElement.addEventListener('click', async () => {
+          try {
+            // Show loading state on the resend text itself
+            resendOtpElement.textContent = 'กำลังส่ง...';
+            resendOtpElement.style.pointerEvents = 'none';
+
+            const response = await AuthService.sendOtp(userId);
+            
+            if (response.status === 200 || response.status === 201) {
+              const { token, refno } = response.data;
+              localStorage.setItem("otpToken", token);
+              localStorage.setItem("otpRefno", refno);
+              
+              Swal.showValidationMessage('ส่ง OTP ใหม่สำเร็จแล้ว');
+              startCooldown(60);
+              otpInputs[0]?.focus(); // Refocus the first input
+            } else {
+               throw new Error('Failed to resend OTP');
+            }
+          } catch (error) {
+            const errorMessage = extractErrorMessage(error, "ไม่สามารถส่ง OTP ได้");
+            Swal.showValidationMessage(errorMessage);
+            // Reset if failed
+            resendOtpElement.textContent = 'ส่งอีกครั้ง';
+            resendOtpElement.style.pointerEvents = 'auto';
+            resendOtpElement.style.color = '#8C6239';
+          }
+        });
+
+        startCooldown(60); // Start cooldown immediately when popup opens
+
         // Focus the first input on open
         otpInputs[0]?.focus();
 

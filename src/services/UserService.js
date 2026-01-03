@@ -1,14 +1,31 @@
 import api from "./api";
 
-const API_URL = import.meta.env.VITE_USER_API;
+// Standardize URL resolution to be consistent with other services
+const DEFAULT_BASE_URL = "https://condo-swift.onrender.com";
+const baseUrl =
+  (import.meta.env.VITE_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, "");
 
-const profilePublic = async (userId, type = "เช่า") => {
-  console.log("Calling profilePublic with userId:", userId); // Logging for diagnosis
+const resolveEndpoint = (rawValue, fallbackPath) => {
+  if (rawValue) {
+    const trimmed = rawValue.replace(/\/$/, "");
+    if (/^https?:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+    if (trimmed.startsWith("/")) {
+      return `${baseUrl}${trimmed}`;
+    }
+  }
+  return `${baseUrl}${fallbackPath}`;
+};
+
+const API_URL = resolveEndpoint(import.meta.env.VITE_USER_API, "/api/v1/users");
+
+const profilePublic = async (userId) => {
   if (!userId) {
     console.error("User ID is missing or invalid. Aborting API call.");
     return Promise.reject(new Error("User ID is missing or invalid."));
   }
-  return await api.get(`${API_URL}/showUserProfileOverview/${userId}?type=${type}`);
+  return await api.get(`${API_URL}/showUserProfileOverview/${userId}`);
 };
 
 const showRecommendedAgents = async () => {
@@ -36,6 +53,8 @@ const acceptTerms = async (userId) => {
 const showAllAnnounceBookmark = async () => {
   return await api.get(`${API_URL}/showAllAnnounceBookmark`);
 };
+
+
 
 const bookmarkAnnounce = async (announceId) => {
   return await api.put(`${API_URL}/bookmarkAnnounce/${announceId}`);

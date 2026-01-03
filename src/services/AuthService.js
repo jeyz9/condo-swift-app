@@ -43,6 +43,9 @@ const login = async (email, password) => {
     { withCredentials: false }
   );
 
+  // Log the entire response data structure to diagnose the issue
+  console.log("✅ Full Login Response from Backend:", JSON.stringify(response.data));
+
   const { accessToken, tokenType, userId } = response.data;
   if (!accessToken) throw new Error("ไม่พบ accessToken จาก backend");
 

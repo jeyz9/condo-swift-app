@@ -26,6 +26,7 @@ import RegisterPopup from "../components/login/RegisterPopup";
 import { useAuthContext } from "../context/AuthContext";
 import AuthService from "../services/AuthService";
 import { DetailSkeleton } from "./DetailSkeleton";
+import { extractErrorMessage } from "../utils/errorUtils";
 import UserService from "../services/UserService";
 
 export const Detail = () => {
@@ -53,10 +54,7 @@ export const Detail = () => {
         Swal.fire({
           icon: "error",
           title: "เกิดข้อผิดพลาดในการเชื่อมต่อ",
-          text:
-            error.response?.data?.message ||
-            error.message ||
-            "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
+          text: extractErrorMessage(error, "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"),
           confirmButtonText: "ตกลง",
         });
       } finally {
@@ -121,7 +119,7 @@ export const Detail = () => {
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
-        text: "ไม่สามารถอัปเดตรายการโปรดได้",
+        text: extractErrorMessage(error, "ไม่สามารถอัปเดตรายการโปรดได้"),
         confirmButtonText: "ตกลง",
       });
     }
@@ -134,46 +132,70 @@ export const Detail = () => {
   const encodedUrl = encodeURIComponent(pageUrl);       // สำหรับแชร์
 
   Swal.fire({
-    title: "แชร์ลิงก์หน้านี้",
-    html: `
-      <div class="flex flex-col gap-3">
+  title: "<span class='text-xl font-semibold'>แชร์ลิงก์หน้านี้</span>",
+  html: `
+    <div class="flex flex-col gap-3 mt-2">
 
-        <!-- ปุ่มแชร์ Facebook -->
-        <a
-          id="fb-share-btn"
-          href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}"
-          target="_blank"
-          rel="noreferrer"
-          class="btn flex items-center justify-center w-full py-3 bg-blue-600 text-white rounded-lg text-center"
-        >
-          <span class="mr-2">📘</span>
-          แชร์ผ่าน Facebook
-        </a>
+      <!-- Facebook -->
+      <a
+        href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}"
+        target="_blank"
+        rel="noreferrer"
+        class="flex items-center justify-center gap-3 w-full py-3 rounded-xl bg-[#1877F2] text-white font-medium shadow hover:opacity-90 transition"
+      >
+        <!-- Facebook SVG -->
+        <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+          <path d="M22.675 0h-21.35C.597 0 0 .597 0 1.326v21.348C0 23.403.597 24 1.326 24h11.495v-9.294H9.692V11.01h3.129V8.309c0-3.1 1.894-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.31h3.587l-.467 3.696h-3.12V24h6.116C23.403 24 24 23.403 24 22.674V1.326C24 .597 23.403 0 22.675 0z"/>
+        </svg>
+        แชร์ผ่าน Facebook
+      </a>
 
-        <!-- ปุ่มแชร์ LINE -->
-        <a
-          href="https://line.me/R/msg/text/?${encodedUrl}"
-          target="_blank"
-          rel="noreferrer"
-          class="btn flex items-center justify-center w-full py-3 bg-green-500 text-white rounded-lg text-center"
-        >
-          <span class="mr-2">💬</span>
-          แชร์ผ่าน LINE
-        </a>
+      <!-- LINE -->
+      <a
+        href="https://line.me/R/msg/text/?${encodedUrl}"
+        target="_blank"
+        rel="noreferrer"
+        class="flex items-center justify-center gap-3 w-full py-3 rounded-xl bg-[#06C755] text-white font-medium shadow hover:opacity-90 transition"
+      >
+        <!-- LINE SVG -->
+        <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
+          <path d="M19.365 9.89c0-4.203-4.214-7.62-9.394-7.62C4.793 2.27.58 5.687.58 9.89c0 3.762 3.31 6.91 7.78 7.51.303.067.716.206.82.473.095.243.062.625.03.873 0 0-.108.648-.132.785-.04.23-.184.9.787.49.97-.41 5.24-3.085 7.15-5.283 1.32-1.448 2.35-3.205 2.35-4.848z"/>
+        </svg>
+        แชร์ผ่าน LINE
+      </a>
 
-        <!-- ปุ่มคัดลอกลิงก์ -->
-        <button
-          id="copy-link"
-          class="btn w-full py-3 bg-gray-200 rounded-lg"
-        >
-          คัดลอกลิงก์
-        </button>
+      <!-- Copy -->
+      <button
+        id="copy-link"
+        class="flex items-center justify-center gap-3 w-full py-3 rounded-xl bg-gray-100 text-gray-800 font-medium shadow hover:bg-gray-200 transition"
+      >
+        <!-- Copy SVG -->
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M8 16h8a2 2 0 002-2v-8a2 2 0 00-2-2H8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+        </svg>
+        คัดลอกลิงก์
+      </button>
 
-      </div>
-    `,
+    </div>
+  `,
+  showConfirmButton: false,
+  width: "420px",
+});
+
+document.getElementById("copy-link")?.addEventListener("click", () => {
+  navigator.clipboard.writeText(decodedUrl);
+  Swal.fire({
+    toast: true,
+    position: "top",
+    icon: "success",
+    title: "คัดลอกลิงก์แล้ว",
     showConfirmButton: false,
-    width: "500px",
+    timer: 1500,
   });
+});
+
 
   // ปุ่มคัดลอกลิงก์
   const popup = Swal.getPopup();
@@ -203,16 +225,11 @@ export const Detail = () => {
 
   const handleLogin = async ({ email, password }) => {
     try {
-      const res = await AuthService.login(email, password);
-      if (res?.data?.token) {
-        login(res.data);
-        setIsLoginOpen(false);
-        Swal.fire({ icon: "success", title: "เข้าสู่ระบบสำเร็จ", timer: 1200, showConfirmButton: false });
-      } else {
-        Swal.fire({ icon: "error", title: "เข้าสู่ระบบไม่สำเร็จ" });
-      }
+      await login(email, password);
+      setIsLoginOpen(false);
+      Swal.fire({ icon: "success", title: "เข้าสู่ระบบสำเร็จ", timer: 1200, showConfirmButton: false });
     } catch (e) {
-      Swal.fire({ icon: "error", title: "เข้าสู่ระบบไม่สำเร็จ", text: e?.response?.data?.message || e.message });
+      Swal.fire({ icon: "error", title: "เข้าสู่ระบบไม่สำเร็จ", text: extractErrorMessage(e, "เกิดข้อผิดพลาดที่ไม่คาดคิด") });
     }
   };
 
@@ -429,6 +446,10 @@ export const Detail = () => {
       <RegisterPopup
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
+        onOpenLogin={() => {
+          setIsRegisterOpen(false);
+          setIsLoginOpen(true);
+        }}
       />
     </>
   );

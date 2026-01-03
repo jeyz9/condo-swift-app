@@ -8,11 +8,10 @@ import {
   FaBed,
   FaGem,
 } from "react-icons/fa";
+import AnnounceService from "../../services/AnnounceService";
 import ProvinceService from "../../services/ProvinceService";
 import { provinces as fallbackProvinces } from "../../data/provinces";
 import { stations as fallbackStations } from "../../data/stations";
-
-const propertyTypes = ["คอนโด", "บ้านเดี่ยว", "ทาวน์โฮม", "ที่ดิน"];
 
 const fallbackStationOptions = fallbackStations.map(station => ({ value: station, label: station }));
 
@@ -42,8 +41,79 @@ export default function SearchBarNonFilter({
   });
   const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
   const [stationOptions, setStationOptions] = useState(fallbackStationOptions);
+  const [announceTypes, setAnnounceTypes] = useState([]);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    ProvinceService.showAllAnnounceTypes()
+      .then(res => {
+        if (res.data && Array.isArray(res.data)) {
+          setAnnounceTypes(res.data);
+        }
+      })
+      .catch(err => {
+        console.error("Failed to fetch announce types:", err);
+      });
+
+    ProvinceService.getAllProvinces()
+      .then((res) => {
+        const raw = res?.data;
+        const list = Array.isArray(raw) ? raw : [];
+        const names = list
+          .map((item) =>
+            typeof item === "string"
+              ? item
+              : item?.provinceName || item?.name || item?.title
+          )
+          .filter(Boolean);
+        setProvinceOptions(names.length > 0 ? names : fallbackProvinces);
+      })
+      .catch(() => setProvinceOptions(fallbackProvinces));
+
+      ProvinceService.getAllStations()
+      .then((res) => {
+        const raw = res?.data;
+        const list = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.stations)
+          ? raw.stations
+          : Array.isArray(raw?.data)
+          ? raw.data
+          : [];
+
+        const options = list
+          .map((item) => {
+            if (typeof item === "string") {
+              return { value: item, label: item };
+            }
+
+            if (!item) return null;
+
+            const value = item.name || item.stationName || item.title;
+            if (!value) return null;
+
+            const type = item.stationType || item.type || item.line;
+            const label =
+              type && typeof type === "string"
+                ? `${value} (${type.toUpperCase()})`
+                : value;
+
+            return { value, label };
+          })
+          .filter(Boolean);
+
+        if (options.length > 0) {
+          setStationOptions(options);
+        } else {
+          setStationOptions(fallbackStationOptions);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch stations, using fallback. Error:", err);
+        setStationOptions(fallbackStationOptions);
+      });
+  }, []);
 
   const normalizePriceValue = (raw) => {
     if (raw === null || raw === undefined) return "";
@@ -81,171 +151,13 @@ export default function SearchBarNonFilter({
     setFilters((prev) => ({
       ...prev,
       type: defaultFilter || "",
-    }));
-  }, [defaultFilter]);
-
-  useEffect(() => {
-    setFilters((prev) => ({
-      ...prev,
       station: defaultStation || "",
-    }));
-  }, [defaultStation]);
-
-  useEffect(() => {
-    setFilters((prev) => ({
-      ...prev,
       province: defaultProvince || "",
-    }));
-  }, [defaultProvince]);
-
-  useEffect(() => {
-    setFilters((prev) => ({
-      ...prev,
       badge: defaultBadge || "",
     }));
-  }, [defaultBadge]);
+  }, [defaultFilter, defaultStation, defaultProvince, defaultBadge]);
 
-    useEffect(() => {
-
-      ProvinceService.getAllProvinces()
-
-        .then((res) => {
-
-          const raw = res?.data;
-
-          const list = Array.isArray(raw) ? raw : [];
-
-          const names = list
-
-            .map((item) =>
-
-              typeof item === "string"
-
-                ? item
-
-                : item?.provinceName || item?.name || item?.title
-
-            )
-
-            .filter(Boolean);
-
-          setProvinceOptions(names.length > 0 ? names : fallbackProvinces);
-
-        })
-
-        .catch(() => setProvinceOptions(fallbackProvinces));
-
-    }, []);
-
-  
-
-    // ? ??? filter ? ????? query ?????????? /filter
-
-      useEffect(() => {
-
-        console.log("Attempting to fetch stations from service...");
-
-        ProvinceService.getAllStations()
-
-          .then((res) => {
-
-            console.log("Successfully received response for stations:", res);
-
-            const raw = res?.data;
-
-            const list = Array.isArray(raw)
-
-              ? raw
-
-              : Array.isArray(raw?.stations)
-
-              ? raw.stations
-
-              : Array.isArray(raw?.data)
-
-              ? raw.data
-
-              : [];
-
-    
-
-            console.log("Parsed station list:", list);
-
-    
-
-            const options = list
-
-              .map((item) => {
-
-                if (typeof item === "string") {
-
-                  return { value: item, label: item };
-
-                }
-
-    
-
-                if (!item) return null;
-
-    
-
-                const value = item.name || item.stationName || item.title;
-
-                if (!value) return null;
-
-    
-
-                const type = item.stationType || item.type || item.line;
-
-                const label =
-
-                  type && typeof type === "string"
-
-                    ? `${value} (${type.toUpperCase()})`
-
-                    : value;
-
-    
-
-                return { value, label };
-
-              })
-
-              .filter(Boolean);
-
-    
-
-            console.log("Formatted station options:", options);
-
-    
-
-            if (options.length > 0) {
-
-              setStationOptions(options);
-
-            } else {
-
-              console.log("No station options found from service, using fallback.");
-
-              setStationOptions(fallbackStationOptions);
-
-            }
-
-          })
-
-          .catch((err) => {
-
-            console.error("Failed to fetch stations, using fallback. Error:", err);
-
-            setStationOptions(fallbackStationOptions);
-
-          });
-
-      }, []);
-
-  
-
-    const goFilter = (overrides = {}) => {
+  const goFilter = (overrides = {}) => {
     const merged = {
       keyword: (overrides.keyword ?? searchText)?.trim(),
       type: overrides.type ?? filters.type,
@@ -256,10 +168,10 @@ export default function SearchBarNonFilter({
       isPremium:
         overrides.isPremium !== undefined
           ? overrides.isPremium
-          : filters.isPremium, // ? ??? priority ??? overrides
-      station: overrides.station ?? filters.station, // Add station to merged
-      province: overrides.province ?? filters.province, // Add province to merged
-      badge: overrides.badge ?? filters.badge, // Add badge to merged
+          : filters.isPremium,
+      station: overrides.station ?? filters.station,
+      province: overrides.province ?? filters.province,
+      badge: overrides.badge ?? filters.badge,
       page: overrides.page ?? 0,
       size: overrides.size ?? 10,
     };
@@ -295,9 +207,9 @@ export default function SearchBarNonFilter({
         maxPriceNum !== undefined && !Number.isNaN(maxPriceNum)
           ? maxPriceNum
           : undefined,
-      badge: merged.badge || undefined, // Use merged.badge directly
-      station: merged.station || undefined, // Add station to params
-      province: merged.province || undefined, // Add province to params
+      badge: merged.badge || undefined,
+      station: merged.station || undefined,
+      province: merged.province || undefined,
       page: merged.page,
       size: merged.size,
     };
@@ -314,7 +226,6 @@ export default function SearchBarNonFilter({
       .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
       .join("&");
 
-    // ??????????? Network tab ?????? ?badge=???????? ???????
     navigate(`/filter?${query}`);
   };
 
@@ -343,10 +254,14 @@ export default function SearchBarNonFilter({
             <label class="block font-semibold text-[#8C6239] mb-1 text-sm">ประเภทอสังหาฯ</label>
             <select id="filter-type" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
               <option value="">ทั้งหมด</option>
-              <option value="คอนโด" ${filters.type === "คอนโด" ? "selected" : ""}>คอนโด</option>
-              <option value="บ้านเดี่ยว" ${filters.type === "บ้านเดี่ยว" ? "selected" : ""}>บ้านเดี่ยว</option>
-              <option value="ทาวน์โฮม" ${filters.type === "ทาวน์โฮม" ? "selected" : ""}>ทาวน์โฮม</option>
-              <option value="ที่ดิน" ${filters.type === "ที่ดิน" ? "selected" : ""}>ที่ดิน</option>
+              ${announceTypes
+                .map(
+                  (type) =>
+                    `<option value="${type.typeName}" ${
+                      filters.type === type.typeName ? "selected" : ""
+                    }>${type.typeName}</option>`
+                )
+                .join("")}
             </select>
           </div>
 
@@ -474,8 +389,8 @@ export default function SearchBarNonFilter({
             };
           
   const handlePropertyType = async () => {
-    const propertyOptions = propertyTypes.reduce((acc, curr) => {
-      acc[curr] = curr;
+    const propertyOptions = announceTypes.reduce((acc, curr) => {
+      acc[curr.typeName] = curr.typeName;
       return acc;
     }, {});
 

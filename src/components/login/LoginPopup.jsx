@@ -4,6 +4,7 @@ import { useAuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
+import { extractErrorMessage } from "../../utils/errorUtils";
 import AuthService from "../../services/AuthService";
 
 export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
@@ -77,7 +78,11 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
       title: 'ลืมรหัสผ่าน',
       input: 'email',
       inputLabel: 'กรุณากรอกอีเมลของคุณเพื่อรีเซ็ตรหัสผ่าน',
-      inputPlaceholder: 'Enter your email address'
+      inputPlaceholder: 'กรอก email ที่นี่',
+      showCancelButton: true,
+      confirmButtonText: 'ส่งอีเมลรีเซ็ตรหัสผ่าน', 
+      confirmButtonColor: '#8C6239',
+      cancelButtonText: 'ยกเลิก',
     });
 
     if (email) {
@@ -94,7 +99,7 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
         Swal.fire({
           icon: 'error',
           title: 'เกิดข้อผิดพลาด',
-          text: error.response?.data?.message || 'ไม่สามารถส่งอีเมลรีเซ็ตรหัสผ่านได้',
+          text: extractErrorMessage(error, 'ไม่สามารถส่งอีเมลรีเซ็ตรหัสผ่านได้'),
         });
       }
     }
@@ -182,7 +187,7 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
         Swal.fire({
           icon: "error",
           title: "ไม่สามารถเข้าสู่ระบบได้",
-          text: error?.response?.data || error.message,
+          text: extractErrorMessage(error, "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"),
           confirmButtonColor: "#8C6239",
         });
       }
@@ -232,29 +237,27 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
             exit="exit"
           >
             <div
-              className="bg-white rounded-2xl md:overflow-hidden overflow-y-auto shadow-2xl relative flex flex-col md:flex-row 
-              w-[92vw] max-w-[900px] md:w-[900px]
-              h-auto max-h-[90vh] md:h-[600px] md:max-h-[600px]"
+              className="bg-white rounded-2xl shadow-2xl relative flex flex-col md:flex-row w-[92vw] max-w-[1000px] md:w-[1000px] h-[90vh] md:h-[650px] md:overflow-hidden"
             >
               {/* ปุ่มปิด */}
               <button
                 onClick={onClose}
-                className="btn btn-ghost border-none absolute top-4 right-4 text-gray-500 hover:text-black text-2xl"
+                className="btn btn-ghost border-none absolute top-4 right-4 text-gray-500 hover:text-black text-2xl z-10"
               >
                 ✕
               </button>
 
               {/* ฝั่งซ้าย */}
-              <div className="bg-[#8C6239] text-white p-8 md:p-10 w-full md:w-1/2 flex flex-col justify-center">
-                <h3 className="text-base md:text-lg font-semibold mb-3">
+              <div className="bg-[#8C6239] text-white p-6 sm:p-8 md:p-10 w-full md:w-1/2 flex flex-col justify-center flex-shrink-0 rounded-t-2xl md:rounded-tr-none md:rounded-l-2xl">
+                <h3 className="text-xl sm:text-2xl font-semibold mb-3">
                   เพียงสมัครสมาชิก และยืนยันตัวตน
                 </h3>
-                <h1 className="text-xl md:text-4xl font-bold leading-snug mb-6 break-words">
+                <h1 className="text-lg sm:text-2xl md:text-4xl font-bold leading-snug mb-6 break-words">
                   ก็เริ่มต้นลงประกาศได้เลย
                   <br />
                   ใช้งานง่าย ไม่มีค่าบริการ
                 </h1>
-                <ul className="space-y-3 text-sm md:text-base break-words">
+                <ul className="space-y-3 text-sm sm:text-base break-words">
                   <li>✔ โพสต์ฟรี เช่าและขาย 5 ประกาศ</li>
                   <li>✔ เลื่อนประกาศฟรี 40 ครั้ง/เดือน</li>
                   <li>✔ ประกาศอยู่ได้นาน 6 เดือน</li>
@@ -263,8 +266,8 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
               </div>
 
               {/* ฝั่งขวา */}
-              <div className="p-8 md:p-10 w-full md:w-1/2 flex flex-col justify-center overflow-y-auto">
-                <h2 className="text-xl md:text-2xl font-bold mb-6 text-gray-800 break-words">
+              <div className="p-6 sm:p-8 md:p-10 w-full md:w-1/2 flex flex-col overflow-y-auto min-h-0 rounded-b-2xl md:rounded-bl-none md:rounded-r-2xl justify-center">
+                <h2 className="text-3xl justify-center text-center xl:text-start sm:text-xl md:text-4xl  font-medium mb-6 text-gray-800 break-words">
                   เข้าสู่ระบบ
                 </h2>
 

@@ -166,7 +166,7 @@ const UserProfile = () => {
                   src={
                     profile?.image ||
                     `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                      "ยังไม่เข้าสู่ระบบ"
+                      displayName
                     )}&background=0D8ABC&color=fff`
                   }
                 />
@@ -225,10 +225,20 @@ const UserProfile = () => {
             <li className="mt-1">
               <button
                 onClick={() => setShowEditProfilePopup(true)}
-                className="text-sm text-gray-700"
+                className="text-sm text-gray-700 cursor-pointer"
               >
                 แก้ไขโปรไฟล์
               </button>
+            </li>
+            <li className="mt-1">
+               <Link to="/draft">
+              <button
+                
+                className=" text-sm text-gray-700  cursor-pointer"
+              >
+              แบบร่าง
+              </button>
+              </Link>
             </li>
             <li className="mt-1">
               <button

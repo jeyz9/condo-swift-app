@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { FaSlidersH } from "react-icons/fa";
-import BadgesService from "../services/BadgesService";
+import AnnounceService from "../services/AnnounceService";
 import ProvinceService from "../services/ProvinceService";
 import { Badge } from "lucide-react";
 
-// ประเภททรัพย์
-const propertyTypes = ["คอนโด", "บ้านเดี่ยว", "ทาวน์โฮม", "ที่ดิน"];
-
 const BANGKOK_PROVINCE = "กรุงเทพมหานคร";
-
-import { provinces as fallbackProvinces } from "../data/provinces";
-
-const fallbackStationOptions = [];
 
 // ประเภทการขาย
 const saleTypes = [
@@ -23,10 +16,10 @@ const saleTypes = [
 
 export default function SearchBarWithFilter({ selectedType = "" }) {
   const [searchText, setSearchText] = useState("");
-
+  const [propertyTypes, setPropertyTypes] = useState([]);
   const [badgeOptions, setBadgeOptions] = useState([]);
-  const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
-  const [stationOptions, setStationOptions] = useState(fallbackStationOptions);
+  const [provinceOptions, setProvinceOptions] = useState([]);
+  const [stationOptions, setStationOptions] = useState([]);
 
   const [filters, setFilters] = useState({
     type: "",
@@ -54,9 +47,25 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
     );
   };
 
+  // Fetch property types
+  useEffect(() => {
+    ProvinceService.showAllAnnounceTypes()
+      .then((res) => {
+        if (res.data && Array.isArray(res.data)) {
+          const types = res.data.map((item) => item.typeName).filter(Boolean);
+          if (types.length > 0) {
+            setPropertyTypes(types);
+          }
+        }
+      })
+      .catch(() => {
+        setPropertyTypes([]);
+      });
+  }, []);
+
   // ดึง badge
   useEffect(() => {
-    BadgesService.getAllBadges()
+    AnnounceService.getAllBadges()
       .then((res) => {
         if (res.data && Array.isArray(res.data)) {
           setBadgeOptions(res.data);
@@ -80,9 +89,9 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
               : item?.provinceName || item?.name || item?.title
           )
           .filter(Boolean);
-        setProvinceOptions(names.length > 0 ? names : fallbackProvinces);
+        setProvinceOptions(names.length > 0 ? names : []);
       })
-      .catch(() => setProvinceOptions(fallbackProvinces));
+      .catch(() => setProvinceOptions([]));
   }, []);
 
   useEffect(() => {
@@ -118,9 +127,9 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
           })
           .filter(Boolean);
 
-        setStationOptions(options.length > 0 ? options : fallbackStationOptions);
+        setStationOptions(options.length > 0 ? options : []);
       })
-      .catch(() => setStationOptions(fallbackStationOptions));
+      .catch(() => setStationOptions([]));
   }, []);
 
   // sync saleType

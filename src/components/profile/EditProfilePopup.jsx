@@ -3,6 +3,7 @@ import UserService from '../../services/UserService';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { User, FileText, Phone, Mail, MessageSquare } from 'lucide-react';
+import { extractErrorMessage } from '../../utils/errorUtils';
 import { useAuthContext } from '../../context/AuthContext';
 
 const MySwal = withReactContent(Swal);
@@ -39,7 +40,7 @@ const EditProfilePopup = ({ onClose, onProfileUpdate }) => {
         MySwal.fire({
           icon: 'error',
           title: 'เกิดข้อผิดพลาด',
-          text: err.response?.data?.message || 'ไม่สามารถโหลดข้อมูลผู้ใช้ได้',
+          text: extractErrorMessage(err, 'ไม่สามารถโหลดข้อมูลผู้ใช้ได้'),
         });
       } finally {
         setIsFetching(false);
@@ -80,7 +81,7 @@ const EditProfilePopup = ({ onClose, onProfileUpdate }) => {
       MySwal.fire({
         icon: 'error',
         title: 'เกิดข้อผิดพลาด',
-        text: err.response?.data?.message || 'ไม่สามารถบันทึกข้อมูลได้',
+        text: extractErrorMessage(err, 'ไม่สามารถบันทึกข้อมูลได้'),
       });
     } finally {
       setIsLoading(false);

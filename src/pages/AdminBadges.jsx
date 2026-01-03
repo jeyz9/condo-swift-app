@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { FaPlus, FaRegEdit, FaTrash, FaMedal } from "react-icons/fa";
 import Swal from "sweetalert2";
-import BadgesService from "../services/BadgesService";
+import { extractErrorMessage } from "../utils/errorUtils";
+import AnnounceService from "../services/AnnounceService";
 
 const defaultForm = { id: null, badgeName: "" };
 
@@ -27,14 +28,13 @@ const AdminBadges = () => {
   const fetchBadges = async () => {
     try {
       setLoading(true);
-      const res = await BadgesService.getAllBadges();
+      const res = await AnnounceService.getAllBadges();
       setBadges(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
-      console.error("ไม่สามารถโหลดแบดจ์ได้", error);
       Swal.fire({
         icon: "error",
         title: "ดึงข้อมูลแบดจ์ไม่สำเร็จ",
-        text: error?.response?.data?.message || error.message,
+        text: extractErrorMessage(error, "ไม่สามารถโหลดแบดจ์ได้"),
       });
     } finally {
       setLoading(false);
@@ -56,13 +56,13 @@ const AdminBadges = () => {
     try {
       setSaving(true);
       if (form.id) {
-        await BadgesService.updateBadge(form.id, { badgeName: name });
+        await AnnounceService.updateBadge(form.id, { badgeName: name });
         Swal.fire({
           icon: "success",
           title: "อัปเดตแบดจ์เรียบร้อย",
         });
       } else {
-        await BadgesService.addBadge({ badgeName: name });
+        await AnnounceService.addBadge({ badgeName: name });
         Swal.fire({
           icon: "success",
           title: "เพิ่มแบดจ์สำเร็จ",
@@ -75,7 +75,7 @@ const AdminBadges = () => {
       Swal.fire({
         icon: "error",
         title: "บันทึกไม่สำเร็จ",
-        text: error?.response?.data?.message || error.message,
+        text: extractErrorMessage(error, "เกิดข้อผิดพลาดขณะบันทึก"),
       });
     } finally {
       setSaving(false);
@@ -101,7 +101,7 @@ const AdminBadges = () => {
     if (!confirm.isConfirmed) return;
 
     try {
-      await BadgesService.deleteBadge(badge.id);
+      await AnnounceService.deleteBadge(badge.id);
       Swal.fire({
         icon: "success",
         title: "ลบแบดจ์แล้ว",
@@ -114,7 +114,7 @@ const AdminBadges = () => {
       Swal.fire({
         icon: "error",
         title: "ลบไม่สำเร็จ",
-        text: error?.response?.data?.message || error.message,
+        text: extractErrorMessage(error, "เกิดข้อผิดพลาดขณะลบ"),
       });
     }
   };

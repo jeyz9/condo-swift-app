@@ -111,13 +111,8 @@ const CardFilter = ({ announce }) => {
       : "ไม่พบ";
     const phoneFull = phoneNumber || "ไม่พบเบอร์";
 
-    const rawLine = agent?.lineId || agent?.line || agent?.lineUrl || "";
-    const lineUrl =
-      rawLine && rawLine.startsWith("http")
-        ? rawLine
-        : rawLine
-        ? `https://line.me/ti/p/${rawLine}`
-        : "https://line.me";
+    const rawLine = agent?.lineId;
+    const lineUrl = `https://line.me/ti/p/~${rawLine}`;
 
     showContactPopup(phoneMasked, phoneFull, lineUrl);
   };
@@ -231,14 +226,14 @@ const CardFilter = ({ announce }) => {
               {announce?.title || "ยังไม่เข้าสู่ระบบประกาศ"}
             </h2>
             <p className="mt-1 flex items-center gap-1 text-sm text-gray-600  min-w-0">
-  {/* ไอคอน */}
-  <HiOutlineLocationMarker className="text-[#8C6239] shrink-0" />
+              {/* ไอคอน */}
+              <HiOutlineLocationMarker className="text-[#8C6239] shrink-0" />
 
-  {/* ข้อความที่ต้องการตัด */}
-  <span className="truncate">
-    {announce?.address || announce?.province || "ไม่ระบุที่ตั้ง"}
-  </span>
-</p>
+              {/* ข้อความที่ต้องการตัด */}
+              <span className="truncate">
+                {announce?.address || announce?.province || "ไม่ระบุที่ตั้ง"}
+              </span>
+            </p>
           </div>
           {price && (
             <div className="shrink-0 rounded-2xl bg-[#f7f3ef] px-3 py-2 text-right">
@@ -271,13 +266,14 @@ const CardFilter = ({ announce }) => {
         </div>
 
         {termsAccepted && (
-          <p className="text-center text-xs font-medium text-emerald-600">
-            คุณได้ยอมรับข้อตกลงและเงื่อนไขแล้ว
+          <p className="text-center text-xs font-medium text-grey-200">
+            กรุณาอ่านข้อตกลงก่อนติดต่อสอบถาม
           </p>
         )}
       </div>
     </motion.div>
   );
 };
+
 
 export default CardFilter;
