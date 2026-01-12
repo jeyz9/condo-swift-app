@@ -5,12 +5,13 @@ import { FaAngleUp, FaAngleDown } from "react-icons/fa6";
 import AnnounceService from "../services/AnnounceService";
 
 export const AdminLayout = () => {
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(window.innerWidth >= 1024);
   const location = useLocation();
   const toggleDrawer = () => setDrawerOpen((prev) => !prev);
   const [open, setOpen] = useState({
     announce: false,
     badge: false,
+    user: false,
   });
 
   const isActive = (path) => location.pathname.startsWith(path);
@@ -32,11 +33,26 @@ export const AdminLayout = () => {
   }, [isActive]);
 
   useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth >= 1024) {
+        setDrawerOpen(true);
+      } else {
+        setDrawerOpen(false);
+      }
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
     if (location.pathname.startsWith("/admin/announce")) {
       setOpen((prev) => ({ ...prev, announce: true }));
     }
     if (location.pathname.startsWith("/admin/badges")) {
       setOpen((prev) => ({ ...prev, badge: true }));
+    }
+    if (location.pathname.startsWith("/admin/users")) {
+      setOpen((prev) => ({ ...prev, user: true }));
     }
   }, [location.pathname]);
 
@@ -67,7 +83,7 @@ export const AdminLayout = () => {
                   : "hover:bg-[#8C623910] hover:text-[#704c2c]"
               }`}
               onClick={() =>
-                setOpen({ announce: !open.announce, badge: open.badge })
+                setOpen({ announce: !open.announce, badge: open.badge, user: open.user })
               }
             >
               <p>ประกาศ</p>
@@ -115,7 +131,7 @@ export const AdminLayout = () => {
                   : "hover:bg-[#8C623910] hover:text-[#704c2c]"
               }`}
               onClick={() =>
-                setOpen({ badge: !open.badge, announce: open.announce })
+                setOpen({ badge: !open.badge, announce: open.announce, user: open.user })
               }
             >
               <p>แบดจ์</p>
@@ -150,6 +166,39 @@ export const AdminLayout = () => {
 
           <hr className="my-3 border-gray-200" />
 
+          <div>
+            <div
+              className={`flex items-center justify-between cursor-pointer select-none pl-10 pr-5 py-2 rounded-e-md transition  ${
+                open.user
+                  ? "bg-[#8C623910] text-[#704c2c]"
+                  : "hover:bg-[#8C623910] hover:text-[#704c2c]"
+              }`}
+              onClick={() =>
+                setOpen({ user: !open.user, announce: open.announce, badge: open.badge })
+              }
+            >
+              <p>จัดการผู้ใช้</p>
+              {open.user ? <FaAngleUp /> : <FaAngleDown />}
+            </div>
+
+            {open.user && (
+              <div className="mt-2 flex flex-col space-y-2">
+                <Link
+                  to={`/admin/users/roles`}
+                  className={`pl-16 py-2 cursor-pointer select-none rounded-e-md space-y-2 transition ${
+                    isActive("/admin/users/roles")
+                      ? "bg-[#704c2c] text-white"
+                      : "hover:bg-[#8C623910] hover:text-[#704c2c]"
+                  }`}
+                >
+                  จัดการ Role
+                </Link>
+              </div>
+            )}
+          </div>
+
+          <hr className="my-3 border-gray-200" />
+
           <Link
             to="/admin/notifications/send"
             className={`block cursor-pointer select-none pl-10 pr-5 py-2 rounded-e-md transition ${
@@ -174,7 +223,7 @@ export const AdminLayout = () => {
 
       <header
         className={`fixed top-0 right-0 h-14 bg-white shadow-sm border-b border-gray-200 flex items-center px-6 transition-all duration-300 z-30 ${
-          drawerOpen ? "left-64" : "left-0"
+          drawerOpen ? "lg:left-64" : "left-0"
         }`}
       >
         <button
@@ -188,7 +237,7 @@ export const AdminLayout = () => {
 
       <main
         className={`flex-1 overflow-x-auto pt-16 transition-all duration-300 ${
-          drawerOpen ? "ml-64" : "ml-0"
+          drawerOpen ? "lg:ml-64" : "ml-0"
         }`}
       >
         <div className="px-6 pb-10">

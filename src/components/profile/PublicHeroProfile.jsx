@@ -16,7 +16,7 @@ const PublicHeroProfile = ({ profile }) => {
   const emailVerified = profile?.emailVerified;
   const phoneVerified = profile?.phoneVerified;
 
-  const displayName = profile?.name?.trim() || "ไม่ระบุชื่อ";
+  const displayName = profile?.name?.trim() || "ยังไม่เข้าสู่ระบบ";
   const displayDescription =
     profile?.description?.trim() || "ยังไม่มีคำอธิบายเกี่ยวกับผู้ใช้งาน";
   const avatarSrc =

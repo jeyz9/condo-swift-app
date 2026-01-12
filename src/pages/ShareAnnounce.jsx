@@ -4,6 +4,7 @@ import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { useNavigate, useParams } from "react-router-dom";
 import AnnounceService from "../services/AnnounceService";
 import Swal from "sweetalert2";
+import { extractErrorMessage } from "../utils/errorUtils";
 
 const ShareAnnounce = () => {
   const { id } = useParams();
@@ -13,90 +14,123 @@ const ShareAnnounce = () => {
   const [currentIndex, setCurrentIndex] = useState(-1);
 
   useEffect(() => {
-    const stored = localStorage.getItem("pending_ids");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      setIds(parsed);
-
-      const index = parsed.indexOf(Number(id));
-      setCurrentIndex(index);
+    const storedIds = localStorage.getItem("pending_ids");
+    if (storedIds) {
+      const parsedIds = JSON.parse(storedIds);
+      if (parsedIds.length === 0) {
+        Swal.fire({
+          icon: "info",
+          title: "ไม่มีประกาศให้อนุมัติ",
+          text: "ไม่พบประกาศที่รอการอนุมัติในขณะนี้",
+          confirmButtonText: "กลับไปหน้าหลัก",
+          confirmButtonColor: "#8C6239",
+        }).then(() => {
+          navigate("/admin/announce/pending", { replace: true });
+        });
+        return;
+      }
+      setIds(parsedIds);
+      setCurrentIndex(parsedIds.indexOf(id));
+    } else {
+      Swal.fire({
+        icon: "info",
+        title: "ไม่มีประกาศให้อนุมัติ",
+        text: "ไม่พบรายการประกาศที่รอการอนุมัติ",
+        confirmButtonText: "กลับไปหน้าหลัก",
+        confirmButtonColor: "#8C6239",
+      }).then(() => {
+        navigate("/admin/announce/pending", { replace: true });
+      });
     }
-  }, [id]);
-
-
+  }, [id, navigate]);
+//...
   const handleApprove = async () => {
     try {
-    const confirmed = await Swal.fire({
-      title: "ยืนยันการอนุมัติ?",
-      text: "คุณต้องการอนุมัติประกาศนี้ใช่หรือไม่?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "อนุมัติ",
-      cancelButtonText: "ยกเลิก",
-      confirmButtonColor: "#8C6239",
-    });
+      const confirmed = await Swal.fire({
+        title: "ยืนยันการอนุมัติ?",
+        text: "คุณต้องการอนุมัติประกาศนี้ใช่หรือไม่?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "อนุมัติ",
+        cancelButtonText: "ยกเลิก",
+        confirmButtonColor: "#8C6239",
+      });
 
-    if (!confirmed.isConfirmed) return;
+      if (!confirmed.isConfirmed) return;
 
-    await AnnounceService.approveAnnounce(id);
+      await AnnounceService.approveAnnounce(id);
 
-    await Swal.fire({
-      icon: "success",
-      title: "อนุมัติสำเร็จ",
-      timer: 1500,
-      showConfirmButton: false,
-    });
+      await Swal.fire({
+        icon: "success",
+        title: "อนุมัติสำเร็จ",
+        timer: 1500,
+        showConfirmButton: false,
+      });
 
-    goNextOrBack();
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "อนุมัติไม่สำเร็จ",
-      text: error?.response?.data?.message || error.message, 
-    });
-  }
+      goNextOrBack();
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "อนุมัติไม่สำเร็จ",
+        text: extractErrorMessage(error, "เกิดข้อผิดพลาดที่ไม่คาดคิด"),
+      });
+    }
   };
 
   const handleReject = async () => {
-    const { value: remark, isConfirmed } = await Swal.fire({
-      title: "เหตุผลการปฏิเสธ",
-      input: "textarea",
-      inputPlaceholder: "กรุณาใส่หมายเหตุ...",
-      showCancelButton: true,
-      confirmButtonText: "ปฏิเสธ",
-      cancelButtonText: "ยกเลิก",
-      confirmButtonColor: "#d33",
-      inputValidator: (value) => {
-        if (!value) {
-          return "กรุณากรอกหมายเหตุ!";
-        }
-      },
-    });
+    try {
+      const { value: remark, isConfirmed } = await Swal.fire({
+        title: "เหตุผลการปฏิเสธ",
+        input: "textarea",
+        inputPlaceholder: "กรุณาใส่หมายเหตุ...",
+        showCancelButton: true,
+        confirmButtonText: "ปฏิเสธ",
+        cancelButtonText: "ยกเลิก",
+        confirmButtonColor: "#d33",
+        inputValidator: (value) => {
+          if (!value) {
+            return "กรุณากรอกหมายเหตุ!";
+          }
+        },
+      });
 
-    if (!isConfirmed) return;
+      if (!isConfirmed) return;
 
-    await AnnounceService.rejectAnnounce(id, {remark});
+      await AnnounceService.rejectAnnounce(id, { remark });
 
-    await Swal.fire({
-      icon: "success",
-      title: "ปฏิเสธสำเร็จ",
-      timer: 1500,
-      showConfirmButton: false,
-    });
+      await Swal.fire({
+        icon: "success",
+        title: "ปฏิเสธสำเร็จ",
+        timer: 1500,
+        showConfirmButton: false,
+      });
 
-    goNextOrBack();
+      goNextOrBack();
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "ปฏิเสธไม่สำเร็จ",
+        text: extractErrorMessage(error, "เกิดข้อผิดพลาดที่ไม่คาดคิด"),
+      });
+    }
   };
 
 
   const goNextOrBack = () => {
-    localStorage.removeItem("pending_ids");
-
-    if (currentIndex < ids.length - 1) {
+    if (currentIndex >= ids.length - 1) {
+      Swal.fire({
+        icon: "info",
+        title: "ไม่มีประกาศให้อนุมัติแล้ว",
+        text: "คุณได้ตรวจสอบประกาศที่รออนุมัติทั้งหมดแล้ว",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#8C6239",
+      }).then(() => {
+        navigate("/admin/announce/pending", { replace: true });
+      });
+    } else {
       navigate(`/admin/announce/details/${ids[currentIndex + 1]}`, {
         replace: true,
       });
-    } else {
-      navigate("/admin/announce/pending", { replace: true });
     }
   };
 
@@ -133,14 +167,14 @@ const ShareAnnounce = () => {
 
         <div className="flex gap-4">
           <button
-            className="border border-[#404040] text-[#404040] rounded-[5px] text-[16px] px-[20px] py-[5px] hover:bg-[#404040] hover:text-white transition"
+            className="btn border border-[#404040] text-[#404040] rounded-[5px] text-[16px] px-[20px] py-[5px] hover:bg-[#404040] hover:text-white transition"
             onClick={handleReject}
           >
             ปฏิเสธ
           </button>
 
           <button
-            className="bg-[#8C6239] text-white rounded-[5px] text-[16px] px-[20px] py-[5px] hover:bg-[#795430] transition"
+            className="btn bg-[#8C6239] text-white rounded-[5px] text-[16px] px-[20px] py-[5px] hover:bg-[#795430] transition"
             onClick={handleApprove}
           >
             อนุมัติ

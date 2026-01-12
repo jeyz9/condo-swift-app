@@ -52,8 +52,8 @@ const RecommendedAgent = ({ recommendedAgents }) => {
             : "-");
 
         const phoneFull = agent?.phone || agent?.phoneFull || phoneMasked;
-        const lineUrl = agent?.lineUrl || agent?.line || "https://line.me";
-
+        const lineUrl = `https://line.me/ti/p/${"~"}${agent.lineId}` 
+         
         showContactPopup(phoneMasked, phoneFull, lineUrl);
       } else {
         throw new Error("ไม่สามารถบันทึกการยอมรับข้อตกลงได้");
@@ -129,7 +129,7 @@ const RecommendedAgent = ({ recommendedAgents }) => {
 
               <div className="flex-1 min-w-0">
                 <h3 className="text-lg sm:text-xl font-semibold truncate">
-                  {agent?.name || "ไม่ระบุชื่อ"}
+                  {agent?.name || "ยังไม่เข้าสู่ระบบ"}
                 </h3>
                 <p className="text-sm text-base-content/70 line-clamp-2">
                   {agent?.description || agent?.bio || "ยังไม่มีคำอธิบาย"}
@@ -147,8 +147,8 @@ const RecommendedAgent = ({ recommendedAgents }) => {
               </button>
 
               {termsAccepted && (
-                <p className="mt-2 text-[12px] text-center text-green-600">
-                  คุณได้ยอมรับข้อตกลงและเงื่อนไขแล้ว
+                <p className="mt-2 text-[12px] text-center text-grey-200">
+                  กรุณาอ่านข้อตกลงก่อนติดต่อสอบถาม
                 </p>
               )}
             </div>

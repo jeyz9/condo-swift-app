@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import AuthService from '../../services/AuthService';
 import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 import { useNavigate } from 'react-router-dom';
+import { extractErrorMessage } from '../../utils/errorUtils';
 import { useAuthContext } from '../../context/AuthContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
+const MySwal = withReactContent(Swal);
 
 const ChangePasswordPopup = ({ onClose }) => {
   const [oldPassword, setOldPassword] = useState('');
@@ -21,7 +24,7 @@ const ChangePasswordPopup = ({ onClose }) => {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
-      Swal.fire({
+      MySwal.fire({
         icon: 'warning',
         title: 'รหัสผ่านไม่ตรงกัน',
         text: 'รหัสผ่านใหม่และการยืนยันรหัสผ่านไม่ตรงกัน',
@@ -32,15 +35,19 @@ const ChangePasswordPopup = ({ onClose }) => {
 
     setIsLoading(true);
     try {
-      await AuthService.changePassword(oldPassword, newPassword, confirmPassword);
-      Swal.fire({
+      await AuthService.changePassword({
+        oldPassword,
+        newPassword,
+        confirmPassword,
+      });
+      MySwal.fire({
         icon: 'success',
         title: 'เปลี่ยนรหัสผ่านสำเร็จ!',
         text: 'รหัสผ่านของคุณถูกเปลี่ยนเรียบร้อยแล้ว กรุณาเข้าสู่ระบบใหม่',
         confirmButtonText: 'ตกลง',
       }).then(() => {
         logout(); // Force logout as backend deletes token
-        navigate('/'); // Redirect to login page
+        navigate('/login'); // Redirect to login page
         onClose(); // Close the popup after successful password change
       });
       // Clear form
@@ -48,13 +55,12 @@ const ChangePasswordPopup = ({ onClose }) => {
       setNewPassword('');
       setConfirmPassword('');
     } catch (error) {
-      Swal.fire({
+      MySwal.fire({
         icon: 'error',
         title: 'เกิดข้อผิดพลาด',
-        text: error.response?.data?.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้',
+        text: extractErrorMessage(error, 'ไม่สามารถเปลี่ยนรหัสผ่านได้'),
         confirmButtonText: 'ตกลง',
       });
-      console.error('Error changing password:', error);
     } finally {
       setIsLoading(false);
     }
@@ -100,12 +106,13 @@ const ChangePasswordPopup = ({ onClose }) => {
             <label className="block text-sm font-medium text-gray-700">รหัสผ่านใหม่</label>
             <div className="relative">
               <input
-                type={showNewPassword ? 'text' : 'password'}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
-                required
-              />
+              type={showNewPassword ? 'text' : 'password'}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              minLength={8}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
+              required
+            />
               <span
                 className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                 onClick={(e) => { e.preventDefault(); setShowNewPassword(!showNewPassword); }}
@@ -124,12 +131,13 @@ const ChangePasswordPopup = ({ onClose }) => {
             <label className="block text-sm font-medium text-gray-700">ยืนยันรหัสผ่านใหม่</label>
             <div className="relative">
               <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
-                required
-              />
+              type={showConfirmPassword ? 'text' : 'password'}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              minLength={8}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
+              required
+            />
               <span
                 className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                 onClick={(e) => { e.preventDefault(); setShowConfirmPassword(!showConfirmPassword); }}

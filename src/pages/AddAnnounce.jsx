@@ -15,6 +15,8 @@ import ProvinceService from "../services/ProvinceService";
 
 // 📚 Data
 import { provinces as fallbackProvinces } from "../data/provinces";
+import { extractErrorMessage } from "../utils/errorUtils";
+
 
 
 // 🧱 Icons
@@ -50,6 +52,7 @@ export const AddAnnounce = () => {
   const [images, setImages] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [userProfile, setUserProfile] = useState(null);
+  const [announceTypes, setAnnounceTypes] = useState([]);
   const [canPostFreely, setCanPostFreely] = useState(false);
   const [accountAgeChecked, setAccountAgeChecked] = useState(false);
   const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
@@ -57,6 +60,7 @@ export const AddAnnounce = () => {
     title: "",
     location: "",
     province: "",
+    station: "",
     price: "",
     bedroomCount: "",
     bathroomCount: "",
@@ -73,6 +77,24 @@ export const AddAnnounce = () => {
     saleType: "",
     userId: user?.userId || 0,
   });
+
+  // Fetch Announce Types
+  useEffect(() => {
+    ProvinceService.showAllAnnounceTypes()
+      .then((res) => {
+        if (res.data && Array.isArray(res.data)) {
+          setAnnounceTypes(res.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch announce types:", err);
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: extractErrorMessage(err, "ไม่สามารถโหลดประเภทประกาศได้"),
+        });
+      });
+  }, []);
 
   // ควรเก็บไว้ใกล้ ๆ ด้านบนไฟล์ src/pages/AddAnnounce.jsx
   const isAccountYoungerThanMonths = (createdDate, limitMonths = 4) => {
@@ -102,7 +124,7 @@ export const AddAnnounce = () => {
 
   const displayName =
     userProfile?.name?.trim() || user?.name?.trim() || user?.sub || "User";
-
+  
   const displayImage =
     userProfile?.image ||
     user?.image ||
@@ -133,7 +155,14 @@ export const AddAnnounce = () => {
           .filter(Boolean);
         setProvinceOptions(names.length > 0 ? names : fallbackProvinces);
       })
-      .catch(() => setProvinceOptions(fallbackProvinces));
+      .catch(() => {
+        setProvinceOptions(fallbackProvinces);
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: "ไม่สามารถโหลดข้อมูลจังหวัดได้",
+        });
+      });
   }, []);
 
   useEffect(() => {
@@ -155,6 +184,11 @@ export const AddAnnounce = () => {
       } catch (_error) {
         if (!ignore) {
           setUserProfile(null);
+          Swal.fire({
+            icon: "error",
+            title: "เกิดข้อผิดพลาด",
+            text: extractErrorMessage(_error, "ไม่สามารถโหลดข้อมูลผู้ใช้ได้"),
+          });
         }
       }
     };
@@ -242,10 +276,11 @@ export const AddAnnounce = () => {
 
     const validations = {
       0: () => {
-        if (!announce.location.trim()) errors.push("กรุณาระบุตำแหน่งที่ตั้ง");
+        if (!announce.mapPoints[0]?.lat) errors.push("กรุณาปักหมุดตำแหน่งบนแผนที่");
       },
       1: () => {
         if (!announce.title.trim()) errors.push("กรุณากรอกหัวข้อประกาศ");
+        if (!announce.location.trim()) errors.push("กรุณากรอกรายละเอียดที่อยู่");
         if (!announce.saleType) errors.push("กรุณาเลือกประเภทการประกาศ");
         if (!announce.announceType) errors.push("กรุณาเลือกประเภทอสังหาฯ");
         if (!announce.price) errors.push("กรุณาระบุราคา");
@@ -361,6 +396,7 @@ const handleDropdownChange = (field, value) => {
           title: "",
           location: "",
           province: "",
+          station: "",
           price: "",
           bedroomCount: "",
           bathroomCount: "",
@@ -381,15 +417,15 @@ const handleDropdownChange = (field, value) => {
         navigate("/");
       }
     } catch (err) {
-      console.error(err);
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
-        text: err.response?.data?.message || "ไม่สามารถบันทึกประกาศได้",
+        text: extractErrorMessage(err, "ไม่สามารถบันทึกประกาศได้"),
       });
     }
   };
 
+  
   return (
     <div className="flex flex-col items-center w-full mt-6 sm:mt-8 lg:mt-10 px-3 sm:px-4 lg:px-6">
       {/* Tabs */}
@@ -443,12 +479,9 @@ const handleDropdownChange = (field, value) => {
                   <div className="rounded-lg overflow-hidden shadow-sm">
                     <AddressMapPreview
                       query={searchText.trim() || null}
-                      onGeocode={(lat, lng, result) => {
-                        const formattedAddress =
-                          result?.formatted_address || searchText;
+                      onGeocode={(lat, lng) => {
                         setAnnounce((prev) => ({
                           ...prev,
-                          location: formattedAddress,
                           mapPoints: [{ lat, lng }],
                         }));
                       }}
@@ -456,8 +489,7 @@ const handleDropdownChange = (field, value) => {
                   </div>
                   {announce.mapPoints[0].lat && (
                     <div className="mt-3 text-sm text-gray-600">
-                      📍{" "}
-                      <span className="font-medium">{announce.location}</span>
+                      📍 <span className="font-medium">ปักหมุดสำเร็จ</span>
                       <br />
                       🌐 พิกัด:{" "}
                       <span className="text-gray-800">
@@ -613,10 +645,11 @@ const handleDropdownChange = (field, value) => {
                     className="select select-bordered w-full"
                   >
                     <option value="">เลือกประเภทอสังหาริมทรัพย์</option>
-                    <option value={1}>คอนโด</option>
-                    <option value={2}>ที่ดิน</option>
-                    <option value={3}>บ้านหรู</option>
-                    <option value={4}>วิลล่า</option>
+                    {announceTypes.map((type) => (
+                      <option key={type.id} value={type.id}>
+                        {type.typeName}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -644,7 +677,7 @@ const handleDropdownChange = (field, value) => {
                 onChange={handleChange}
                 type="text"
                 placeholder="รายละเอียดที่อยู่"
-                className="select select-bordered  w-full mb-6 rounded-xl"
+                className="input select-bordered  w-full mb-6 rounded-xl"
               />
               {/* จังหวัด */}
               <label className="block font-medium text-gray-700 mb-2">
@@ -655,7 +688,7 @@ const handleDropdownChange = (field, value) => {
                 value={announce.province}
                 onChange={(value) => handleDropdownChange("province", value)}
                 placeholder="เลือกจังหวัด"
-                className="select select-bordered  w-full mb-6 rounded-xl"
+                className="select select-bordered w-full  w-full mb-6 rounded-xl"
               />
 
           
@@ -810,13 +843,13 @@ const handleDropdownChange = (field, value) => {
               <div className="flex items-start gap-4 flex-wrap">
                 <div>
                   <div className="text-gray-500 font-semibold">ราคา</div>
-                  <div className="text-3xl font-bold text-[#8C6239]">
+                  <div className="text-2xl font-bold text-[#404040]">
                     {announce.price
                       ? `฿${Number(announce.price).toLocaleString()}`
                       : "—"}
                   </div>
                 </div>
-
+ <div className="divider divider-horizontal"></div>
                 <div className="flex gap-6 text-gray-600 mt-4">
                   <div className="flex flex-col items-center">
                     <IoBedOutline className="w-6 h-6" />
@@ -902,7 +935,7 @@ const handleDropdownChange = (field, value) => {
                 </p>
                 <p>
                   <span className="font-semibold">ผู้ลงประกาศ:</span>{" "}
-                  {displayName || "ไม่ระบุชื่อผู้ประกาศ"}
+                  {displayName || "ยังไม่เข้าสู่ระบบผู้ประกาศ"}
                 </p>
               </div>
             </div>
@@ -975,7 +1008,7 @@ const handleDropdownChange = (field, value) => {
                 onClick={() => submitAnnounce(3)}
                 className="btn bg-[#8c6239] text-white w-full sm:w-auto px-6 sm:px-8"
               >
-                เสร็จสิ้น
+                เผยแพร่
               </button>
             </div>
           )}

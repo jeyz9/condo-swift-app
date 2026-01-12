@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import AuthService from "../../services/AuthService";
-import { motion, AnimatePresence } from "framer-motion"; // ✅ เพิ่ม animation
+import { extractErrorMessage } from "../../utils/errorUtils";
+import { motion, AnimatePresence } from "framer-motion"; // 
+import { form } from "framer-motion/client";
 
-export default function RegisterPopup({ isOpen, onClose }) {
+export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -54,6 +56,15 @@ export default function RegisterPopup({ isOpen, onClose }) {
       return;
     }
 
+    if(formData.password.length < 8) {
+      Swal.fire({
+        icon: "error",
+        title: "รหัสผ่านต้องมีความยาวมากกว่า 8 ตัวอักษร",
+        confirmButtonColor: "#8C6239",
+      });
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       Swal.fire({
         icon: "error",
@@ -87,7 +98,7 @@ export default function RegisterPopup({ isOpen, onClose }) {
       Swal.fire({
         icon: "error",
         title: "ไม่สามารถสมัครสมาชิกได้",
-        text: error?.response?.data || error.message,
+        text: extractErrorMessage(error, "เกิดข้อผิดพลาดที่ไม่คาดคิด"),
         confirmButtonColor: "#8C6239",
       });
     } finally {
@@ -111,27 +122,25 @@ export default function RegisterPopup({ isOpen, onClose }) {
 
           {/* 🟤 Popup */}
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center px-2 sm:px-4 overflow-y-auto"
+            className="fixed inset-0 z-50 flex items-center justify-center px-2 sm:px-4"
             variants={popupVariant}
             initial="hidden"
             animate="visible"
             exit="exit"
           >
             <div
-              className="bg-white rounded-2xl shadow-2xl relative 
-                         flex flex-col md:flex-row w-full max-w-[1000px] 
-                         max-h-[90vh] overflow-y-auto md:overflow-hidden"
+              className="bg-white rounded-2xl shadow-2xl relative flex flex-col md:flex-row w-[92vw] max-w-[1000px] md:w-[1000px] h-[90vh] md:h-[650px] md:overflow-hidden"
             >
               {/* ปุ่มปิด */}
               <button
                 onClick={onClose}
-                className="btn btn-ghost border-none absolute top-4 right-4 text-gray-500 hover:text-black text-2xl"
+                className="btn btn-ghost border-none absolute top-4 right-4 text-gray-500 hover:text-black text-2xl z-10"
               >
                 ✕
               </button>
 
               {/* ด้านซ้าย */}
-              <div className="bg-[#8C6239] text-white p-6 sm:p-8 md:p-10 w-full md:w-1/2 flex flex-col justify-center whitespace-normal break-words">
+              <div className="bg-[#8C6239] text-white p-6 sm:p-8 md:p-10 w-full md:w-1/2 flex flex-col justify-center whitespace-normal break-words flex-shrink-0 rounded-t-2xl md:rounded-tr-none md:rounded-l-2xl">
                 <h3 className="text-xl sm:text-2xl font-semibold mb-6 sm:mb-10">
                   เพียงสมัครสมาชิก และยืนยันตัวตน
                 </h3>
@@ -149,8 +158,8 @@ export default function RegisterPopup({ isOpen, onClose }) {
               </div>
 
               {/* ด้านขวา */}
-              <div className="p-6 sm:p-8 md:p-10 w-full md:w-1/2 flex flex-col justify-center max-w-full whitespace-normal break-words">
-                <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-6 text-gray-800 break-words">
+              <div className="p-6 sm:p-8 md:p-10 w-full md:w-1/2 flex flex-col max-w-full whitespace-normal break-words overflow-y-auto min-h-0 rounded-b-2xl md:rounded-bl-none md:rounded-r-2xl">
+                <h2 className="text-3xl justify-center text-center xl:text-start sm:text-xl md:text-4xl  font-medium mb-6 text-gray-800 break-words">
                   สมัครสมาชิก
                 </h2>
 
@@ -300,7 +309,10 @@ export default function RegisterPopup({ isOpen, onClose }) {
                 <p className="text-center text-xs sm:text-sm text-gray-600 mt-5 break-words">
                   มีบัญชีอยู่แล้ว?
                   <span
-                    onClick={onClose}
+                     onClick={() => {
+                    onClose?.();
+                    onOpenLogin?.();
+                  }}
                     className="text-[#8C6239] font-semibold cursor-pointer hover:underline ml-1"
                   >
                     เข้าสู่ระบบ

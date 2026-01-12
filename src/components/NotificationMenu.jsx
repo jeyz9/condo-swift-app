@@ -118,7 +118,7 @@ export default function NotificationMenu() {
 
         {/* 🔴 Badge */}
         {unreadCount > 0 && (
-          <span className="absolute -top-1 right-0 bg-red-500 text-white text-[10px] font-semibold px-1.5 rounded-full animate-pulse">
+          <span className="absolute -top-2 right-[1px] bg-red-500 text-white text-[10px] font-semibold px-1.5 rounded-full animate-pulse w-5 h-5 flex items-center justify-center">
             {unreadCount}
           </span>
         )}

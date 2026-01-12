@@ -1,148 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { FaSlidersH } from "react-icons/fa";
-import { stations } from "../data/stations";
-import BadgesService from "../services/BadgesService";
+import AnnounceService from "../services/AnnounceService";
 import ProvinceService from "../services/ProvinceService";
 import { Badge } from "lucide-react";
 
-// ประเภททรัพย์
-const propertyTypes = ["คอนโด", "บ้านเดี่ยว", "ทาวน์โฮม", "ที่ดิน"];
-
-import { provinces as fallbackProvinces } from "../data/provinces";
-
-export const bangkokStations = [
-  // 🚈 BTS Sukhumvit Line
-  "หมอชิต",
-  "สะพานควาย",
-  "อารีย์",
-  "อนุสาวรีย์ชัยสมรภูมิ",
-  "พญาไท",
-  "ราชเทวี",
-  "สยาม",
-  "ชิดลม",
-  "เพลินจิต",
-  "นานา",
-  "อโศก",
-  "พร้อมพงษ์",
-  "ทองหล่อ",
-  "เอกมัย",
-  "พระโขนง",
-  "อ่อนนุช",
-  "บางจาก",
-  "ปุณณวิถี",
-  "อุดมสุข",
-  "บางนา",
-  "แบริ่ง",
-  "สมุทรปราการ",
-  "ปู่เจ้า",
-  "ช้างเอราวัณ",
-  "สำโรง",
-  "ปากน้ำ",
-  "ศรีนครินทร์",
-  "แพรกษา",
-  "สายลวด",
-  "เคหะฯ",
-
-  // 🚈 BTS Silom Line
-  "สนามกีฬาแห่งชาติ",
-  "ราชดำริ",
-  "ศาลาแดง",
-  "ช่องนนทรี",
-  "สุรศักดิ์",
-  "สะพานตากสิน",
-  "กรุงธนบุรี",
-  "วงเวียนใหญ่",
-  "โพธิ์นิมิตร",
-  "ตลาดพลู",
-  "วุฒากาศ",
-  "บางหว้า",
-
-  // 🌟 BTS Gold Line
-  "กรุงธนบุรี (สายสีทอง)",
-  "เจริญนคร",
-  "คลองสาน",
-
-  // 🚇 MRT Blue Line
-  "หัวลำโพง",
-  "วัดมังกร",
-  "สามย่าน",
-  "ลุมพินี",
-  "คลองเตย",
-  "ศูนย์ประชุมแห่งชาติสิริกิติ์",
-  "สุขุมวิท",
-  "เพชรบุรี",
-  "พระราม 9",
-  "ศูนย์วัฒนธรรมแห่งประเทศไทย",
-  "ห้วยขวาง",
-  "สุทธิสาร",
-  "รัชดาภิเษก",
-  "ลาดพร้าว",
-  "พหลโยธิน",
-  "สวนจตุจักร",
-  "กำแพงเพชร",
-  "บางซื่อ",
-  "เตาปูน",
-  "บางโพ",
-  "บางอ้อ",
-  "บางพลัด",
-  "สิรินธร",
-  "บางยี่ขัน",
-  "บางขุนนนท์",
-  "ไฟฉาย",
-  "จรัญฯ 13",
-  "ท่าพระ",
-  "วัดสิงห์",
-  "บางแค",
-  "หลักสอง",
-  "ภาษีเจริญ",
-  "เพชรเกษม 48",
-  "สายไหม",
-  "พุทธมณฑลสาย 2",   // (ถ้าสายใหม่เปิด กำลังเพิ่ม)
-  
-  // 🚇 MRT Purple Line
-  "คลองบางไผ่",
-  "ตลาดบางใหญ่",
-  "สามแยกบางใหญ่",
-  "บางพลู",
-  "บางรักใหญ่",
-  "บางรักน้อยท่าอิฐ",
-  "ไทรม้า",
-  "แยกนนทบุรี 1",
-  "นนทบุรี 1",
-  "พระนั่งเกล้า",
-  "แยกติวานนท์",
-  "กระทรวงสาธารณสุข",
-  "ศูนย์ราชการนนทบุรี",
-  "แคราย",
-  "บางกระสอ",
-  "วงศ์สว่าง",
-  "บางซ่อน",
-  "เตาปูน",
-
-  // 🚆 Airport Rail Link
-  "พญาไท (ARL)",
-  "ราชปรารภ",
-  "มักกะสัน",
-  "รามคำแหง",
-  "หัวหมาก",
-  "บ้านทับช้าง",
-  "ลาดกระบัง",
-  "สุวรรณภูมิ",
-
-  // 🚌 BRT Bus Rapid Transit
-  "สาทร (BRT)",
-  "อาคารสงเคราะห์",
-  "เทคนิคกรุงเทพ",
-  "ถนนจันทน์",
-  "นราธิวาส",
-  "ราษฎร์บูรณะ",
-  "วัดปริวาส",
-  "พระราม 3",
-  "เจริญราษฎร์",
-  "สะพานพระราม 9"
-];
-
+const BANGKOK_PROVINCE = "กรุงเทพมหานคร";
 
 // ประเภทการขาย
 const saleTypes = [
@@ -153,9 +16,10 @@ const saleTypes = [
 
 export default function SearchBarWithFilter({ selectedType = "" }) {
   const [searchText, setSearchText] = useState("");
-
+  const [propertyTypes, setPropertyTypes] = useState([]);
   const [badgeOptions, setBadgeOptions] = useState([]);
-  const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
+  const [provinceOptions, setProvinceOptions] = useState([]);
+  const [stationOptions, setStationOptions] = useState([]);
 
   const [filters, setFilters] = useState({
     type: "",
@@ -173,9 +37,35 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
 
   const navigate = useNavigate();
 
+  const isBangkokProvince = (value) => {
+    if (!value) return false;
+    const text = String(value).toLowerCase();
+    return (
+      value === BANGKOK_PROVINCE ||
+      text.includes("กรุงเทพ") ||
+      text.includes("bangkok")
+    );
+  };
+
+  // Fetch property types
+  useEffect(() => {
+    ProvinceService.showAllAnnounceTypes()
+      .then((res) => {
+        if (res.data && Array.isArray(res.data)) {
+          const types = res.data.map((item) => item.typeName).filter(Boolean);
+          if (types.length > 0) {
+            setPropertyTypes(types);
+          }
+        }
+      })
+      .catch(() => {
+        setPropertyTypes([]);
+      });
+  }, []);
+
   // ดึง badge
   useEffect(() => {
-    BadgesService.getAllBadges()
+    AnnounceService.getAllBadges()
       .then((res) => {
         if (res.data && Array.isArray(res.data)) {
           setBadgeOptions(res.data);
@@ -199,9 +89,47 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
               : item?.provinceName || item?.name || item?.title
           )
           .filter(Boolean);
-        setProvinceOptions(names.length > 0 ? names : fallbackProvinces);
+        setProvinceOptions(names.length > 0 ? names : []);
       })
-      .catch(() => setProvinceOptions(fallbackProvinces));
+      .catch(() => setProvinceOptions([]));
+  }, []);
+
+  useEffect(() => {
+    ProvinceService.getAllStations()
+      .then((res) => {
+        const raw = res?.data;
+        const list = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.stations)
+          ? raw.stations
+          : Array.isArray(raw?.data)
+          ? raw.data
+          : [];
+
+        const options = list
+          .map((item) => {
+            if (typeof item === "string") {
+              return { value: item, label: item };
+            }
+
+            if (!item) return null;
+
+            const value = item.name || item.stationName || item.title;
+            if (!value) return null;
+
+            const type = item.stationType || item.type || item.line;
+            const label =
+              type && typeof type === "string"
+                ? `${value} (${type.toUpperCase()})`
+                : value;
+
+            return { value, label };
+          })
+          .filter(Boolean);
+
+        setStationOptions(options.length > 0 ? options : []);
+      })
+      .catch(() => setStationOptions([]));
   }, []);
 
   // sync saleType
@@ -301,15 +229,15 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
             <button
               type="button"
               onClick={() => setIsFilterOpen(true)}
-              className="btn btn-outline border-[#e7dbce] text-[#8C6239] bg-white hover:bg-[#f7ede2] rounded-md"
+              className="btn btn-sm sm:btn-md btn-outline border-[#e7dbce] text-[#8C6239] bg-white hover:bg-[#f7ede2] rounded-md"
             >
               <FaSlidersH />
-              ตัวกรอง
+              <span className="hidden sm:inline">ตัวกรอง</span>
             </button>
 
             <button
               type="submit"
-              className="btn bg-[#8C6239] text-white border-none hover:bg-[#704c2c]"
+              className="btn btn-sm sm:btn-md bg-[#8C6239] text-white border-none hover:bg-[#704c2c]"
             >
               ค้นหา
             </button>
@@ -320,7 +248,7 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
 
       {/* FILTER MODAL */}
       <dialog className={`modal ${isFilterOpen ? "modal-open" : ""}`}>
-        <div className="modal-box max-w-3xl bg-white rounded-2xl p-6 space-y-6">
+        <div className="modal-box w-11/12 max-w-3xl bg-white rounded-2xl p-6 space-y-6">
 
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold text-[#8C6239]">
@@ -380,7 +308,7 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
                 onChange={(e) => {
                   const value = e.target.value;
                   handleTempChange("province", value);
-                  if (value !== "กรุงเทพมหานคร") handleTempChange("station", "");
+                  if (!isBangkokProvince(value)) handleTempChange("station", "");
                 }}
                 className="select select-bordered w-full bg-white cursor-pointer"
               >
@@ -396,17 +324,17 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
               <select
                 value={tempFilters.station}
                 onChange={(e) => handleTempChange("station", e.target.value)}
-                disabled={tempFilters.province !== "กรุงเทพมหานคร"}
+                disabled={!isBangkokProvince(tempFilters.province)}
                 className="select select-bordered w-full bg-white cursor-pointer"
               >
                 <option value="">
-                  {tempFilters.province === "กรุงเทพมหานคร"
+                  {isBangkokProvince(tempFilters.province)
                     ? "สถานีทั้งหมด"
                     : "เลือกกรุงเทพมหานครก่อน"}
                 </option>
-                {tempFilters.province === "กรุงเทพมหานคร" &&
-                  bangkokStations.map((s) => (
-                    <option key={s} value={s}>{s}</option>
+                {isBangkokProvince(tempFilters.province) &&
+                  stationOptions.map((s) => (
+                    <option key={s.value} value={s.value}>{s.label}</option>
                   ))}
               </select>
             </div>

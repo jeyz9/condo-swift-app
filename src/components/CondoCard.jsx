@@ -39,7 +39,7 @@ export const CondoCard = ({ announce, isLoading }) => {
 
   return (
     <Link to={`/detail/${announce?.id ?? announce?.announceId ?? ""}`}>
-      <div className="card relative h-full min-h-[420px] overflow-hidden rounded-[12px] bg-base-100 shadow-sm transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:scale-[1.02] sm:min-h-[500px]">
+      <div className="card relative  h-full min-h-[420px] overflow-hidden rounded-[12px] bg-base-100 shadow-sm transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:scale-[1.02] sm:min-h-[500px]">
         {badges.length > 0 && (
           <div className="absolute right-0 top-0 flex flex-wrap justify-end gap-2 p-3 z-10">
             {badges.map((badge) => {
@@ -72,7 +72,7 @@ export const CondoCard = ({ announce, isLoading }) => {
             ฿{price}
           </h2>
           <h3 className="card-title text-base sm:text-xl md:text-2xl">
-            {announce?.title ?? "ไม่ระบุชื่อประกาศ"}
+            {announce?.title ?? "ยังไม่เข้าสู่ระบบประกาศ"}
           </h3>
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm sm:text-base">
             <p className="flex items-center gap-1">

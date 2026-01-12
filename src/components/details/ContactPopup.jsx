@@ -1,6 +1,24 @@
 import Swal from "sweetalert2";
 
 export const showContactPopup = (phoneMasked, phoneFull, lineUrl) => {
+  const lineButtonHtml = lineUrl
+    ? `
+      <a
+        id="line-button"
+        href="${lineUrl}"
+        target="_blank"
+        rel="noreferrer"
+        class="cursor-pointer flex items-center justify-center w-full py-3 rounded-lg border border-[#06c755]
+               text-[#06c755] font-semibold text-[16px]
+               hover:bg-[#06c755]/10 transition-colors duration-150"
+      >
+        <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg"
+             class="w-5 h-5 mr-2" />
+        Line
+      </a>
+    `
+    : "";
+
   Swal.fire({
     title: "ช่องทางการติดต่อ",
     html: `
@@ -19,19 +37,7 @@ export const showContactPopup = (phoneMasked, phoneFull, lineUrl) => {
         แสดงเบอร์เต็ม
       </button>
 
-      <a
-        id="line-button"
-        href="${lineUrl}"
-        target="_blank"
-        rel="noreferrer"
-        class="cursor-pointer flex items-center justify-center w-full py-3 rounded-lg border border-[#06c755]
-               text-[#06c755] font-semibold text-[16px]
-               hover:bg-[#06c755]/10 transition-colors duration-150"
-      >
-        <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg"
-             class="w-5 h-5 mr-2" />
-        Line
-      </a>
+      ${lineButtonHtml}
     `,
     showConfirmButton: false,
     width: "600px",

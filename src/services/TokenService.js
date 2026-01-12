@@ -20,16 +20,16 @@ const setUser = (user) => {
     // 🧠 รองรับทั้ง accessToken และ token เผื่อ backend ส่งชื่อไม่ตรง
     const tokenData = {
       ...user,
-      token: user.accessToken || user.token, 
+      token: user.accessToken || user.token,
     };
 
-    // ❗ ปิด secure ตอน dev, เปิดเฉพาะโปรดักชัน
+    // ปิด secure ตอน dev, เปิดเฉพาะโปรดักชัน
     const isProd = window.location.protocol === "https:";
 
     Cookies.set(TOKEN_KEY, JSON.stringify(tokenData), {
       expires: 7,
       secure: isProd,
-      sameSite: "Strict",
+      sameSite: "Lax",
       path: "/",
     });
   }

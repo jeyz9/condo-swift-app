@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import AuthService from '../../services/AuthService';
 import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 import { useNavigate } from 'react-router-dom';
+import { extractErrorMessage } from '../../utils/errorUtils';
 import { useAuthContext } from '../../context/AuthContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+
+const MySwal = withReactContent(Swal);
 
 const ChangePasswordForm = () => {
   const [oldPassword, setOldPassword] = useState('');
@@ -20,22 +24,25 @@ const ChangePasswordForm = () => {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
-      Swal.fire({
+      MySwal.fire({
         icon: 'warning',
         title: 'รหัสผ่านไม่ตรงกัน',
-        text: 'รหัสผ่านใหม่และการยืนยันรหัสผ่านไม่ตรงกัน',
+        text: 'โปรดตรวจสอบรหัสผ่านใหม่อีกครั้ง',
         confirmButtonText: 'ตกลง',
       });
       return;
     }
-
     setIsLoading(true);
     try {
-      await AuthService.changePassword(oldPassword, newPassword, confirmPassword);
-      Swal.fire({
+      await AuthService.changePassword({
+        oldPassword,
+        newPassword,
+        confirmPassword,
+      });
+      MySwal.fire({
         icon: 'success',
         title: 'เปลี่ยนรหัสผ่านสำเร็จ!',
-        text: 'รหัสผ่านของคุณถูกเปลี่ยนเรียบร้อยแล้ว กรุณาเข้าสู่ระบบใหม่',
+        text: 'กรุณาเข้าสู่ระบบอีกครั้งด้วยรหัสผ่านใหม่',
         confirmButtonText: 'ตกลง',
       }).then(() => {
         logout(); // Force logout as backend deletes token
@@ -46,13 +53,12 @@ const ChangePasswordForm = () => {
       setNewPassword('');
       setConfirmPassword('');
     } catch (error) {
-      Swal.fire({
+      MySwal.fire({
         icon: 'error',
         title: 'เกิดข้อผิดพลาด',
-        text: error.response?.data?.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้',
+        text: extractErrorMessage(error, 'ไม่สามารถเปลี่ยนรหัสผ่านได้'),
         confirmButtonText: 'ตกลง',
       });
-      console.error('Error changing password:', error);
     } finally {
       setIsLoading(false);
     }
@@ -94,6 +100,7 @@ const ChangePasswordForm = () => {
               type={showNewPassword ? 'text' : 'password'}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+              minLength={8}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
               required
             />
@@ -118,6 +125,7 @@ const ChangePasswordForm = () => {
               type={showConfirmPassword ? 'text' : 'password'}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              minLength={8}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
               required
             />
@@ -151,3 +159,5 @@ const ChangePasswordForm = () => {
 };
 
 export default ChangePasswordForm;
+
+

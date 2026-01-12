@@ -8,6 +8,7 @@ import { RentCard } from "../components/profile/RentCard";
 import SellCard from "../components/profile/SellCard";
 import { Share2 } from "lucide-react"; // 📤 icon แชร์
 import { ProfileSkeleton } from "./ProfileSkeleton";
+import { extractErrorMessage } from "../utils/errorUtils";
 
 const FILTER_TABS = [
   { label: "เช่า", value: "เช่า" },
@@ -25,7 +26,7 @@ export const PublicProfile = () => {
   const fetchProfile = async (type = "เช่า") => {
     try {
       setLoading(true);
-      const response = await UserService.profilePublic(userId, type);
+      const response = await UserService.profilePublic(userId);
       if (response?.status === 200) {
         setProfile(response.data);
       } else {
@@ -35,10 +36,7 @@ export const PublicProfile = () => {
       Swal.fire({
         icon: "error",
         title: "ไม่สามารถโหลดข้อมูลโปรไฟล์ได้",
-        text:
-          error.response?.data?.message ||
-          error.message ||
-          "เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง",
+        text: extractErrorMessage(error, "เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง"),
         confirmButtonText: "ตกลง",
       });
     } finally {

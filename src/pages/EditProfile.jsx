@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useAuthContext } from "../context/AuthContext";
+import { extractErrorMessage } from "../utils/errorUtils";
 import UserService from "../services/UserService";
 
 const initialForm = {
@@ -32,7 +33,7 @@ export default function EditProfile() {
     const loadProfile = async () => {
       try {
         setLoading(true);
-        const res = await UserService.profilePublic(user.userId, "เช่า");
+        const res = await UserService.profilePublic(user.userId);
         const data = res?.data || {};
         const fallbackEmail = user?.email || user?.username || "";
         const fallbackPhone = user?.phone || "";
@@ -48,7 +49,7 @@ export default function EditProfile() {
         Swal.fire({
           icon: "error",
           title: "โหลดข้อมูลโปรไฟล์ไม่สำเร็จ",
-          text: error?.response?.data?.message || error.message,
+          text: extractErrorMessage(error, "เกิดข้อผิดพลาดในการโหลดข้อมูล"),
         });
       } finally {
         setLoading(false);
@@ -78,7 +79,7 @@ export default function EditProfile() {
       Swal.fire({
         icon: "error",
         title: "บันทึกไม่สำเร็จ",
-        text: error?.response?.data?.message || error.message,
+        text: extractErrorMessage(error, "เกิดข้อผิดพลาดในการบันทึกข้อมูล"),
       });
     } finally {
       setSaving(false);

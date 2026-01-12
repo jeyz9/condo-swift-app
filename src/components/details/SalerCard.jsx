@@ -13,9 +13,9 @@ const SalerCard = ({ agent }) => {
   const userId = user?.userId || user?.id;
   const [termsAccepted, setTermsAccepted] = useState(false);
 
-  const agentProfileId = agent?.userId || agent?.agentId || agent?.id; // ✅ Check for userId, agentId, or id
+  const agentProfileId = agent?.userId || agent?.agentId || agent?.id; 
   const phoneNumber = agent?.phone;
-  const lineId = agent?.lineId;
+  const lineId = agent?.lineId 
 
   const termsKey = userId ? `terms_accepted_${userId}` : null;
 
@@ -31,7 +31,7 @@ const SalerCard = ({ agent }) => {
         ? phoneNumber.replace(/(\d{3})\d+(\d{2})/, "$1xxxxx$2")
         : "ไม่พบ";
       const phoneFull = phoneNumber || "ไม่พบเบอร์";
-      const lineUrl = lineId ? `https://line.me/ti/p/${lineId}` : "";
+      const lineUrl = `https://line.me/ti/p/${"~"}${agent.lineId}` 
       showContactPopup(phoneMasked, phoneFull, lineUrl);
       return;
     }
@@ -48,7 +48,7 @@ const SalerCard = ({ agent }) => {
           ? phoneNumber.replace(/(\d{3})\d+(\d{2})/, "$1xxxxx$2")
           : "ไม่พบ";
         const phoneFull = phoneNumber || "ไม่พบเบอร์";
-        const lineUrl = lineId ? `https://line.me/ti/p/${lineId}` : "";
+        const lineUrl = `https://line.me/ti/p/${"~"}${agent.lineId}` 
         showContactPopup(phoneMasked, phoneFull, lineUrl);
       }
     } catch (error) {
@@ -92,7 +92,7 @@ const SalerCard = ({ agent }) => {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-lg sm:text-xl font-semibold truncate">
-                {agent?.name || "ไม่ระบุชื่อ"}
+                {agent?.name || "ยังไม่เข้าสู่ระบบ"}
               </h3>
               <p className="text-sm text-base-content/70">
                 {agent?.description || "ไม่มีคำอธิบาย"}
@@ -116,7 +116,7 @@ const SalerCard = ({ agent }) => {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-lg sm:text-xl font-semibold truncate">
-                {agent?.name || "ไม่ระบุชื่อ"}
+                {agent?.name || "ยังไม่เข้าสู่ระบบ"}
               </h3>
               <p className="text-sm text-base-content/70">
                 {agent?.description || "ไม่มีคำอธิบาย"}
@@ -135,8 +135,8 @@ const SalerCard = ({ agent }) => {
         </button>
 
         {termsAccepted && (
-          <p className="mt-2 text-[12px] text-center text-green-600">
-            คุณได้ยอมรับข้อตกลงและเงื่อนไขแล้ว
+          <p className="mt-2 text-[12px] text-center text-grey-200">
+            กรุณาอ่านข้อตกลงก่อนติดต่อสอบถาม
           </p>
         )}
       </div>

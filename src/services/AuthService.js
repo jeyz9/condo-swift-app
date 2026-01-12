@@ -43,6 +43,9 @@ const login = async (email, password) => {
     { withCredentials: false }
   );
 
+  // Log the entire response data structure to diagnose the issue
+  console.log("✅ Full Login Response from Backend:", JSON.stringify(response.data));
+
   const { accessToken, tokenType, userId } = response.data;
   if (!accessToken) throw new Error("ไม่พบ accessToken จาก backend");
 
@@ -82,6 +85,23 @@ const verifyOtp = async (otpCode) => {
   ;
 };
 
+const changePassword = async (payloadOrOldPassword, newPassword, confirmPassword) => {
+  const payload =
+    typeof payloadOrOldPassword === "object" && payloadOrOldPassword !== null
+      ? payloadOrOldPassword
+      : {
+          oldPassword: payloadOrOldPassword,
+          newPassword,
+          confirmPassword,
+        };
+
+  return await api.post(buildUrl("/changePassword"), payload);
+};
+
+const verifyEmail = async (token) => {
+  // Backend expects GET with token in query params
+  return await api.get(buildUrl(`/verify-email?token=${token}`));
+};
 /* -------------------------------
  ✅ Export รวมทั้งหมด
 --------------------------------*/
@@ -92,15 +112,14 @@ const AuthService = {
   sendVerify,
   sendOtp,
   verifyOtp,
-  changePassword: async (oldPassword, newPassword, confirmPassword) => {
-    return await api.post(buildUrl("/changePassword"), { oldPassword, newPassword, confirmPassword });
-  },
+  changePassword,
   sendEmailResetPassword: async (email) => {
     return await api.post(buildUrl(`/sendEmailResetPassword?email=${email}`));
   },
   resetPassword: async (token, newPassword, confirmPassword) => {
     return await api.post(buildUrl(`/resetPassword?token=${token}`), { newPassword, confirmPassword });
-  }
+  },
+  verifyEmail
 };
 
 export default AuthService;

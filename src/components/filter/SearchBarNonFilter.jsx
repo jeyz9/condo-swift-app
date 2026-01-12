@@ -8,14 +8,12 @@ import {
   FaBed,
   FaGem,
 } from "react-icons/fa";
+import AnnounceService from "../../services/AnnounceService";
 import ProvinceService from "../../services/ProvinceService";
 import { provinces as fallbackProvinces } from "../../data/provinces";
+import { stations as fallbackStations } from "../../data/stations";
 
-// Define BTS_MRT_LINES
-const BTS_MRT_LINES = [
-  "สายสุขุมวิท (BTS)", "สายสีลม (BTS)", "สายสีน้ำเงิน (MRT)", "สายสีม่วง (MRT)",
-  "สายสีเหลือง (MRT)", "สายสีชมพู (MRT)", "สายสีแดง (SRT)", "Airport Rail Link"
-];
+const fallbackStationOptions = fallbackStations.map(station => ({ value: station, label: station }));
 
 export default function SearchBarNonFilter({
   defaultKeyword = "",
@@ -42,8 +40,80 @@ export default function SearchBarNonFilter({
     badge: defaultBadge || "", // Initialize badge state
   });
   const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
+  const [stationOptions, setStationOptions] = useState(fallbackStationOptions);
+  const [announceTypes, setAnnounceTypes] = useState([]);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    ProvinceService.showAllAnnounceTypes()
+      .then(res => {
+        if (res.data && Array.isArray(res.data)) {
+          setAnnounceTypes(res.data);
+        }
+      })
+      .catch(err => {
+        console.error("Failed to fetch announce types:", err);
+      });
+
+    ProvinceService.getAllProvinces()
+      .then((res) => {
+        const raw = res?.data;
+        const list = Array.isArray(raw) ? raw : [];
+        const names = list
+          .map((item) =>
+            typeof item === "string"
+              ? item
+              : item?.provinceName || item?.name || item?.title
+          )
+          .filter(Boolean);
+        setProvinceOptions(names.length > 0 ? names : fallbackProvinces);
+      })
+      .catch(() => setProvinceOptions(fallbackProvinces));
+
+      ProvinceService.getAllStations()
+      .then((res) => {
+        const raw = res?.data;
+        const list = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.stations)
+          ? raw.stations
+          : Array.isArray(raw?.data)
+          ? raw.data
+          : [];
+
+        const options = list
+          .map((item) => {
+            if (typeof item === "string") {
+              return { value: item, label: item };
+            }
+
+            if (!item) return null;
+
+            const value = item.name || item.stationName || item.title;
+            if (!value) return null;
+
+            const type = item.stationType || item.type || item.line;
+            const label =
+              type && typeof type === "string"
+                ? `${value} (${type.toUpperCase()})`
+                : value;
+
+            return { value, label };
+          })
+          .filter(Boolean);
+
+        if (options.length > 0) {
+          setStationOptions(options);
+        } else {
+          setStationOptions(fallbackStationOptions);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch stations, using fallback. Error:", err);
+        setStationOptions(fallbackStationOptions);
+      });
+  }, []);
 
   const normalizePriceValue = (raw) => {
     if (raw === null || raw === undefined) return "";
@@ -81,48 +151,12 @@ export default function SearchBarNonFilter({
     setFilters((prev) => ({
       ...prev,
       type: defaultFilter || "",
-    }));
-  }, [defaultFilter]);
-
-  useEffect(() => {
-    setFilters((prev) => ({
-      ...prev,
       station: defaultStation || "",
-    }));
-  }, [defaultStation]);
-
-  useEffect(() => {
-    setFilters((prev) => ({
-      ...prev,
       province: defaultProvince || "",
-    }));
-  }, [defaultProvince]);
-
-  useEffect(() => {
-    setFilters((prev) => ({
-      ...prev,
       badge: defaultBadge || "",
     }));
-  }, [defaultBadge]);
+  }, [defaultFilter, defaultStation, defaultProvince, defaultBadge]);
 
-  useEffect(() => {
-    ProvinceService.getAllProvinces()
-      .then((res) => {
-        const raw = res?.data;
-        const list = Array.isArray(raw) ? raw : [];
-        const names = list
-          .map((item) =>
-            typeof item === "string"
-              ? item
-              : item?.provinceName || item?.name || item?.title
-          )
-          .filter(Boolean);
-        setProvinceOptions(names.length > 0 ? names : fallbackProvinces);
-      })
-      .catch(() => setProvinceOptions(fallbackProvinces));
-  }, []);
-
-  // ✅ รวม filter → สร้าง query แล้วไปหน้า /filter
   const goFilter = (overrides = {}) => {
     const merged = {
       keyword: (overrides.keyword ?? searchText)?.trim(),
@@ -134,10 +168,10 @@ export default function SearchBarNonFilter({
       isPremium:
         overrides.isPremium !== undefined
           ? overrides.isPremium
-          : filters.isPremium, // ⬅ ให้ priority จาก overrides
-      station: overrides.station ?? filters.station, // Add station to merged
-      province: overrides.province ?? filters.province, // Add province to merged
-      badge: overrides.badge ?? filters.badge, // Add badge to merged
+          : filters.isPremium,
+      station: overrides.station ?? filters.station,
+      province: overrides.province ?? filters.province,
+      badge: overrides.badge ?? filters.badge,
       page: overrides.page ?? 0,
       size: overrides.size ?? 10,
     };
@@ -173,9 +207,9 @@ export default function SearchBarNonFilter({
         maxPriceNum !== undefined && !Number.isNaN(maxPriceNum)
           ? maxPriceNum
           : undefined,
-      badge: merged.badge || undefined, // Use merged.badge directly
-      station: merged.station || undefined, // Add station to params
-      province: merged.province || undefined, // Add province to params
+      badge: merged.badge || undefined,
+      station: merged.station || undefined,
+      province: merged.province || undefined,
       page: merged.page,
       size: merged.size,
     };
@@ -192,7 +226,6 @@ export default function SearchBarNonFilter({
       .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
       .join("&");
 
-    // ลองเปิดดูใน Network tab จะเห็น ?badge=พรีเมียม เพิ่มมา
     navigate(`/filter?${query}`);
   };
 
@@ -208,7 +241,7 @@ export default function SearchBarNonFilter({
       background: "#fff",
       confirmButtonColor: "#8C6239",
       cancelButtonColor: "#aaa",
-      confirmButtonText: "ใช้ตัวกรอง",
+      confirmButtonText: "ค้นหา",
       cancelButtonText: "ยกเลิก",
       showCancelButton: true,
       customClass: {
@@ -221,10 +254,14 @@ export default function SearchBarNonFilter({
             <label class="block font-semibold text-[#8C6239] mb-1 text-sm">ประเภทอสังหาฯ</label>
             <select id="filter-type" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
               <option value="">ทั้งหมด</option>
-              <option value="คอนโด" ${filters.type === "คอนโด" ? "selected" : ""}>คอนโด</option>
-              <option value="บ้านหรู" ${filters.type === "บ้านหรู" ? "selected" : ""}>บ้านหรู</option>
-              <option value="วิลล่า" ${filters.type === "วิลล่า" ? "selected" : ""}>วิลล่า</option>
-              <option value="ที่ดิน" ${filters.type === "ที่ดิน" ? "selected" : ""}>ที่ดิน</option>
+              ${announceTypes
+                .map(
+                  (type) =>
+                    `<option value="${type.typeName}" ${
+                      filters.type === type.typeName ? "selected" : ""
+                    }>${type.typeName}</option>`
+                )
+                .join("")}
             </select>
           </div>
 
@@ -232,12 +269,14 @@ export default function SearchBarNonFilter({
             <label class="block font-semibold text-[#8C6239] mb-1 text-sm">สถานี (BTS/MRT)</label>
             <select id="filter-station" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
               <option value="">ทั้งหมด</option>
-              ${BTS_MRT_LINES.map(
-                (line) =>
-                  `<option value="${line}" ${
-                    filters.station === line ? "selected" : ""
-                  }>${line}</option>`
-              ).join("")}
+              ${stationOptions
+                .map(
+                  (station) =>
+                    `<option value="${station.value}" ${
+                      filters.station === station.value ? "selected" : ""
+                    }>${station.label}</option>`
+                )
+                .join("")}
             </select>
           </div>
 
@@ -264,16 +303,16 @@ export default function SearchBarNonFilter({
           </div>
 
           <div>
-            <label class="block font-semibold text-[#8C6239] mb-2 text-sm">ช่วงราคา (บาท)</label>
+            <label class="block font-semibold text-[#8C6239] mb-2 text-sm">ราคา (บาท)</label>
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="text-xs text-gray-600">ต่ำสุด</label>
+                <label class="text-xs text-gray-600">ราคาต่ำสุด</label>
                 <input id="minPrice" type="number" min="0" step="1000" placeholder="0" value="${
                   filters.minPrice || ""
                 }" class="w-full border border-gray-300 rounded-md p-1.5 text-sm" />
               </div>
               <div>
-                <label class="text-xs text-gray-600">สูงสุด</label>
+                <label class="text-xs text-gray-600">ราคาสูงสุด</label>
                 <input id="maxPrice" type="number" min="0" step="1000" placeholder="ไม่จำกัด" value="${
                   filters.maxPrice || ""
                 }" class="w-full border border-gray-300 rounded-md p-1.5 text-sm" />
@@ -283,11 +322,11 @@ export default function SearchBarNonFilter({
                     </div>
           
                     <div>
-                      <label class="block font-semibold text-[#8C6239] mb-1 text-sm">ป้ายประกาศ</label>
+                      <label class="block font-semibold text-[#8C6239] mb-1 text-sm">ประเภทประกาศ</label>
                       <select id="filter-badge" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
                         <option value="">ทั้งหมด</option>
-                        <option value="มาใหม่" ${filters.badge === "มาใหม่" ? "selected" : ""}>มาใหม่</option>
-                        <option value="พรีเมียม" ${filters.badge === "พรีเมียม" ? "selected" : ""}>พรีเมียม</option>
+                        <option value="ราคาพิเศษ" ${filters.badge === "ราคาพิเศษ" ? "selected" : ""}>ราคาพิเศษ</option>
+                        <option value="ประกาศใหม่" ${filters.badge === "ประกาศใหม่" ? "selected" : ""}>ประกาศใหม่</option>
                         <option value="แนะนำ" ${filters.badge === "แนะนำ" ? "selected" : ""}>แนะนำ</option>
                       </select>
                     </div>
@@ -307,12 +346,12 @@ export default function SearchBarNonFilter({
                   );
           
                   if (min === null || max === null) {
-                    Swal.showValidationMessage("กรุณากรอกราคาเป็นตัวเลขที่ถูกต้อง");
+                    Swal.showValidationMessage("กรุณากรอกราคาให้ถูกต้อง");
                     return false;
                   }
           
                   if (min !== "" && max !== "" && Number(min) > Number(max)) {
-                    Swal.showValidationMessage("ราคาต่ำสุดต้องไม่มากกว่าราคาสูงสุด");
+                    Swal.showValidationMessage("ราคาสูงสุดต้องมากกว่าราคาต่ำสุด");
                     return false;
                   }
           
@@ -349,23 +388,23 @@ export default function SearchBarNonFilter({
               }
             };
           
-            const handlePropertyType = async () => {
-              const { value, isConfirmed } = await Swal.fire({
-                title: "เลือกประเภทอสังหาฯ",
-                input: "select",
-                inputOptions: {
-                  คอนโด: "คอนโด",
-                  บ้านหรู: "บ้าน",
-                  วิลล่า: "วิลล่า",
-                  ที่ดิน: "ที่ดิน",
-                },
-                inputPlaceholder: "ทั้งหมด",
-                confirmButtonText: "ตกลง",
-                showCancelButton: true,
-                confirmButtonColor: "#8C6239",
-                cancelButtonColor: "#aaa",
-                inputValue: filters.type || "",
-              });
+  const handlePropertyType = async () => {
+    const propertyOptions = announceTypes.reduce((acc, curr) => {
+      acc[curr.typeName] = curr.typeName;
+      return acc;
+    }, {});
+
+    const { value, isConfirmed } = await Swal.fire({
+      title: "เลือกประเภททรัพย์",
+      input: "select",
+      inputOptions: propertyOptions,
+      inputPlaceholder: "กรุณาเลือก",
+      confirmButtonText: "ยืนยัน",
+      showCancelButton: true,
+      confirmButtonColor: "#8C6239",
+      cancelButtonColor: "#aaa",
+      inputValue: filters.type || "",
+    });
           
               if (isConfirmed) {
                 setFilters((prev) => ({ ...prev, type: value || "" }));
@@ -382,12 +421,12 @@ export default function SearchBarNonFilter({
     ];
 
     const { value, isConfirmed } = await Swal.fire({
-      title: "กำหนดช่วงราคา (บาท)",
+      title: "ค้นหาตามราคา (บาท)",
       width: 520,
       background: "#fff",
       confirmButtonColor: "#8C6239",
       cancelButtonColor: "#aaa",
-      confirmButtonText: "ยืนยัน",
+      confirmButtonText: "ตกลง",
       showCancelButton: true,
       customClass: {
         popup:
@@ -399,7 +438,7 @@ export default function SearchBarNonFilter({
           <div class="flex flex-col gap-4 text-left font-sans text-gray-700">
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs text-gray-500 mb-1">ราคาขั้นต่ำ</label>
+                <label class="block text-xs text-gray-500 mb-1">ราคาต่ำสุด</label>
                 <input
                   id="price-min-input"
                   type="number"
@@ -427,7 +466,7 @@ export default function SearchBarNonFilter({
             </div>
 
             <div class="mt-2">
-              <p class="text-xs text-gray-500 mb-2">ตัวเลือกด่วน:</p>
+              <p class="text-xs text-gray-500 mb-2">ทางลัดราคา:</p>
               <div class="flex flex-wrap gap-2" id="price-shortcuts">
                 ${shortcuts
                   .map(
@@ -447,7 +486,7 @@ export default function SearchBarNonFilter({
             </div>
 
             <p class="text-[11px] text-gray-400 mt-1">
-              กรอกตัวเลขโดยไม่ต้องใส่ลูกน้ำ เช่น <span class="font-semibold text-gray-500">1500000</span>
+              สามารถเว้นว่างเพื่อไม่จำกัดราคาได้
             </p>
           </div>
         </div>
@@ -473,12 +512,12 @@ export default function SearchBarNonFilter({
         const max = normalizePriceValue(maxRaw);
 
         if (min === null || max === null) {
-          Swal.showValidationMessage("กรุณากรอกราคาเป็นตัวเลขที่ถูกต้อง");
+          Swal.showValidationMessage("กรุณากรอกราคาให้ถูกต้อง");
           return false;
         }
 
         if (min !== "" && max !== "" && Number(min) > Number(max)) {
-          Swal.showValidationMessage("ราคาต่ำสุดต้องไม่มากกว่าราคาสูงสุด");
+          Swal.showValidationMessage("ราคาสูงสุดต้องมากกว่าราคาต่ำสุด");
           return false;
         }
 
@@ -522,11 +561,11 @@ export default function SearchBarNonFilter({
     }
   };
 
-  // ✅ ปุ่ม Premium / พิเศษสำหรับคุณ
+  // ? ???? Premium / ??????????????
   // const handlePremiumClick = () => {
   //   const newVal = !filters.isPremium;
   //   setFilters((prev) => ({ ...prev, isPremium: newVal }));
-  //   // ⬅ ตรงนี้สำคัญ: ส่ง isPremium เข้าไปตรง ๆ → goFilter จะ map เป็น badge=พรีเมียม ให้
+  //   // ? ???????????: ??? isPremium ????????? ? ? goFilter ?? map ???? badge=???????? ???
   //   goFilter({ isPremium: newVal });
   // };
 
@@ -549,12 +588,12 @@ export default function SearchBarNonFilter({
       label:
         filters.bedroomCount && Number(filters.bedroomCount) > 0
           ? `${filters.bedroomCount} ห้องนอน`
-          : "ห้องนอน",
+          : "จำนวนห้องนอน",
       action: handleBedroom,
     },
     // {
     //   icon: <FaGem className="text-yellow-500" />,
-    //   label: filters.isPremium ? "เฉพาะ Premium ✓" : "พิเศษสำหรับคุณ",
+    //   label: filters.isPremium ? "????? Premium ?" : "??????????????",
     //   action: handlePremiumClick,
     //   isPremiumButton: true,
     // },
@@ -562,7 +601,7 @@ export default function SearchBarNonFilter({
 
   return (
     <div className="w-full">
-      {/* 🔍 ช่องค้นหา */}
+      {/* ?? ????????? */}
       <form
         onSubmit={handleSearch}
         className="flex flex-col sm:flex-row sm:items-center w-full max-w-full bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden gap-2 sm:gap-0 p-2 sm:p-0"
@@ -572,7 +611,7 @@ export default function SearchBarNonFilter({
             type="text"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            placeholder="ค้นหาคอนโด บ้าน หรือพื้นที่..."
+            placeholder="ค้นหาทำเล หรือชื่อโครงการ..."
             className="input input-ghost w-full h-11 sm:h-[60px] px-3 sm:px-4 focus:outline-none text-gray-700"
           />
         </div>
@@ -590,14 +629,14 @@ export default function SearchBarNonFilter({
 
           <button
             type="submit"
-            className="btn bg-[#8C6239] border-none rounded-xl text-white font-medium px-5 sm:px-6 h-10 sm:h-[44px] hover:bg-[#704c2c] w-full sm:w-auto"
+            className="btn bg-[#8C6239] border-none rounded-xl text-white font-medium px-5 sm:px-6 h-10 sm:h-[44px] hover:bg-[#704c2c] w-full sm:w-auto mr-2"
           >
             ค้นหา
           </button>
         </div>
       </form>
 
-      {/* 🔘 ปุ่มฟิลเตอร์เพิ่มเติม */}
+      {/* ?? ????????????????????? */}
       <div className="flex flex-wrap justify-start gap-2 sm:gap-3 mt-4 sm:mt-6">
         {filterButtons.map((item, i) => {
           const isPremiumBtn = item.isPremiumButton === true;

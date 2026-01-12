@@ -2,12 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const CondoCardNearby = ({ item, image }) => {
-  const name = item?.name || "สถานีรถไฟฟ้าใกล้เคียง";
+  const name = item?.name 
   const total =
-    typeof item?.totalAnnounces === "number" ? item.totalAnnounces : 0;
-
+    typeof item?.totalAnnounce === "number" ? item.totalAnnounce : "ไม่มีสถานที่ใกล้เคียง";
+  console.log("itemsss: " , item)
   return (
-    <Link to={`/filter?search_query=${name}`}>
+    <Link to={`/filter?type=คอนโด&station=${name}`}>
       <div className="card relative flex h-full flex-col overflow-hidden rounded-[12px] bg-white shadow-lg transition-transform hover:-translate-y-1 hover:scale-[1.02]">
         {/* Badge */}
         <div className="absolute right-0 top-0 p-3">

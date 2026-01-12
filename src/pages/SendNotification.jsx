@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import NotificationService from "../services/NotificationService";
 import Swal from "sweetalert2";
 import { FaBell, FaPaperPlane, FaUserFriends } from "react-icons/fa";
+import { extractErrorMessage } from "../utils/errorUtils";
 
 export default function SendNotification() {
   const [title, setTitle] = useState("");
@@ -94,8 +95,8 @@ export default function SendNotification() {
     } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "ไม่สามารถส่งแจ้งเตือน",
-        text: error?.response?.data || error.message,
+        title: "ส่งแจ้งเตือนไม่สำเร็จ",
+        text: extractErrorMessage(error, "เกิดข้อผิดพลาดที่ไม่คาดคิด"),
       });
     } finally {
       setLoading(false);

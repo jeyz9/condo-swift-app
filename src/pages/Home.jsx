@@ -12,10 +12,10 @@ import { CondoCard } from "../components/CondoCard";
 import { CondoCardSkeleton } from "../components/CondoCardSkeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthContext } from "../context/AuthContext";
+import { extractErrorMessage } from "../utils/errorUtils";
 
 export const Home = () => {
   const user = useAuthContext()
-  console.log("user roles in Home:", user?.user?.roles);
   const [announce, setAnnounce] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saleType, setSaleType] = useState("");
@@ -56,10 +56,7 @@ export const Home = () => {
         Swal.fire({
           icon: "error",
           title: "เกิดข้อผิดพลาดในการเชื่อมต่อ",
-          text:
-            error.response?.data?.message ||
-            error.message ||
-            "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
+          text: extractErrorMessage(error, "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"),
           confirmButtonText: "ตกลง",
         });
       } finally {
@@ -101,7 +98,7 @@ export const Home = () => {
 
       {/* SEARCH BAR */}
       <motion.div
-        className="relative -top-6 text-gray-600 p-2"
+        className="relative -top-6 text-gray-600 p-2 -mt-2"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
@@ -111,7 +108,7 @@ export const Home = () => {
 
       {/* ปุ่ม “เช่า” และ “ขาย” */}
       <motion.div
-        className="flex flex-row flex-wrap justify-center mt-10 gap-4 sm:gap-5"
+        className="flex flex-row flex-wrap justify-center  gap-4 sm:gap-5"
         initial="hidden"
         animate="visible"
         variants={fadeUp}
@@ -149,7 +146,7 @@ export const Home = () => {
 
       {/* SECTION: คอนโดแนะนำ */}
       <motion.div
-        className="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8"
+        className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
@@ -157,7 +154,7 @@ export const Home = () => {
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
            คอนโด แนะนำ
           <Link
-            to="/filter?badge=แนะนำ"
+            to="/filter?badge=แนะนำ&type=คอนโด"
             className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
           >
             รายละเอียดเพิ่มเติม {`>`}
@@ -200,7 +197,7 @@ export const Home = () => {
 
       {/* SECTION: คอนโดใกล้ BTS/MRT */}
       <motion.div
-        className="mt-10 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8"
+        className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
@@ -211,7 +208,7 @@ export const Home = () => {
             href="#"
             className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
           >
-            รายละเอียดเพิ่มเติม {`>`}
+           
           </a>
         </h2>
 
@@ -251,7 +248,7 @@ export const Home = () => {
 
       {/* SECTION: บ้าน */}
       <motion.div
-        className="mt-10 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8"
+        className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         variants={fadeUp}
         initial="hidden"
         animate="visible"
@@ -259,7 +256,7 @@ export const Home = () => {
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4 mt-10 flex flex-row items-baseline">
           บ้าน แนะนำ
           <Link
-            to="/filter?type=บ้าน"
+            to="/filter?type=บ้านหรู"
             className="ml-auto text-xs sm:text-sm text-[#8C6239] hover:underline"
           >
             รายละเอียดเพิ่มเติม {`>`}
@@ -301,7 +298,7 @@ export const Home = () => {
 
       {/* SECTION: วิลล่า */}
       <motion.div
-        className="mt-10 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8"
+        className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         variants={fadeUp}
         initial="hidden"
         animate="visible"

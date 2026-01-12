@@ -53,7 +53,9 @@ const AgentSection = ({ agent, agentProfileId, isVerified }) => {
           )}
         </p>
         <p className="text-xs text-gray-500 line-clamp-1">
-          {agent?.description || agent?.bio || "ติดต่อเพื่อสอบถามข้อมูลเพิ่มเติม"}
+          {agent?.description ||
+            agent?.bio ||
+            "ติดต่อเพื่อสอบถามข้อมูลเพิ่มเติม"}
         </p>
       </div>
     </Wrapper>
@@ -84,9 +86,9 @@ const CardFilter = ({ announce }) => {
     "https://via.placeholder.com/400x300?text=No+Image";
 
   const price = formatPrice(announce?.price);
-  const bedroom = announce?.bedroomCount ?? announce?.bedroom ?? "-";
-  const bathroom = announce?.bathroomCount ?? announce?.bathroom ?? "-";
-  const area = announce?.areaSize ?? announce?.area ?? "-";
+  // const bedroom = announce?.bedroomCount ?? announce?.bedroom ?? "-";
+  // const bathroom = announce?.bathroomCount ?? announce?.bathroom ?? "-";
+  // const area = announce?.areaSize ?? announce?.area ?? "-";
   const saleType =
     announce?.saleType || announce?.effectiveType || announce?.type || "";
 
@@ -109,13 +111,8 @@ const CardFilter = ({ announce }) => {
       : "ไม่พบ";
     const phoneFull = phoneNumber || "ไม่พบเบอร์";
 
-    const rawLine = agent?.lineId || agent?.line || agent?.lineUrl || "";
-    const lineUrl =
-      rawLine && rawLine.startsWith("http")
-        ? rawLine
-        : rawLine
-        ? `https://line.me/ti/p/${rawLine}`
-        : "https://line.me";
+    const rawLine = agent?.lineId;
+    const lineUrl = `https://line.me/ti/p/~${rawLine}`;
 
     showContactPopup(phoneMasked, phoneFull, lineUrl);
   };
@@ -173,7 +170,9 @@ const CardFilter = ({ announce }) => {
       }}
       transition={{ duration: 0.25, ease: "easeOut" }}
       className={`group relative flex h-full flex-col overflow-hidden rounded-3xl border ${
-        isPremium ? "border-yellow-400 shadow-[0_8px_20px_rgba(250,175,28,0.25)]" : "border-gray-100 shadow-sm"
+        isPremium
+          ? "border-yellow-400 shadow-[0_8px_20px_rgba(250,175,28,0.25)]"
+          : "border-gray-100 shadow-sm"
       } bg-white`}
     >
       <div className="relative h-48 w-full overflow-hidden sm:h-52">
@@ -224,19 +223,22 @@ const CardFilter = ({ announce }) => {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h2 className="text-lg font-semibold text-gray-900 line-clamp-2">
-              {announce?.title || "ไม่ระบุชื่อประกาศ"}
+              {announce?.title || "ยังไม่เข้าสู่ระบบประกาศ"}
             </h2>
-            <p className="mt-1 flex items-center gap-1 text-sm text-gray-600 line-clamp-1">
-              <HiOutlineLocationMarker className="text-[#8C6239]" />
-              {announce?.address || announce?.province || "ไม่ระบุที่ตั้ง"}
+            <p className="mt-1 flex items-center gap-1 text-sm text-gray-600  min-w-0">
+              {/* ไอคอน */}
+              <HiOutlineLocationMarker className="text-[#8C6239] shrink-0" />
+
+              {/* ข้อความที่ต้องการตัด */}
+              <span className="truncate">
+                {announce?.address || announce?.province || "ไม่ระบุที่ตั้ง"}
+              </span>
             </p>
           </div>
           {price && (
             <div className="shrink-0 rounded-2xl bg-[#f7f3ef] px-3 py-2 text-right">
               <p className="text-xs text-gray-500">ราคา</p>
-              <p className="text-lg font-semibold text-[#8C6239]">
-                ฿{price}
-              </p>
+              <p className="text-lg font-semibold text-[#8C6239]">฿{price}</p>
             </div>
           )}
         </div>
@@ -264,13 +266,14 @@ const CardFilter = ({ announce }) => {
         </div>
 
         {termsAccepted && (
-          <p className="text-center text-xs font-medium text-emerald-600">
-            คุณได้ยอมรับข้อตกลงและเงื่อนไขแล้ว
+          <p className="text-center text-xs font-medium text-grey-200">
+            กรุณาอ่านข้อตกลงก่อนติดต่อสอบถาม
           </p>
         )}
       </div>
     </motion.div>
   );
 };
+
 
 export default CardFilter;

@@ -29,6 +29,12 @@ import EditProfile from "../pages/EditProfile.jsx";
 import NotFound from "../pages/NotFound.jsx";
 import RequireRole from "../components/RequireRole.jsx";
 import Forbidden from "../pages/Forbidden.jsx";
+import RequireVerification from "../components/RequireVerification.jsx";
+import VerifyEmail from "../pages/verifyEmail.jsx";
+import Draft from "../pages/Draft.jsx";
+import AdminAnnounceDetail from "../pages/adminAnnounceDetail.jsx";
+import AdminManageRoles from "../pages/AdminManageRoles.jsx";
+
 const router = createBrowserRouter([
   // 🏠 Layout หลักสำหรับผู้ใช้ทั่วไป
   {
@@ -38,8 +44,8 @@ const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/detail/:id", element: <Detail /> },
       { path: "/filter", element: <Filter /> },
-      { path: "/add-announce", element: <AddAnnounce /> },
-      { path: "/edit-announce/:id", element: <EditAnnounce /> },
+      { path: "/add-announce", element: <RequireRole allowedRoles={['ROLE_AGENT']}><RequireVerification><AddAnnounce /></RequireVerification></RequireRole> },
+      { path: "/edit-announce/:id", element: <RequireRole allowedRoles={['ROLE_AGENT']}><RequireVerification><EditAnnounce /></RequireVerification></RequireRole> },
       { path: "/profile", element: <Profile /> },
       { path: "/profile/edit", element: <EditProfile /> },
       { path: "/public-profile/:userId", element: <PublicProfile /> },
@@ -50,6 +56,8 @@ const router = createBrowserRouter([
       { path: "/reset-password", element: <ResetPassword /> },
       { path: "/bookmarks", element: <Bookmarks /> },
       { path: "/forbidden", element: <Forbidden /> },
+      { path: "/verify-email/verify", element: <VerifyEmail /> },
+      { path: "/draft", element: <Draft /> },
       // catch-all สำหรับ path ที่ไม่ตรง
       { path: "*", element: <NotFound /> },
     ],
@@ -67,11 +75,13 @@ const router = createBrowserRouter([
       { path: "announce/history", element: <HistoryTable /> },
       { path: "announce/published", element: <Publish /> },
       { path: "announce/pending", element: <PendingTable />},
+      { path: "announce/pending/:id", element: <AdminAnnounceDetail /> },
       // 👇 ถ้ามีหน้าอื่นในอนาคต เช่น:
       { path: "announce/details/:id", element: <ShareAnnounce /> },
       { path: "notifications/send", element: <SendNotification /> },
       { path: "badges/manage", element: <AdminBadges /> },
       { path: "badges/assign", element: <AdminAssignBadge /> },
+      { path: "users/roles", element: <AdminManageRoles /> },
       // { path: "users", element: <ManageUsers /> },
       // admin-specific catch-all (ไม่ให้ตกไปหน้า public)
       { path: "*", element: <NotFound /> },

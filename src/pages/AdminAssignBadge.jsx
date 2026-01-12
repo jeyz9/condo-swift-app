@@ -1,154 +1,248 @@
 import React, { useEffect, useState } from "react";
-import { FaPaperclip, FaSave, FaMedal, FaBuilding } from "react-icons/fa";
 import Swal from "sweetalert2";
-import BadgesService from "../services/BadgesService";
+import { extractErrorMessage } from "../utils/errorUtils";
+import AnnounceService from "../services/AnnounceService";
 
 export default function AdminAssignBadge() {
-  const [announceId, setAnnounceId] = useState("");
-  const [badgeId, setBadgeId] = useState("");
+  const [announces, setAnnounces] = useState([]);
   const [badges, setBadges] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+
+  const [keyword, setKeyword] = useState("");
+  const [filterBadge, setFilterBadge] = useState("");
+
+  const [selectedAnnounceId, setSelectedAnnounceId] = useState(null);
+  const [selectedBadgeId, setSelectedBadgeId] = useState(null);
 
   useEffect(() => {
-    const fetchBadges = async () => {
-      try {
-        setLoading(true);
-        const res = await BadgesService.getAllBadges();
-        setBadges(Array.isArray(res.data) ? res.data : []);
-      } catch (error) {
-        Swal.fire({
-          icon: "error",
-          title: "โหลดรายชื่อแบดจ์ไม่สำเร็จ",
-          text: error?.response?.data?.message || error.message,
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBadges();
+    loadData(keyword, filterBadge);
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const loadData = async (keywordValue = "", badgeFilterValue = "") => {
+    try {
+      setLoading(true);
 
-    const parsedAnnounceId = announceId?.toString().trim();
-    const parsedBadgeId = badgeId?.toString().trim();
+      console.log("📡 เรียก API ด้วย:", { keywordValue, badgeFilterValue });
 
-    if (!parsedAnnounceId || !parsedBadgeId) {
-      Swal.fire({
-        icon: "warning",
-        title: "กรุณาระบุ announceId และ badgeId",
-      });
+      const resAnn = await AnnounceService.getAllAnnouncesWithBadges(
+        keywordValue,
+        badgeFilterValue,
+        0,
+        10
+      );
+
+      const resBad = await AnnounceService.getAllBadges();
+
+      setAnnounces(resAnn.data?.data || []);
+      setBadges(resBad.data || []);
+    } catch (e) {
+      Swal.fire("Error", extractErrorMessage(e, "โหลดข้อมูลไม่สำเร็จ"), "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔍 ใช้กดค้นหา + filter
+  const handleSearchFilter = () => {
+    loadData(keyword, filterBadge);
+  };
+
+  const handleAddBadge = async () => {
+    if (!selectedAnnounceId || !selectedBadgeId) {
+      Swal.fire("แจ้งเตือน", "กรุณาเลือก badge", "warning");
       return;
     }
 
     try {
-      setSaving(true);
-      await BadgesService.addAnnounceBadge({
-        announceId: parsedAnnounceId,
-        badgeId: parsedBadgeId,
-      });
+      await AnnounceService.addAnnounceBadge(
+        selectedAnnounceId,
+        selectedBadgeId
+      );
 
-      Swal.fire({
-        icon: "success",
-        title: "ผูกแบดจ์ให้ประกาศแล้ว",
-      });
-      setAnnounceId("");
-      setBadgeId("");
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "ไม่สามารถผูกแบดจ์ได้",
-        text: error?.response?.data?.message || error.message,
-      });
-    } finally {
-      setSaving(false);
+      Swal.fire("สำเร็จ", "เพิ่ม badge แล้ว", "success");
+      setSelectedBadgeId(null);
+      setSelectedAnnounceId(null);
+      await loadData(keyword, filterBadge);
+    } catch (e) {
+      Swal.fire("ผิดพลาด", extractErrorMessage(e, "เกิดข้อผิดพลาด"), "error");
+    }
+  };
+
+  const handleRemoveBadge = async (announceId, badgeId) => {
+    const confirm = await Swal.fire({
+      icon: "warning",
+      title: "ลบ Badge นี้?",
+      showCancelButton: true,
+      confirmButtonText: "ลบ",
+      cancelButtonText: "ยกเลิก",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      await AnnounceService.deleteAnnounceBadge(announceId, badgeId);
+      Swal.fire("สำเร็จ", "ลบ badge แล้ว", "success");
+      await loadData(keyword, filterBadge);
+    } catch (e) {
+      Swal.fire("ผิดพลาด", extractErrorMessage(e, "เกิดข้อผิดพลาด"), "error");
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3 bg-white border border-gray-100 shadow-sm rounded-xl p-5">
-        <div className="w-12 h-12 rounded-full bg-[#8C6239]/10 flex items-center justify-center text-[#8C6239]">
-          <FaPaperclip className="text-xl" />
+    <div className="p-5 space-y-6">
+      <h1 className="text-2xl font-bold">จัดการ Badge ของประกาศ</h1>
+
+      {/* 🔍 ส่วนค้นหา + Filter */}
+      <div className="flex gap-3 items-end">
+        {/* input keyword */}
+        <div className="flex flex-col w-1/3">
+          <label className="text-sm font-semibold">ค้นหา</label>
+          <input
+            type="text"
+            className="input input-bordered"
+            placeholder="ค้นหาหัวข้อหรือผู้สร้าง..."
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+          />
         </div>
-        <div>
-          <h1 className="text-xl font-semibold text-gray-800">
-            เพิ่มแบดจ์ให้ประกาศ
-          </h1>
-          <p className="text-sm text-gray-500">
-            ส่งค่า announceId และ badgeId ไปที่ API /api/v1/badges/addAnnounceBadge
-          </p>
+
+        {/* filter badge */}
+        <div className="flex flex-col w-1/4">
+          <label className="text-sm font-semibold">Filter Badge</label>
+          <select
+            className="select select-bordered"
+            value={filterBadge}
+            onChange={(e) => setFilterBadge(e.target.value)}
+          >
+            <option value="">ทั้งหมด</option>
+            {badges.map((b) => (
+              <option key={b.id} value={b.badgeName}>
+                {b.badgeName}
+              </option>
+            ))}
+          </select>
         </div>
+
+        {/* button search */}
+        <button
+          onClick={handleSearchFilter}
+          className="btn bg-[#8C6239] text-white"
+        >
+          ค้นหา
+        </button>
+
+        {/* button reset */}
+        <button
+          onClick={() => {
+            setKeyword("");
+            setFilterBadge("");
+            loadData("", "");
+          }}
+          className="btn btn-ghost"
+        >
+          รีเซ็ต
+        </button>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white border border-gray-100 shadow-sm rounded-xl p-5 space-y-5 max-w-3xl"
-      >
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-              <FaBuilding className="text-[#8C6239]" />
-              announceId
-            </label>
-            <input
-              type="text"
-              inputMode="numeric"
-              className="input input-bordered w-full"
-              placeholder="กรอก announceId"
-              value={announceId}
-              onChange={(e) => setAnnounceId(e.target.value)}
-            />
-          </div>
+      {/* ตารางประกาศ */}
+      <div className="overflow-x-auto bg-white rounded-xl shadow">
+        <table className="table w-full">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>หัวข้อประกาศ</th>
+              <th>ผู้สร้าง</th>
+              <th>Badges</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-              <FaMedal className="text-[#8C6239]" />
-              badgeId
-            </label>
+          <tbody>
+            {announces.map((ann) => (
+              <tr key={ann.id}>
+                <td>{ann.id}</td>
+                <td>{ann.title}</td>
+                <td>{ann.agent}</td>
+
+                <td>
+                  {ann.badges.length === 0 ? (
+                    <span className="text-gray-400">— ไม่มีแบดจ์ —</span>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {ann.badges.map((b) => (
+                        <div
+                          key={b.id}
+                          className="px-2 py-1 bg-yellow-100 rounded-lg border flex items-center gap-2"
+                        >
+                          <span>{b.badgeName}</span>
+                          <span className="text-xs text-gray-500">
+                            {b.expiredAt.split("T")[0]}
+                          </span>
+
+                          <button
+                            className="text-red-500 text-sm"
+                            onClick={() => handleRemoveBadge(ann.id, b.id)}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </td>
+
+                <td>
+                  <button
+                    className="btn btn-sm bg-[#8C6239] text-white"
+                    onClick={() => setSelectedAnnounceId(ann.id)}
+                  >
+                    เพิ่ม Badge
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal เพิ่ม Badge */}
+      {selectedAnnounceId && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-xl w-96 space-y-4">
+            <h2 className="text-lg font-semibold">
+              เพิ่ม Badge ให้ประกาศ #{selectedAnnounceId}
+            </h2>
+
             <select
               className="select select-bordered w-full"
-              value={badgeId}
-              onChange={(e) => setBadgeId(e.target.value)}
-              disabled={loading}
+              value={selectedBadgeId || ""}
+              onChange={(e) => setSelectedBadgeId(Number(e.target.value))}
             >
-              <option value="">เลือกแบดจ์</option>
+              <option value="">เลือก Badge</option>
               {badges.map((b) => (
                 <option key={b.id} value={b.id}>
-                  #{b.id} - {b.badgeName}
+                  {b.badgeName}
                 </option>
               ))}
             </select>
-            <p className="text-xs text-gray-500">
-              ถ้าไม่พบแบดจ์ที่ต้องการ ให้เพิ่มจากหน้า “จัดการแบดจ์” ก่อน
-            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                className="btn btn-ghost"
+                onClick={() => setSelectedAnnounceId(null)}
+              >
+                ยกเลิก
+              </button>
+              <button
+                className="btn bg-[#8C6239] text-white"
+                onClick={handleAddBadge}
+              >
+                ยืนยัน
+              </button>
+            </div>
           </div>
         </div>
-
-        <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            className="btn btn-ghost"
-            onClick={() => {
-              setAnnounceId("");
-              setBadgeId("");
-            }}
-            disabled={saving}
-          >
-            ล้างฟอร์ม
-          </button>
-          <button
-            type="submit"
-            className="btn bg-[#8C6239] hover:bg-[#704c2c] text-white"
-            disabled={saving}
-          >
-            {saving ? "กำลังบันทึก..." : "ผูกแบดจ์ให้ประกาศ"}
-          </button>
-        </div>
-      </form>
+      )}
     </div>
   );
 }

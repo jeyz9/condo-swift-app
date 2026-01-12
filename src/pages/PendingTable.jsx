@@ -139,7 +139,7 @@ export default function PendingTable() {
             onClick={triggerSearch}
             className="absolute top-1/2 -translate-y-1/2 right-2 text-gray-600 hover:text-gray-800"
           >
-            🔍
+            ค้นหา
           </button>
         </div>
       </div>
@@ -166,7 +166,7 @@ export default function PendingTable() {
                   key={item.id}
                   className="hover:bg-[#f7f3ef] transition select-none cursor-pointer"
                   onClick={() =>
-                    navigate(`/admin/announce/details/${item.id}`)
+                    navigate(`/admin/announce/pending/${item.id}`)
                   }
                 >
                   <td>{ordered + index + 1}</td>
