@@ -177,7 +177,7 @@ export const AddAnnounce = () => {
       }
 
       try {
-        const response = await UserService.getUserProfileOverview(user.userId);
+        const response = await UserService.profilePublic(user.userId);
         if (!ignore) {
           setUserProfile(response?.status === 200 ? response?.data : null);
         }
