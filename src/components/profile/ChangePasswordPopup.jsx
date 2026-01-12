@@ -40,16 +40,19 @@ const ChangePasswordPopup = ({ onClose }) => {
         newPassword,
         confirmPassword,
       });
+
+      logout();
+      
       MySwal.fire({
         icon: 'success',
         title: 'เปลี่ยนรหัสผ่านสำเร็จ!',
         text: 'รหัสผ่านของคุณถูกเปลี่ยนเรียบร้อยแล้ว กรุณาเข้าสู่ระบบใหม่',
         confirmButtonText: 'ตกลง',
       }).then(() => {
-        logout(); // Force logout as backend deletes token
-        navigate('/login'); // Redirect to login page
-        onClose(); // Close the popup after successful password change
+        window.location.href = '/login';
+        onClose(); // Close the popup after the user clicks OK
       });
+
       // Clear form
       setOldPassword('');
       setNewPassword('');

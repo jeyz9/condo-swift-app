@@ -61,14 +61,16 @@ function ResetPasswordPage() {
     try {
       await AuthService.resetPassword(token, newPassword, confirmPassword);
       setMessage('Password has been reset successfully!');
+      
+      AuthService.logout();
+
       Swal.fire({
         icon: 'success',
         title: 'รีเซ็ตรหัสผ่านสำเร็จ!',
         text: 'รหัสผ่านของคุณถูกเปลี่ยนเรียบร้อยแล้ว กรุณาเข้าสู่ระบบใหม่',
         confirmButtonText: 'ตกลง',
       }).then(() => {
-        AuthService.logout(); // Force logout as backend deletes token
-        navigate('/'); // Redirect to login page
+        window.location.href = '/login';
       });
     } catch (error) {
       setMessage(extractErrorMessage(error, "เกิดข้อผิดพลาดที่ไม่คาดคิด"));

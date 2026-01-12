@@ -8,6 +8,7 @@ import { useNavigate, useLocation } from "react-router";
 import { NotificationMenuSkeleton } from "./NotificationMenuSkeleton";
 import { LuBell } from "react-icons/lu";
 import { LuBellDot } from "react-icons/lu";
+import { extractErrorMessage } from "../utils/errorUtils";
 import { u } from "framer-motion/client";
 export default function NotificationMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,11 +58,13 @@ export default function NotificationMenu() {
           setUnreadCount(unread);
         }
       } catch (error) {
-        Swal.fire({
-          title: "ไม่สามารถดึงการแจ้งเตือนได้",
-          icon: "error",
-          text: error?.response?.data || error.message,
-        });
+        if (user) { // Only show error if user is still logged in
+          Swal.fire({
+            title: "ไม่สามารถดึงการแจ้งเตือนได้",
+            icon: "error",
+            text: extractErrorMessage(error, "เกิดข้อผิดพลาดในการดึงข้อมูลการแจ้งเตือน"),
+          });
+        }
       } finally {
         setLoading(false);
       }

@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
-const SellCard = ({ announce }) => {
+const SellCard = ({ announce, onDelete }) => {
 
   if (!announce) return null;
 
@@ -14,37 +15,51 @@ const SellCard = ({ announce }) => {
 
 console.log("announce object =", announce);
 
+  const handleDelete = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDelete(announce.id);
+  }
+
 
   return (
-     <Link to={`/detail/${announce?.id}`}>
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-      {/* รูปภาพ */}
-      <img
-        src={imageSrc}
-        alt={announce?.title || "ไม่มีชื่อประกาศ"}
-        className="h-44 w-full object-cover"
-      />
+      <Link to={`/detail/${announce?.id}`} className="flex flex-col h-full">
+        {/* รูปภาพ */}
+        <img
+          src={imageSrc}
+          alt={announce?.title || "ไม่มีชื่อประกาศ"}
+          className="h-44 w-full object-cover"
+        />
 
-      {/* เนื้อหา */}
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        {/* ป้ายประเภท */}
-        <span className="inline-flex w-fit rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600">
-          ขาย
-        </span>
+        {/* เนื้อหา */}
+        <div className="flex flex-1 flex-col gap-2 p-4">
+          {/* ป้ายประเภท */}
+          <span className="inline-flex w-fit rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600">
+            ขาย
+          </span>
 
-        {/* ชื่อประกาศ */}
-        <h3 className="line-clamp-2 text-lg font-semibold text-gray-900">
-          {announce?.title || "ไม่มีชื่อประกาศ"}
-        </h3>
+          {/* ชื่อประกาศ */}
+          <h3 className="line-clamp-2 text-lg font-semibold text-gray-900">
+            {announce?.title || "ไม่มีชื่อประกาศ"}
+          </h3>
 
-        {/* สถานที่ */}
-        <p className="line-clamp-2 text-sm text-gray-600">
-          {announce?.location || "ไม่ระบุสถานที่"}
-        </p>
+          {/* สถานที่ */}
+          <p className="line-clamp-2 text-sm text-gray-600">
+            {announce?.location || "ไม่ระบุสถานที่"}
+          </p>
 
-      </div>
+        </div>
+      </Link>
+      <div className="flex justify-end gap-2 p-4 pt-0">
+          <Link to={`/edit-announce/${announce?.id}`} className="btn btn-ghost btn-sm">
+            <FaEdit />
+          </Link>
+          <button onClick={handleDelete} className="btn btn-ghost btn-sm text-red-500">
+            <FaTrash />
+          </button>
+        </div>
     </article>
-    </Link>
   );
 };
 

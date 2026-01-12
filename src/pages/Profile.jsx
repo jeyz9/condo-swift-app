@@ -3,6 +3,7 @@ import { useParams } from "react-router";
 import Swal from "sweetalert2";
 import { useAuthContext } from "../context/AuthContext";
 import UserService from "../services/UserService";
+import AnnounceService from "../services/AnnounceService";
 import HeroProfile from "../components/profile/HeroProfile";
 import { ProfileDetail } from "../components/profile/ProfileDetail";
 import { RentCard } from "../components/profile/RentCard";
@@ -49,6 +50,37 @@ export const Profile = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = (announceId) => {
+    Swal.fire({
+      title: 'คุณแน่ใจหรือไม่?',
+      text: "คุณจะไม่สามารถย้อนกลับการกระทำนี้ได้!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'ใช่, ลบเลย!',
+      cancelButtonText: 'ยกเลิก'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await AnnounceService.deleteAnnounce(announceId);
+          Swal.fire(
+            'ลบแล้ว!',
+            'ประกาศของคุณถูกลบเรียบร้อยแล้ว.',
+            'success'
+          );
+          fetchProfile(activeTab); // Refresh the list
+        } catch (error) {
+          Swal.fire(
+            'เกิดข้อผิดพลาด!',
+            'ไม่สามารถลบประกาศได้',
+            'error'
+          );
+        }
+      }
+    })
   };
 
   // 🔹 โหลดครั้งแรก
@@ -131,10 +163,10 @@ export const Profile = () => {
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {activeTab === "เช่า"
               ? announceList.map((a) => (
-                  <RentCard key={a?.id ?? a?.announceId} announce={a} />
+                  <RentCard key={a?.id ?? a?.announceId} announce={a} onDelete={handleDelete} />
                 ))
               : announceList.map((a) => (
-                  <SellCard key={a?.id ?? a?.announceId} announce={a} />
+                  <SellCard key={a?.id ?? a?.announceId} announce={a} onDelete={handleDelete} />
                 ))}
           </div>
         ) : (
