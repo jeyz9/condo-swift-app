@@ -32,7 +32,7 @@ import Forbidden from "../pages/Forbidden.jsx";
 import RequireVerification from "../components/RequireVerification.jsx";
 import VerifyEmail from "../pages/verifyEmail.jsx";
 import Draft from "../pages/Draft.jsx";
-import AdminAnnounceDetail from "../pages/adminAnnounceDetail.jsx";
+import AdminAnnounceDetail from "../pages/AdminAnnounceDetail.jsx";
 import AdminManageRoles from "../pages/AdminManageRoles.jsx";
 
 const router = createBrowserRouter([
