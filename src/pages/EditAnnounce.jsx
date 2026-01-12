@@ -155,7 +155,7 @@ export const EditAnnounce = () => {
         try {
             const [provincesRes, userProfileRes, announceTypesRes] = await Promise.all([
                 ProvinceService.getAllProvinces(),
-                UserService.getUserProfileOverview(user.userId),
+                UserService.profilePublic(user?.userId),
                 ProvinceService.showAllAnnounceTypes(),
             ]);
 
