@@ -72,6 +72,24 @@ const showUserDetails = async () => {
   return await api.get(`${API_URL}/showUserDetails`);
 };
 
+const showAllUser = async (keyword = "", page = 0, size = 10) => {
+  return await api.get(`${API_URL}/showAllUser`, {
+    params: {
+      keyword,
+      page,
+      size,
+    },
+  });
+};
+
+const addUserRole = async (data) => {
+  return await api.post(`${API_URL}/addUserRole`, data)
+}
+
+const deleteUserRole = async (data) => {
+  return await api.delete(`${API_URL}/deleteUserRole`, {data})
+}
+
 export default {
   profilePublic,
   uploadProfilePicture,
@@ -83,4 +101,7 @@ export default {
   removeFromBookmark,
   editProfile,
   showUserDetails,
+  showAllUser,
+  addUserRole,
+  deleteUserRole
 };

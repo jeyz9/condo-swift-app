@@ -33,6 +33,7 @@ import RequireVerification from "../components/RequireVerification.jsx";
 import VerifyEmail from "../pages/verifyEmail.jsx";
 import Draft from "../pages/Draft.jsx";
 import AdminAnnounceDetail from "../pages/adminAnnounceDetail.jsx";
+import AdminManageRoles from "../pages/AdminManageRoles.jsx";
 
 const router = createBrowserRouter([
   // 🏠 Layout หลักสำหรับผู้ใช้ทั่วไป
@@ -80,6 +81,7 @@ const router = createBrowserRouter([
       { path: "notifications/send", element: <SendNotification /> },
       { path: "badges/manage", element: <AdminBadges /> },
       { path: "badges/assign", element: <AdminAssignBadge /> },
+      { path: "users/roles", element: <AdminManageRoles /> },
       // { path: "users", element: <ManageUsers /> },
       // admin-specific catch-all (ไม่ให้ตกไปหน้า public)
       { path: "*", element: <NotFound /> },

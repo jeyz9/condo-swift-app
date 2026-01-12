@@ -11,14 +11,18 @@ const getAllStations = async () => {
 }
 
 const showAllAnnounceTypes = async () => {
-  console.log("Calling showAllAnnounceTypes from ProvinceService");
   return await api.get(`${API_URL}/showAllAnnounceTypes`);
+}
+
+const showAllRoles = async () => {
+    return await api.get(`${API_URL}/showAllRoles`)
 }
 
 const ProvinceService = {
     getAllProvinces,
     getAllStations,
-    showAllAnnounceTypes
+    showAllAnnounceTypes,
+    showAllRoles
 }
 
 export default ProvinceService

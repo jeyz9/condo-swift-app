@@ -11,6 +11,7 @@ export const AdminLayout = () => {
   const [open, setOpen] = useState({
     announce: false,
     badge: false,
+    user: false,
   });
 
   const isActive = (path) => location.pathname.startsWith(path);
@@ -50,6 +51,9 @@ export const AdminLayout = () => {
     if (location.pathname.startsWith("/admin/badges")) {
       setOpen((prev) => ({ ...prev, badge: true }));
     }
+    if (location.pathname.startsWith("/admin/users")) {
+      setOpen((prev) => ({ ...prev, user: true }));
+    }
   }, [location.pathname]);
 
   return (
@@ -79,7 +83,7 @@ export const AdminLayout = () => {
                   : "hover:bg-[#8C623910] hover:text-[#704c2c]"
               }`}
               onClick={() =>
-                setOpen({ announce: !open.announce, badge: open.badge })
+                setOpen({ announce: !open.announce, badge: open.badge, user: open.user })
               }
             >
               <p>ประกาศ</p>
@@ -127,7 +131,7 @@ export const AdminLayout = () => {
                   : "hover:bg-[#8C623910] hover:text-[#704c2c]"
               }`}
               onClick={() =>
-                setOpen({ badge: !open.badge, announce: open.announce })
+                setOpen({ badge: !open.badge, announce: open.announce, user: open.user })
               }
             >
               <p>แบดจ์</p>
@@ -155,6 +159,39 @@ export const AdminLayout = () => {
                   }`}
                 >
                   เพิ่มแบดจ์ให้ประกาศ
+                </Link>
+              </div>
+            )}
+          </div>
+
+          <hr className="my-3 border-gray-200" />
+
+          <div>
+            <div
+              className={`flex items-center justify-between cursor-pointer select-none pl-10 pr-5 py-2 rounded-e-md transition  ${
+                open.user
+                  ? "bg-[#8C623910] text-[#704c2c]"
+                  : "hover:bg-[#8C623910] hover:text-[#704c2c]"
+              }`}
+              onClick={() =>
+                setOpen({ user: !open.user, announce: open.announce, badge: open.badge })
+              }
+            >
+              <p>จัดการผู้ใช้</p>
+              {open.user ? <FaAngleUp /> : <FaAngleDown />}
+            </div>
+
+            {open.user && (
+              <div className="mt-2 flex flex-col space-y-2">
+                <Link
+                  to={`/admin/users/roles`}
+                  className={`pl-16 py-2 cursor-pointer select-none rounded-e-md space-y-2 transition ${
+                    isActive("/admin/users/roles")
+                      ? "bg-[#704c2c] text-white"
+                      : "hover:bg-[#8C623910] hover:text-[#704c2c]"
+                  }`}
+                >
+                  จัดการ Role
                 </Link>
               </div>
             )}
