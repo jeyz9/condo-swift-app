@@ -1,12 +1,12 @@
 import api from "./api";
 import TokenService from "./TokenService";
 
-// ✅ Base URL จาก .env (เช่น https://condo-swift.onrender.com)
+//  Base URL จาก .env (เช่น https://condo-swift.onrender.com)
 const DEFAULT_BASE_URL = "https://condo-swift.onrender.com";
 const baseUrl =
   (import.meta.env.VITE_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, "");
 
-// ✅ ฟังก์ชันรวม URL base กับ path ย่อย
+//  ฟังก์ชันรวม URL base กับ path ย่อย
 const resolveEndpoint = (rawValue, fallbackPath) => {
   if (rawValue) {
     const trimmed = rawValue.replace(/\/$/, "");
@@ -20,7 +20,7 @@ const resolveEndpoint = (rawValue, fallbackPath) => {
   return `${baseUrl}${fallbackPath}`;
 };
 
-// ✅ AUTH_BASE = https://condo-swift.onrender.com/api/v1/auth
+//  AUTH_BASE = https://condo-swift.onrender.com/api/v1/auth
 const AUTH_BASE = resolveEndpoint(import.meta.env.VITE_AUTH_API, "/api/v1/auth");
 const buildUrl = (path) => `${AUTH_BASE}${path}`;
 
@@ -44,7 +44,7 @@ const login = async (email, password) => {
   );
 
   // Log the entire response data structure to diagnose the issue
-  console.log("✅ Full Login Response from Backend:", JSON.stringify(response.data));
+  console.log(" Full Login Response from Backend:", JSON.stringify(response.data));
 
   const { accessToken, tokenType, userId } = response.data;
   if (!accessToken) throw new Error("ไม่พบ accessToken จาก backend");
@@ -59,19 +59,19 @@ const logout = () => TokenService.removeUser();
  ✉️ Email Verify & OTP
 --------------------------------*/
 
-// ✅ ส่งอีเมลยืนยัน
+//  ส่งอีเมลยืนยัน
 const sendVerify = async (userId) => {
   console.log("📤 Sending Email Verify:", userId);
   return await api.post(`${AUTH_BASE}/send-verify?userId=${userId}`);
 };
 
-// ✅ ส่ง OTP ไปยังเบอร์โทร
+//  ส่ง OTP ไปยังเบอร์โทร
 const sendOtp = async (userId) => {
   console.log("📤 Sending OTP for user:", userId);
   return await api.post(`${AUTH_BASE}/send-otp?userId=${userId}`);
 };
 
-// ✅ ตรวจสอบรหัส OTP (อ่าน token/refno จาก localStorage ตอนเรียกจริง)
+//  ตรวจสอบรหัส OTP (อ่าน token/refno จาก localStorage ตอนเรียกจริง)
 const verifyOtp = async (otpCode) => {
   const token = localStorage.getItem("otpToken");
   const refno = localStorage.getItem("otpRefno");
@@ -103,7 +103,7 @@ const verifyEmail = async (token) => {
   return await api.get(buildUrl(`/verify-email?token=${token}`));
 };
 /* -------------------------------
- ✅ Export รวมทั้งหมด
+  Export รวมทั้งหมด
 --------------------------------*/
 const AuthService = {
   register,

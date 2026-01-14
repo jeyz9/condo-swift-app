@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom"; // ✅ ใช้ react-router-dom
+import { Link, useNavigate } from "react-router-dom"; //  ใช้ react-router-dom
 import { FaBars } from "react-icons/fa";
 import LoginPopup from "./login/LoginPopup";
 import RegisterPopup from "./login/RegisterPopup";
@@ -10,8 +10,8 @@ import UserService from "../services/UserService";
 import Swal from "sweetalert2";
 
 const Navbar = () => {
-  const { user } = useAuthContext();           // ✅ เรียก hook ข้างใน component
-  const roles = user?.roles || "";            // ✅ ดึง roles จาก user
+  const { user } = useAuthContext();           //  เรียก hook ข้างใน component
+  const roles = user?.roles || "";            //  ดึง roles จาก user
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
 
@@ -67,7 +67,7 @@ const Navbar = () => {
         { title: "เช่า", path: "/filter?saleType=เช่า&page=0&size=10" },
         { title: "ขาย", path: "/filter?saleType=ขาย&page=0&size=10" },
 
-        // ✅ เพิ่มเมนู "ระบบหลังบ้าน" เฉพาะ ROLE_ADMIN
+        //  เพิ่มเมนู "ระบบหลังบ้าน" เฉพาะ ROLE_ADMIN
         ...(roles.includes("ROLE_ADMIN")
           ? [{ title: "ระบบผู้ดูแล", path: "/admin/dashboard" }]
           : []),

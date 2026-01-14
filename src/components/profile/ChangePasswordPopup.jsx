@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AuthService from '../../services/AuthService';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { useNavigate } from 'react-router-dom';
 import { extractErrorMessage } from '../../utils/errorUtils';
 import { useAuthContext } from '../../context/AuthContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const MySwal = withReactContent(Swal);
 
@@ -69,105 +70,161 @@ const ChangePasswordPopup = ({ onClose }) => {
     }
   };
 
+  const backdropVariant = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.25 } },
+    exit: { opacity: 0, transition: { duration: 0.2 } },
+  };
+
+  const popupVariant = {
+    hidden: { opacity: 0, scale: 0.8, y: -20 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: { duration: 0.35, ease: "easeOut" },
+    },
+    exit: { opacity: 0, scale: 0.85, y: -20, transition: { duration: 0.25 } },
+  };
+
   return (
-    <div className="fixed inset-0 backdrop-blur-xl bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md mx-auto relative">
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl"
-        >
-          &times;
-        </button>
-        <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">เปลี่ยนรหัสผ่าน</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Old Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">รหัสผ่านเก่า</label>
-            <div className="relative">
-              <input
-                type={showOldPassword ? 'text' : 'password'}
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
-                required
-              />
-              <span
-                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-                onClick={(e) => { e.preventDefault(); setShowOldPassword(!showOldPassword); }}
-              >
-                {showOldPassword ? (
-                  <FaEyeSlash className="h-5 w-5 text-gray-500" />
-                ) : (
-                  <FaEye className="h-5 w-5 text-gray-500" />
-                )}
-              </span>
-            </div>
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+        onClick={onClose}
+        variants={backdropVariant}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+      />
+      <motion.div
+        className="fixed inset-0 z-50 flex items-center justify-center px-4"
+        variants={popupVariant}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+      >
+        <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md mx-auto relative">
+          <div className="flex items-start justify-between mb-4">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">
+              เปลี่ยนรหัสผ่าน
+            </h2>
+            <button
+              onClick={onClose}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl"
+            >
+              &times;
+            </button>
           </div>
 
-          {/* New Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">รหัสผ่านใหม่</label>
-            <div className="relative">
-              <input
-              type={showNewPassword ? 'text' : 'password'}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              minLength={8}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
-              required
-            />
-              <span
-                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-                onClick={(e) => { e.preventDefault(); setShowNewPassword(!showNewPassword); }}
-              >
-                {showNewPassword ? (
-                  <FaEyeSlash className="h-5 w-5 text-gray-500" />
-                ) : (
-                  <FaEye className="h-5 w-5 text-gray-500" />
-                )}
-              </span>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Old Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                รหัสผ่านเก่า
+              </label>
+              <div className="relative">
+                <input
+                  type={showOldPassword ? "text" : "password"}
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
+                  required
+                />
+                <span
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                  onClick={() => setShowOldPassword(!showOldPassword)}
+                >
+                  {showOldPassword ? (
+                    <FaEyeSlash className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <FaEye className="h-5 w-5 text-gray-500" />
+                  )}
+                </span>
+              </div>
             </div>
-          </div>
 
-          {/* Confirm New Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">ยืนยันรหัสผ่านใหม่</label>
-            <div className="relative">
-              <input
-              type={showConfirmPassword ? 'text' : 'password'}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              minLength={8}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
-              required
-            />
-              <span
-                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-                onClick={(e) => { e.preventDefault(); setShowConfirmPassword(!showConfirmPassword); }}
-              >
-                {showConfirmPassword ? (
-                  <FaEyeSlash className="h-5 w-5 text-gray-500" />
-                ) : (
-                  <FaEye className="h-5 w-5 text-gray-500" />
-                )}
-              </span>
+            {/* New Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                รหัสผ่านใหม่
+              </label>
+              <div className="relative">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  minLength={8}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
+                  required
+                />
+                <span
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                >
+                  {showNewPassword ? (
+                    <FaEyeSlash className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <FaEye className="h-5 w-5 text-gray-500" />
+                  )}
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                อย่างน้อย 8 ตัวอักษร
+              </p>
             </div>
-          </div>
 
-          <button
-            type="submit"
-            className="btn w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#8C6239] hover:bg-[#6f4f2e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8C6239]"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <span className="loading loading-spinner loading-sm"></span>
-            ) : (
-              'เปลี่ยนรหัสผ่าน'
-            )}
-          </button>
-        </form>
-      </div>
-    </div>
+            {/* Confirm New Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                ยืนยันรหัสผ่านใหม่
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  minLength={8}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
+                  required
+                />
+                <span
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <FaEyeSlash className="h-5 w-5 text-gray-500" />
+                  ) : (
+                    <FaEye className="h-5 w-5 text-gray-500" />
+                  )}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="btn btn-ghost"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="submit"
+                className="btn bg-[#8C6239] text-white hover:bg-[#7d5a32]"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="loading loading-spinner loading-sm"></span>
+                ) : (
+                  "บันทึกการเปลี่ยนแปลง"
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

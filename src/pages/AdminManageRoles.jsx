@@ -81,15 +81,15 @@ export default function AdminManageRoles() {
         roleId: parseInt(selectedRole, 10),
       });
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         await Swal.fire({
           title: "สำเร็จ!",
           text: "เพิ่ม Role เรียบร้อย",
           icon: "success",
           confirmButtonText: "OK",
-        }).then(() => {
-          window.location.reload();
         });
+        setSelectedUserId(null);
+        loadData(currentPage, keyword); // Refresh data
       }
     } catch (error) {
       Swal.fire({

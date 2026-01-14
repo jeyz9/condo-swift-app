@@ -19,7 +19,7 @@ import {
 import GrayscaleMap from "../components/details/GrayscaleMap";
 import AnnounceService from "../services/AnnounceService";
 import Swal from "sweetalert2";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router";
 import { MdWarningAmber } from "react-icons/md";
 import LoginPopup from "../components/login/LoginPopup";
 import RegisterPopup from "../components/login/RegisterPopup";
@@ -28,18 +28,47 @@ import AuthService from "../services/AuthService";
 import { DetailSkeleton } from "./DetailSkeleton";
 import { extractErrorMessage } from "../utils/errorUtils";
 import UserService from "../services/UserService";
-
+import { useNavigate } from "react-router";
 export const Detail = () => {
   const [announce, setAnnounce] = useState(null);
   const [loading, setLoading] = useState(true);
   const { id } = useParams();
   const { user, login } = useAuthContext();
+  const navigate = useNavigate();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   const userId = user?.userId;
   const agentId = announce?.agent?.id;
+
+  const handleDelete = async () => {
+    Swal.fire({
+      title: "คุณแน่ใจหรือไม่?",
+      text: "คุณต้องการลบประกาศนี้ใช่หรือไม่?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "ใช่, ลบเลย!",
+      cancelButtonText: "ยกเลิก",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await AnnounceService.deleteAnnounce(id);
+          Swal.fire("ลบแล้ว!", "ประกาศของคุณถูกลบแล้ว.", "success");
+          navigate("/");
+        } catch (error) {
+          Swal.fire(
+            "เกิดข้อผิดพลาด!",
+            "ไม่สามารถลบประกาศได้ในขณะนี้",
+            "error"
+          );
+        }
+      }
+    });
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -388,12 +417,20 @@ document.getElementById("copy-link")?.addEventListener("click", () => {
 
           <div className="flex gap-x-4 mb-5">
             {userId === agentId ? (
-              <Link
-                to={`/edit-announce/${id}`}
-                className="btn rounded-full pl-7 pr-7 border-gray-700"
-              >
-                แก้ไขประกาศ
-              </Link>
+              <>
+                <Link
+                  to={`/edit-announce/${id}`}
+                  className="btn rounded-full pl-7 pr-7 border-gray-700"
+                >
+                  แก้ไขประกาศ
+                </Link>
+                <button
+                  onClick={handleDelete}
+                  className="btn rounded-full pl-7 pr-7 bg-red-500 text-white border-none"
+                >
+                  ลบประกาศ
+                </button>
+              </>
             ) : (
               <>
                 <button

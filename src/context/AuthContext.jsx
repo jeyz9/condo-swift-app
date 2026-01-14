@@ -8,7 +8,7 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(getUserFromToken);
 
-  // ✅ ฟังก์ชัน login ใช้เวลามาจาก popup หรือหน้า Login
+  //  ฟังก์ชัน login ใช้เวลามาจาก popup หรือหน้า Login
   const login = async (email, password) => {
     try {
       // AuthService.login handles saving the token via TokenService
@@ -26,13 +26,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ✅ ออกจากระบบ
+  //  ออกจากระบบ
   const logout = () => {
     AuthService.logout(); // This calls TokenService.removeUser()
     setUser(null);
   };
 
-  // ✅ โหลด user ตอนเปิดหน้าเว็บ (กรณีเคย login แล้ว)
+  //  โหลด user ตอนเปิดหน้าเว็บ (กรณีเคย login แล้ว)
   useEffect(() => {
     const currentUser = getUserFromToken();
     if (currentUser) {
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // ✅ ฟังก์ชันดึง user จาก token ที่เก็บใน cookie ผ่าน TokenService
+  //  ฟังก์ชันดึง user จาก token ที่เก็บใน cookie ผ่าน TokenService
   function getUserFromToken() {
     const token = TokenService.getLocalAccessToken();
     if (!token) {

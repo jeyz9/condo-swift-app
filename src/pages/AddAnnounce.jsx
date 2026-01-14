@@ -211,7 +211,7 @@ export const AddAnnounce = () => {
     }
   }, [user]);
 
-  // ✅ ฟังก์ชันเปลี่ยนค่าฟอร์ม
+  //  ฟังก์ชันเปลี่ยนค่าฟอร์ม
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setAnnounce((prev) => ({
@@ -329,7 +329,7 @@ export const AddAnnounce = () => {
   };
 
 
-// ✅ ใช้กับ dropdown / component ที่ส่งค่าเป็น value ตรง ๆ
+//  ใช้กับ dropdown / component ที่ส่งค่าเป็น value ตรง ๆ
 const handleDropdownChange = (field, value) => {
   setAnnounce((prev) => ({
     ...prev,
@@ -460,11 +460,11 @@ const handleDropdownChange = (field, value) => {
         })}
       </div>
 
-      {/* ✅ Tabs 1–3 (คงของเดิมไว้) */}
-      {/* ✅ Tabs 1–3 (คงของเดิมไว้) */}
+      {/*  Tabs 1–3 (คงของเดิมไว้) */}
+      {/*  Tabs 1–3 (คงของเดิมไว้) */}
       <div className="w-full max-w-5xl rounded-xl p-4 sm:p-6 lg:p-8">
         <AnimatePresence mode="wait">
-          {/* ✅ Tab 1: รายละเอียดที่ตั้ง */}
+          {/*  Tab 1: รายละเอียดที่ตั้ง */}
           {activeTab === 0 && (
             <motion.div key="tab1" {...fadeAnimation}>
               <h2 className="text-xl font-semibold text-green-700 mb-4">
@@ -533,7 +533,7 @@ const handleDropdownChange = (field, value) => {
             </motion.div>
           )}
 
-          {/* ✅ Tab 2: รายละเอียด */}
+          {/*  Tab 2: รายละเอียด */}
           {activeTab === 1 && (
             <motion.div key="tab2" {...fadeAnimation}>
               <h2 className="text-xl font-semibold text-grey-700 mb-6">
@@ -738,7 +738,7 @@ const handleDropdownChange = (field, value) => {
             </motion.div>
           )}
 
-          {/* ✅ Tab 3: รูปและวิดีโอ */}
+          {/*  Tab 3: รูปและวิดีโอ */}
           {activeTab === 2 && (
             <motion.div key="tab3" {...fadeAnimation}>
               <h2 className="text-xl font-semibold text-green-700 mb-4">
@@ -788,7 +788,7 @@ const handleDropdownChange = (field, value) => {
         </AnimatePresence>
       </div>
 
-      {/* ✅ Tab 4 (ใหม่ เต็มจอ) */}
+      {/*  Tab 4 (ใหม่ เต็มจอ) */}
       {activeTab === 3 && (
         <motion.div
           key="tab4"
@@ -799,7 +799,7 @@ const handleDropdownChange = (field, value) => {
             ตัวอย่างประกาศของคุณ
           </h2>
 
-          {/* ✅ รูป CardDetails กลางหน้า */}
+          {/*  รูป CardDetails กลางหน้า */}
           <div className="mb-10 flex justify-center">
             <CardDetails
               images={images.map((img, i) => ({
@@ -810,7 +810,7 @@ const handleDropdownChange = (field, value) => {
             />
           </div>
 
-          {/* ✅ ข้อมูลประกาศ */}
+          {/*  ข้อมูลประกาศ */}
           <div className="grid grid-cols-1 md:grid-cols-[60%_40%] gap-10">
             {/* ฝั่งซ้าย */}
             <div>
@@ -918,7 +918,7 @@ const handleDropdownChange = (field, value) => {
                 </>
               )}
 
-              {/* ✅ ข้อมูลเพิ่มเติม */}
+              {/*  ข้อมูลเพิ่มเติม */}
               <div className="divider my-6"></div>
               <div className="space-y-2 text-gray-700">
                 <p>

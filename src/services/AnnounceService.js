@@ -94,7 +94,7 @@ const updateAnnounce = async (
     });
   }
 
-  // ✅ Append IDs of images to remove
+  //  Append IDs of images to remove
   if (Array.isArray(imagesToRemove) && imagesToRemove.length > 0) {
     formData.append("removeImageIds", JSON.stringify(imagesToRemove));
   }
@@ -104,7 +104,7 @@ const updateAnnounce = async (
   });
 };
 const getAnnounceById = async (id) => api.get(`${API_URL}/${id}`);
-const deleteAnnounce = async (id) => api.delete(`${API_URL}/${id}`);
+const deleteAnnounce = async (id) => api.delete(`${API_URL}/deletedAnnounce/${id}`);
 
 // 🔍 Announce Detail
 const showAnnounceDetail = async (id) => api.get(`${API_URL}/showAnnounceDetails/${id}`);
@@ -116,37 +116,37 @@ const getAnnounceWithCategory = async () => api.get(`${API_URL}/showAnnounceWith
 // 🧠 ฟังก์ชันใหม่ — สำหรับหน้า /filter
 const getFilterAnnounceWithAgent = async (arg1, arg2, arg3, arg4) => {
   if (typeof arg1 === 'object' && arg1 !== null) {
-    // ✅ ดึงค่าที่เกี่ยวข้องจาก arg1
+    //  ดึงค่าที่เกี่ยวข้องจาก arg1
     const {
       keyword,
       filter,
       type,
       saleType,
-      effectiveType, // ✅ เพิ่มรองรับชื่อใหม่
-      badge, // ✅ เพิ่ม badge
+      effectiveType, //  เพิ่มรองรับชื่อใหม่
+      badge, //  เพิ่ม badge
       bedroomCount,
       minPrice,
       maxPrice,
-      station, // ✅ เพิ่ม station
-      province, // ✅ เพิ่ม province
+      station, //  เพิ่ม station
+      province, //  เพิ่ม province
       page = 0,
       size = 8,
     } = arg1;
 
-    // ✅ ใช้ effectiveType ถ้ามี (เช่นจาก SearchBarWithFilter)
+    //  ใช้ effectiveType ถ้ามี (เช่นจาก SearchBarWithFilter)
     const finalSaleType = saleType ?? effectiveType ?? "";
 
-    // ✅ สร้าง params พร้อม clean undefined ออก
+    //  สร้าง params พร้อม clean undefined ออก
     const params = {
       keyword,
       type: type ?? filter,
-      saleType: finalSaleType, // ✅ key เดิมที่ backend ใช้
-      badge, // ✅ เพิ่ม badge
+      saleType: finalSaleType, //  key เดิมที่ backend ใช้
+      badge, //  เพิ่ม badge
       bedroomCount,
       minPrice,
       maxPrice,
-      station, // ✅ เพิ่ม station
-      province, // ✅ เพิ่ม province
+      station, //  เพิ่ม station
+      province, //  เพิ่ม province
       page,
       size,
     };
@@ -163,7 +163,7 @@ const getFilterAnnounceWithAgent = async (arg1, arg2, arg3, arg4) => {
     return await api.get(`${API_URL}/filterAnnounceWithAgent`, { params });
   }
 
-  // ✅ fallback mode: เรียกแบบเดิม (arg1,arg2,arg3,arg4)
+  //  fallback mode: เรียกแบบเดิม (arg1,arg2,arg3,arg4)
   const keyword = arg1;
   const filter = arg2;
   const page = arg3 ?? 0;
@@ -202,7 +202,7 @@ const showAllAnnounceDraft = async () => {
 
 
 
-// ✅ export ฟังก์ชันทั้งหมดไว้ให้เรียกง่าย
+//  export ฟังก์ชันทั้งหมดไว้ให้เรียกง่าย
 const AnnounceService = {
   deleteAnnounce,
   createAnnounce,

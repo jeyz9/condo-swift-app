@@ -21,7 +21,7 @@ export default function NotificationMenu() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ แปลงเวลาให้อ่านง่าย
+  //  แปลงเวลาให้อ่านง่าย
   const formatTime = (timeString) => {
     if (!timeString) return "";
     const date = new Date(timeString);
@@ -31,7 +31,7 @@ export default function NotificationMenu() {
     });
   };
 
-  // ✅ ปิด popup เมื่อคลิกนอกกรอบ
+  //  ปิด popup เมื่อคลิกนอกกรอบ
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -42,7 +42,7 @@ export default function NotificationMenu() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ✅ ดึง notification เมื่อมี userId
+  //  ดึง notification เมื่อมี userId
   useEffect(() => {
     const fetchData = async () => {
       if (!userId) return;
@@ -53,7 +53,7 @@ export default function NotificationMenu() {
         if (response?.status === 200) {
           setNotifications(response.data);
 
-          // ✅ นับเฉพาะที่ยังไม่อ่าน
+          //  นับเฉพาะที่ยังไม่อ่าน
           const unread = response.data.filter((n) => !n.is_read).length;
           setUnreadCount(unread);
         }
@@ -62,7 +62,7 @@ export default function NotificationMenu() {
           Swal.fire({
             title: "ไม่สามารถดึงการแจ้งเตือนได้",
             icon: "error",
-            text: extractErrorMessage(error, "เกิดข้อผิดพลาดในการดึงข้อมูลการแจ้งเตือน"),
+            text: extractErrorMessage(error || "เกิดข้อผิดพลาดในการดึงข้อมูลการแจ้งเตือน"),
           });
         }
       } finally {
@@ -71,12 +71,12 @@ export default function NotificationMenu() {
     };
 
     setLoading(true);
-    fetchData(); // ✅ โหลดทันทีตอนเข้า
-    const interval = setInterval(fetchData, 10000); // ✅ โหลดซ้ำทุก 10 วิ
+    fetchData(); //  โหลดทันทีตอนเข้า
+    const interval = setInterval(fetchData, 10000); //  โหลดซ้ำทุก 10 วิ
     return () => clearInterval(interval);
   }, [userId]);
 
-  // ✅ รีเฟรช badge เมื่อกลับมาหน้าหลักหลังจากดู detail
+  //  รีเฟรช badge เมื่อกลับมาหน้าหลักหลังจากดู detail
   useEffect(() => {
     if (!isOpen && userId) {
       const refresh = async () => {
@@ -98,12 +98,12 @@ export default function NotificationMenu() {
     }
   }, [location.pathname]);
 
-  // ✅ เปิด/ปิด popup
+  //  เปิด/ปิด popup
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
   };
 
-  // ✅ เมื่อกดเข้าไปดู detail
+  //  เมื่อกดเข้าไปดู detail
   const handleOpenDetail = (n) => {
     // ❌ ไม่ต้อง markAsRead เพราะ backend ทำให้อยู่แล้ว
     setIsOpen(false);
@@ -127,7 +127,7 @@ export default function NotificationMenu() {
         )}
       </button>
 
-      {/* ✅ Popup แจ้งเตือน */}
+      {/*  Popup แจ้งเตือน */}
       <AnimatePresence>
         {isOpen && (
           <motion.div

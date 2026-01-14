@@ -20,7 +20,7 @@ const FILTER_TABS = [
 
 export const Profile = () => {
   const { user } = useAuthContext();
-  const { userId: paramId } = useParams(); // ✅ รับ userId จาก URL เช่น /profile/2
+  const { userId: paramId } = useParams(); //  รับ userId จาก URL เช่น /profile/2
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
@@ -30,7 +30,7 @@ export const Profile = () => {
   console.log(userId)
 
 
-  // ✅ ดึงข้อมูลโปรไฟล์จาก backend
+  //  ดึงข้อมูลโปรไฟล์จาก backend
   const fetchProfile = async (type = "เช่า") => {
     try {
       setLoading(true);

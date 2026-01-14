@@ -3,9 +3,9 @@ import { useNavigate, useLocation } from "react-router";
 import { useAuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
 import { extractErrorMessage } from "../../utils/errorUtils";
 import AuthService from "../../services/AuthService";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -137,7 +137,7 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
 
       const decodedUser = await login(email, password);
 
-      console.log("✅ Login success response:", decodedUser);
+      console.log(" Login success response:", decodedUser);
 
       // Reset failed attempts on successful login
       localStorage.removeItem(`failedAttempts_${email}`);

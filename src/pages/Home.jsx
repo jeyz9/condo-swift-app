@@ -20,7 +20,7 @@ export const Home = () => {
   const [loading, setLoading] = useState(true);
   const [saleType, setSaleType] = useState("");
 
-  // ✅ รูป MRT (เรียงตาม index)
+  //  รูป MRT (เรียงตาม index)
   const imageList = [
     "/mrt/BTS-and-MRT-Bangkok.jpg",
     "/mrt/IM2019100039MO.jpg",
@@ -67,11 +67,11 @@ export const Home = () => {
     fetchData();
   }, []);
 
-  // ✅ ดึงข้อมูลแต่ละหมวด
+  //  ดึงข้อมูลแต่ละหมวด
   const { recommendAnnounces, nearbyPlaces, luxuryHouses, villaProvince } =
     announce;
 
-  // ✅ Animation
+  //  Animation
   const fadeUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
@@ -232,7 +232,7 @@ export const Home = () => {
                 initial="hidden"
                 animate="visible"
               >
-                {/* ✅ ใช้รูปเรียงตามลำดับ */}
+                {/*  ใช้รูปเรียงตามลำดับ */}
                 <CondoCardNearby
                   item={item}
                   image={imageList[i % imageList.length]}

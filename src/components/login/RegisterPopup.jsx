@@ -18,7 +18,7 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  // ✅ Animation settings
+  //  Animation settings
   const backdropVariant = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.25 } },

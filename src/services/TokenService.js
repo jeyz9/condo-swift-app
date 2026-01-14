@@ -37,7 +37,7 @@ const setUser = (user) => {
 
 const getLocalAccessToken = () => {
   const user = getUser();
-  // ✅ รองรับทั้งชื่อ token และ accessToken
+  //  รองรับทั้งชื่อ token และ accessToken
   return user?.token || user?.accessToken || null;
 };
 

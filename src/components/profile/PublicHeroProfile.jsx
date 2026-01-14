@@ -25,7 +25,7 @@ const PublicHeroProfile = ({ profile }) => {
       displayName
     )}&background=0D8ABC&color=fff`;
 
-  // ✅ แชร์ลิงก์โปรไฟล์
+  //  แชร์ลิงก์โปรไฟล์
   const handleShare = async () => {
     const shareUrl = `${window.location.origin}/profile/${profile?.userId}`; // Use the profile's userId for sharing
     try {
@@ -51,7 +51,7 @@ const PublicHeroProfile = ({ profile }) => {
       <div className="w-full h-[320px] bg-[#E3E3E3]" />
 
       <div className="relative -mt-[100px] flex flex-col gap-6 px-6 sm:flex-row sm:items-end sm:justify-between sm:px-12">
-        {/* ✅ รูปโปรไฟล์ (ไม่สามารถอัปโหลดได้) */}
+        {/*  รูปโปรไฟล์ (ไม่สามารถอัปโหลดได้) */}
         <div className="flex items-center gap-6 sm:ml-[100px] relative group">
           <img
             src={avatarSrc}

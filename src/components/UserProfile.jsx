@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 import Swal from "sweetalert2";
 import UserService from "../services/UserService";
-import { Link } from "react-router-dom";
-import { FiEye, FiEyeOff } from "react-icons/fi";
 import AuthService from "../services/AuthService";
 import EditProfilePopup from "./profile/EditProfilePopup";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const UserProfile = () => {
   const { user, logout } = useAuthContext();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState({});
   const [loading, setLoading] = useState(true);
   const [showChangePasswordPopup, setShowChangePasswordPopup] = useState(false);
@@ -119,15 +121,20 @@ const UserProfile = () => {
         confirmPassword,
       });
       if (res.status === 200) {
-        Swal.fire({
-          icon: "success",
-          title: "เปลี่ยนรหัสผ่านสำเร็จ!",
-          timer: 1500,
-          showConfirmButton: false,
-        });
         setShowChangePasswordPopup(false);
         form.reset();
         setShowPassword({ old: false, new: false, confirm: false });
+
+        await Swal.fire({
+          icon: "success",
+          title: "เปลี่ยนรหัสผ่านสำเร็จ!",
+          text: "กรุณาเข้าสู่ระบบใหม่",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        
+        logout();
+        navigate("/");
       }
     } catch (err) {
       Swal.fire({
@@ -144,6 +151,23 @@ const UserProfile = () => {
 
   const togglePassword = (field) => {
     setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
+  };
+
+  const backdropVariant = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.25 } },
+    exit: { opacity: 0, transition: { duration: 0.2 } },
+  };
+
+  const popupVariant = {
+    hidden: { opacity: 0, scale: 0.8, y: -20 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: { duration: 0.35, ease: "easeOut" },
+    },
+    exit: { opacity: 0, scale: 0.85, y: -20, transition: { duration: 0.25 } },
   };
 
   return (
@@ -261,115 +285,128 @@ const UserProfile = () => {
       </div>
 
       {/* ---------- Popup เปลี่ยนรหัสผ่าน ---------- */}
-      {showChangePasswordPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[1px]">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-800">
-                  เปลี่ยนรหัสผ่าน
-                </h2>
-                <p className="text-xs text-gray-500 mt-1">
-                  เพื่อความปลอดภัย แนะนำให้ใช้รหัสผ่านที่ไม่ซ้ำกับที่อื่น
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowChangePasswordPopup(false)}
-                className="btn btn-ghost btn-xs"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleChangePassword} className="space-y-4">
-              {/* Old password */}
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  รหัสผ่านเดิม
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword.old ? "text" : "password"}
-                    name="oldPassword"
-                    required
-                    className="w-full input input-bordered input-sm pr-10"
-                  />
+      <AnimatePresence>
+        {showChangePasswordPopup && (
+          <>
+            <motion.div
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+              onClick={() => setShowChangePasswordPopup(false)}
+              variants={backdropVariant}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            />
+            <motion.div
+              className="fixed inset-0 z-50 flex items-center justify-center px-4"
+              variants={popupVariant}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md mx-auto relative">
+                <div className="flex items-start justify-between mb-4">
+                  <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">
+                    เปลี่ยนรหัสผ่าน
+                  </h2>
                   <button
                     type="button"
-                    onClick={() => togglePassword("old")}
-                    className="btn btn-ghost btn-xs absolute right-1.5  translate-y-1"
+                    onClick={() => setShowChangePasswordPopup(false)}
+                    className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl"
                   >
-                   
+                    &times;
                   </button>
                 </div>
-              </div>
 
-              {/* New password */}
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  รหัสผ่านใหม่
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword.new ? "text" : "password"}
-                    name="newPassword"
-                    required
-                    minLength={8}
-                    className="w-full input input-bordered input-sm pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => togglePassword("new")}
-                    className="btn btn-ghost btn-xs absolute right-1.5 translate-y-1"
-                  >
-                  
-                  </button>
-                </div>
-                <p className="text-[11px] mt-1 text-gray-400">
-                  อย่างน้อย 8 ตัวอักษร แนะนำให้มีทั้งตัวเลขและตัวอักษร
-                </p>
-              </div>
+                <form onSubmit={handleChangePassword} className="space-y-4">
+                  {/* Old password */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      รหัสผ่านเดิม
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword.old ? "text" : "password"}
+                        name="oldPassword"
+                        required
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
+                      />
+                      <span
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                        onClick={() => togglePassword("old")}
+                      >
+                        {showPassword.old ? <FaEyeSlash className="h-5 w-5 text-gray-500" /> : <FaEye className="h-5 w-5 text-gray-500" />}
+                      </span>
+                    </div>
+                  </div>
 
-              {/* Confirm password */}
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  ยืนยันรหัสผ่านใหม่
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword.confirm ? "text" : "password"}
-                    name="confirmPassword"
-                    required
-                    minLength={8}
-                    className="w-full input input-bordered input-sm pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => togglePassword("confirm")}
-                    className="btn btn-ghost btn-xs absolute right-1.5 translate-y-1"
-                  >
-                 
-                  </button>
-                </div>
-              </div>
+                  {/* New password */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      รหัสผ่านใหม่
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword.new ? "text" : "password"}
+                        name="newPassword"
+                        required
+                        minLength={8}
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
+                      />
+                      <span
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                        onClick={() => togglePassword("new")}
+                      >
+                        {showPassword.new ? <FaEyeSlash className="h-5 w-5 text-gray-500" /> : <FaEye className="h-5 w-5 text-gray-500" />}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      อย่างน้อย 8 ตัวอักษร
+                    </p>
+                  </div>
 
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowChangePasswordPopup(false)}
-                  className="btn btn-sm btn-ghost"
-                >
-                  ยกเลิก
-                </button>
-                <button type="submit" className="btn btn-sm btn-primary">
-                  บันทึก
-                </button>
+                  {/* Confirm password */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      ยืนยันรหัสผ่านใหม่
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword.confirm ? "text" : "password"}
+                        name="confirmPassword"
+                        required
+                        minLength={8}
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
+                      />
+                      <span
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                        onClick={() => togglePassword("confirm")}
+                      >
+                        {showPassword.confirm ? <FaEyeSlash className="h-5 w-5 text-gray-500" /> : <FaEye className="h-5 w-5 text-gray-500" />}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowChangePasswordPopup(false)}
+                      className="btn btn-ghost"
+                    >
+                      ยกเลิก
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn bg-[#8C6239] text-white hover:bg-[#7d5a32]"
+                    >
+                      บันทึกการเปลี่ยนแปลง
+                    </button>
+                  </div>
+                </form>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {showEditProfilePopup && (
         <EditProfilePopup
@@ -382,4 +419,3 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
-

@@ -6,6 +6,8 @@ import { User, FileText, Phone, Mail, MessageSquare } from 'lucide-react';
 import { extractErrorMessage } from '../../utils/errorUtils';
 import { useAuthContext } from '../../context/AuthContext';
 
+import { motion, AnimatePresence } from 'framer-motion';
+
 const MySwal = withReactContent(Swal);
 
 const EditProfilePopup = ({ onClose, onProfileUpdate }) => {
@@ -88,97 +90,131 @@ const EditProfilePopup = ({ onClose, onProfileUpdate }) => {
     }
   };
 
+  const backdropVariant = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.25 } },
+    exit: { opacity: 0, transition: { duration: 0.2 } },
+  };
+
+  const popupVariant = {
+    hidden: { opacity: 0, scale: 0.8, y: -20 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: { duration: 0.35, ease: "easeOut" },
+    },
+    exit: { opacity: 0, scale: 0.85, y: -20, transition: { duration: 0.25 } },
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[1px]">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
-        <div className="flex items-start justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-800">แก้ไขโปรไฟล์</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="btn btn-ghost btn-xs"
-          >
-            ✕
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="relative">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              name="name"
-              placeholder="ชื่อ"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full input input-bordered input-sm pl-10"
-              required
-            />
-          </div>
-          <div className="relative">
-            <FileText className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-            <textarea
-              name="description"
-              placeholder="คำอธิบาย"
-              value={formData.description}
-              onChange={handleChange}
-              className="w-full textarea textarea-bordered textarea-sm pl-10"
-              rows="3"
-            ></textarea>
-          </div>
-          <div className="relative">
-            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="tel"
-              name="phone"
-              placeholder="เบอร์โทรศัพท์"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full input input-bordered input-sm pl-10"
-            />
-          </div>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="email"
-              name="email"
-              placeholder="อีเมล"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full input input-bordered input-sm pl-10"
-              required
-              pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-            />
-          </div>
-          <div className="relative">
-            <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              name="lineId"
-              placeholder="Line ID"
-              value={formData.lineId}
-              onChange={handleChange}
-              className="w-full input input-bordered input-sm pl-10"
-            />
-          </div>
-          <div className="flex justify-end gap-2 mt-4">
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+        onClick={onClose}
+        variants={backdropVariant}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+      />
+      <motion.div
+        className="fixed inset-0 z-50 flex items-center justify-center px-4"
+        variants={popupVariant}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+      >
+        <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md mx-auto relative">
+          <div className="flex items-start justify-between mb-4">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">
+              แก้ไขโปรไฟล์
+            </h2>
             <button
-              type="button"
               onClick={onClose}
-              className="btn btn-sm btn-ghost"
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl"
             >
-              ยกเลิก
-            </button>
-            <button
-              type="submit"
-              className="btn btn-sm btn-primary"
-              disabled={isLoading}
-            >
-              {isLoading ? 'กำลังบันทึก...' : 'บันทึก'}
+              &times;
             </button>
           </div>
-        </form>
-      </div>
-    </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                name="name"
+                placeholder="ชื่อ"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none pl-10"
+                required
+              />
+            </div>
+            <div className="relative">
+              <FileText className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+              <textarea
+                name="description"
+                placeholder="คำอธิบาย"
+                value={formData.description}
+                onChange={handleChange}
+                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none pl-10"
+                rows="3"
+              ></textarea>
+            </div>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="tel"
+                name="phone"
+                placeholder="เบอร์โทรศัพท์"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none pl-10"
+              />
+            </div>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="email"
+                name="email"
+                placeholder="อีเมล"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none pl-10"
+                required
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+              />
+            </div>
+            <div className="relative">
+              <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                name="lineId"
+                placeholder="Line ID"
+                value={formData.lineId}
+                onChange={handleChange}
+                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none pl-10"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="btn btn-ghost"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="submit"
+                className="btn bg-[#8C6239] text-white hover:bg-[#7d5a32]"
+                disabled={isLoading}
+              >
+                {isLoading ? 'กำลังบันทึก...' : 'บันทึกการเปลี่ยนแปลง'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

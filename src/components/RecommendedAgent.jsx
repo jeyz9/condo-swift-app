@@ -1,6 +1,6 @@
 // src/components/RecommendedAgent.jsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom"; // ✅ Import Link
+import { Link } from "react-router-dom"; //  Import Link
 import { MdVerified } from "react-icons/md";
 import Swal from "sweetalert2";
 import { showContactPopup } from "./details/ContactPopup";
@@ -83,7 +83,7 @@ const RecommendedAgent = ({ recommendedAgents }) => {
   return (
     <div className="space-y-4 w-full">
       {agents.map((agent) => {
-        const agentProfileId = agent?.userId || agent?.agentId || agent?.id; // ✅ Get agent ID
+        const agentProfileId = agent?.userId || agent?.agentId || agent?.id; //  Get agent ID
 
         const Wrapper = agentProfileId ? Link : "div";
         const wrapperProps = agentProfileId

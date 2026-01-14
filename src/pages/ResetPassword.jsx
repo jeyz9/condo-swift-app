@@ -77,7 +77,7 @@ export const ResetPassword = () => {
                 placeholder="รหัสผ่านใหม่"
               />
               <span
-                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer z-10"
                 onClick={(e) => { e.preventDefault(); setShowNewPassword(!showNewPassword); }}
               >
                 {showNewPassword ? (
@@ -100,7 +100,7 @@ export const ResetPassword = () => {
                 placeholder="ยืนยันรหัสผ่านใหม่"
               />
               <span
-                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer z-10"
                 onClick={(e) => { e.preventDefault(); setShowConfirmPassword(!showConfirmPassword); }}
               >
                 {showConfirmPassword ? (

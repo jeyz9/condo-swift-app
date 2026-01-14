@@ -32,18 +32,18 @@ const CondoCardVilla = ({ item }) => {
   const total =
     typeof item?.totalAnnounce === "number" ? item.totalAnnounce : 0;
 
-  // ✅ ตัดคำว่า "วิลล่า" ออก จะได้ชื่อจังหวัด/พื้นที่
+  //  ตัดคำว่า "วิลล่า" ออก จะได้ชื่อจังหวัด/พื้นที่
   const provinceFromName = name.replace("วิลล่า", "").trim();
 
-  // ✅ กำหนดค่า province & type (เผื่อ backend ส่งมาใน item ด้วย)
+  //  กำหนดค่า province & type (เผื่อ backend ส่งมาใน item ด้วย)
   const province = item?.province || provinceFromName;
   const type = item?.type || "วิลล่า"; // ถ้า backend ใช้ "VILLA" ก็เปลี่ยนเป็น "VILLA"
 
-  // ✅ เอาไว้ใช้เลือกภาพ
+  //  เอาไว้ใช้เลือกภาพ
   const cleanName = name?.replace(/\s+/g, "") || "";
   const image = imageMap[cleanName] || imageMap.Default;
 
-  // ✅ สร้าง query string ให้ filter หน้า /filter รองรับ province + type
+  //  สร้าง query string ให้ filter หน้า /filter รองรับ province + type
   const queryString = new URLSearchParams({
     province,
     type,

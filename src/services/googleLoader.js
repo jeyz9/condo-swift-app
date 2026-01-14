@@ -5,7 +5,7 @@ const G_API = import.meta.env.VITE_GOOGLEMAP_API;
 export const googleLoader = new Loader({
   apiKey: G_API,
   version: "weekly",
-  libraries: ["places"], // ✅ ต้องมี places
+  libraries: ["places"], //  ต้องมี places
 });
 
 export async function loadGoogleMaps() {

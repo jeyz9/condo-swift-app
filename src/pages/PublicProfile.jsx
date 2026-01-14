@@ -16,13 +16,13 @@ const FILTER_TABS = [
 ];
 
 export const PublicProfile = () => {
-  const { userId } = useParams(); // ✅ รับ userId จาก URL เช่น /public-profile/2
+  const { userId } = useParams(); //  รับ userId จาก URL เช่น /public-profile/2
 
   const [profile, setProfile] = useState(null);
   const [activeTab, setActiveTab] = useState("เช่า");
   const [loading, setLoading] = useState(true);
 
-  // ✅ ดึงข้อมูลโปรไฟล์จาก backend
+  //  ดึงข้อมูลโปรไฟล์จาก backend
   const fetchProfile = async (type = "เช่า") => {
     try {
       setLoading(true);

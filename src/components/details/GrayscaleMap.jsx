@@ -44,7 +44,7 @@ export default function GrayscaleMap({ lat, lng }) {
 
     const service = new window.google.maps.places.PlacesService(mapRef.current);
 
-    // ✅ helper ฟังก์ชันค้นหาแต่ละ type
+    //  helper ฟังก์ชันค้นหาแต่ละ type
     const searchType = (type) => {
       return new Promise((resolve) => {
         const request = { location: center, radius: 1500, type };
@@ -60,11 +60,11 @@ export default function GrayscaleMap({ lat, lng }) {
 
     const fetchPlaces = async () => {
       if (Array.isArray(selectedType)) {
-        // ✅ ถ้าเป็นหลาย type เช่น ["train_station", "subway_station"]
+        //  ถ้าเป็นหลาย type เช่น ["train_station", "subway_station"]
         const results = await Promise.all(selectedType.map(searchType));
         setPlaces(results.flat()); // รวมผลลัพธ์ทั้งหมด
       } else {
-        // ✅ ถ้าเป็น type เดียว
+        //  ถ้าเป็น type เดียว
         const results = await searchType(selectedType);
         setPlaces(results);
       }
@@ -106,7 +106,7 @@ export default function GrayscaleMap({ lat, lng }) {
           <MdPark className="w-5 h-5 mr-2" /> สวนสาธารณะ
         </button>
 
-        {/* ✅ รวมทั้ง MRT, BTS, Train */}
+        {/*  รวมทั้ง MRT, BTS, Train */}
         <button
           onClick={() =>
             setSelectedType(["train_station", "subway_station", "transit_station"])

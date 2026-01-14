@@ -70,7 +70,7 @@ function ResetPasswordPage() {
         text: 'รหัสผ่านของคุณถูกเปลี่ยนเรียบร้อยแล้ว กรุณาเข้าสู่ระบบใหม่',
         confirmButtonText: 'ตกลง',
       }).then(() => {
-        window.location.href = '/login';
+        window.location.href = '/';
       });
     } catch (error) {
       setMessage(extractErrorMessage(error, "เกิดข้อผิดพลาดที่ไม่คาดคิด"));
