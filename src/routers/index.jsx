@@ -35,6 +35,7 @@ import VerifyEmail from "../pages/verifyEmail.jsx";
 import Draft from "../pages/Draft.jsx";
 import AdminAnnounceDetail from "../pages/AdminAnnounceDetail.jsx";
 import AdminManageRoles from "../pages/AdminManageRoles.jsx";
+import { EditAnnounceReject } from "../pages/EditAnnounceReject.jsx";
 
 const router = createBrowserRouter([
   // 🏠 Layout หลักสำหรับผู้ใช้ทั่วไป
@@ -59,6 +60,7 @@ const router = createBrowserRouter([
       { path: "/forbidden", element: <Forbidden /> },
       { path: "/verify-email/verify", element: <VerifyEmail /> },
       { path: "/draft", element: <RequireAuth><Draft /></RequireAuth> },
+      { path: "/edit-announce-reject/:id", element:<RequireRole allowedRoles={['ROLE_AGENT']}><RequireVerification><EditAnnounceReject /></RequireVerification></RequireRole> },
       // catch-all สำหรับ path ที่ไม่ตรง
       { path: "*", element: <NotFound /> },
     ],
@@ -67,7 +69,7 @@ const router = createBrowserRouter([
   {
     path: "/admin",
     element: (
-      <RequireRole allowedRoles={["ROLE_ADMIN"]}>
+      <RequireRole allowedRoles={["ROLE_ADMIN", "ROLE_MODERATOR"]}>
         <AdminLayout />
       </RequireRole>
     ),
@@ -76,9 +78,7 @@ const router = createBrowserRouter([
       { path: "announce/history", element: <HistoryTable /> },
       { path: "announce/published", element: <Publish /> },
       { path: "announce/pending", element: <PendingTable />},
-      { path: "announce/pending/:id", element: <AdminAnnounceDetail /> },
-      // 👇 ถ้ามีหน้าอื่นในอนาคต เช่น:
-      { path: "announce/details/:id", element: <ShareAnnounce /> },
+      { path: "announce/details/:id", element: <AdminAnnounceDetail /> },
       { path: "notifications/send", element: <SendNotification /> },
       { path: "badges/manage", element: <AdminBadges /> },
       { path: "badges/assign", element: <AdminAssignBadge /> },

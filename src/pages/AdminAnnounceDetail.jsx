@@ -7,6 +7,7 @@ import { IoBedOutline } from "react-icons/io5";
 import { PiShower } from "react-icons/pi";
 import { BsTextarea } from "react-icons/bs";
 import { PiShareFat } from "react-icons/pi";
+import { FaCheck, FaTimes } from "react-icons/fa";
 import {
   MdPool,
   MdFitnessCenter,
@@ -18,7 +19,7 @@ import {
 import GrayscaleMap from "../components/details/GrayscaleMap";
 import AnnounceService from "../services/AnnounceService";
 import Swal from "sweetalert2";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { MdArrowBack, MdWarningAmber } from "react-icons/md";
 import { useAuthContext } from "../context/AuthContext";
 import { DetailSkeleton } from "./DetailSkeleton";
@@ -31,6 +32,7 @@ const AdminAnnounceDetail = () => {
 
   const { id } = useParams();
   const { user } = useAuthContext();
+  const navigate = useNavigate();
 
   const userId = user?.userId;
   const agentId = announce?.agent?.id;
@@ -47,13 +49,20 @@ const AdminAnnounceDetail = () => {
           setAnnounce(null);
         }
       } catch (error) {
+        let errorMessage = extractErrorMessage(
+          error,
+          "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"
+        );
+
+        if (errorMessage === "You do not have permission to access this announcement.") {
+          errorMessage = "คุณไม่มีสิทธิ์เข้าถึงประกาศนี้";
+          console.log("คุณไม่มีสิทธิ์เข้าถึงประกาศนี้")
+        }
+
         Swal.fire({
           icon: "error",
-          title: "เกิดข้อผิดพลาดในการเชื่อมต่อ",
-          text: extractErrorMessage(
-            error,
-            "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"
-          ),
+          title: "เกิดข้อผิดพลาด",
+          text: errorMessage,
           confirmButtonText: "ตกลง",
         });
       } finally {
@@ -63,6 +72,59 @@ const AdminAnnounceDetail = () => {
 
     fetchData();
   }, [id]);
+
+  const handleApprove = async () => {
+    try {
+      await AnnounceService.approveAnnounce(id);
+      Swal.fire({
+        icon: 'success',
+        title: 'อนุมัติสำเร็จ!',
+        text: 'ประกาศได้รับการอนุมัติและเผยแพร่แล้ว',
+      }).then(() => {
+        navigate('/admin/announce/pending');
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: extractErrorMessage(error, 'ไม่สามารถอนุมัติประกาศได้'),
+      });
+    }
+  };
+
+  const handleReject = async () => {
+    const { value: reason } = await Swal.fire({
+      title: 'ระบุเหตุผลที่ปฏิเสธ',
+      input: 'textarea',
+      inputPlaceholder: 'เช่น รูปภาพไม่ชัดเจน, ข้อมูลติดต่อไม่ถูกต้อง...',
+      inputAttributes: {
+        'aria-label': 'Type your message here'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'ยืนยันการปฏิเสธ',
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#d33',
+    });
+
+    if (reason) {
+      try {
+        await AnnounceService.rejectAnnounce(id, { reason });
+        Swal.fire({
+          icon: 'success',
+          title: 'ปฏิเสธสำเร็จ',
+          text: 'ประกาศถูกปฏิเสธและส่งกลับไปให้ผู้ใช้แก้ไข',
+        }).then(() => {
+          navigate('/admin/announce/pending');
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'เกิดข้อผิดพลาด',
+          text: extractErrorMessage(error, 'ไม่สามารถปฏิเสธประกาศได้'),
+        });
+      }
+    }
+  };
 
   const sharePage = () => {
     // ... (sharePage function remains the same)
@@ -91,6 +153,24 @@ const exactDuplicates = announce?.exactDuplicates;
           <span className="font-semibold">กลับไปหน้ารายการรออนุมัติ</span>
         </Link>
       </div>
+
+      {/* Admin Action Buttons */}
+      {(announce?.approveStatusId === 1) && (
+        <div className="w-full max-w-6xl mx-auto px-4 pt-4 flex gap-4">
+          <button
+            onClick={handleApprove}
+            className="btn btn-success text-white"
+          >
+            <FaCheck /> อนุมัติ
+          </button>
+          <button
+            onClick={handleReject}
+            className="btn btn-error text-white"
+          >
+            <FaTimes /> ปฏิเสธ
+          </button>
+        </div>
+      )}
 
       <div className="mt-4 flex justify-center px-4">
         <CardDetails images={announce.imageList} />

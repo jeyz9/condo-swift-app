@@ -164,10 +164,7 @@ export default function PendingTable() {
               {announces.map((item, index) => (
                 <tr
                   key={item.id}
-                  className="hover:bg-[#f7f3ef] transition select-none cursor-pointer"
-                  onClick={() =>
-                    navigate(`/admin/announce/pending/${item.id}`)
-                  }
+                  className="hover:bg-[#f7f3ef] transition select-none"
                 >
                   <td>{ordered + index + 1}</td>
                   <td className="flex items-center gap-3">
@@ -176,7 +173,9 @@ export default function PendingTable() {
                       alt={item.title}
                       className="w-10 h-10 rounded-md object-cover"
                     />
-                    <span className="font-medium">{item.title}</span>
+                    <Link to={`/admin/announce/details/${item.id}`} className="font-medium hover:underline hover:text-[#8C6239] cursor-pointer">
+                      {item.title}
+                    </Link>
                   </td>
                   <td>{item.agentName}</td>
                   <td>

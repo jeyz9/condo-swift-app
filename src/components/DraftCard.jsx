@@ -12,12 +12,13 @@ const formatPrice = (value) => {
 
 export const DraftCard = ({ announce }) => {
   const announceId = announce?.id ?? "";
-  const editUrl = `/edit-announce/${announceId}`;
+  const status = announce?.status?.toLowerCase();
+  const editUrl = `/edit-announce-reject/${announceId}?status=${status || ''}`;
+  console.log(announce)
   const imageUrl =
     announce?.imageList?.imageUrl ||
     "https://via.placeholder.com/400x300?text=No+Image";
   const price = formatPrice(announce?.price);
-  const status = announce?.status;
 
   const statusDisplay = {
     draft: { text: "แบบร่าง", className: "bg-blue-500 text-white" },

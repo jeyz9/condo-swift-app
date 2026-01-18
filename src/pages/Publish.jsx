@@ -173,11 +173,11 @@ export default function Publish() {
                       .format("DD MMMM YYYY เวลา HH:mm น.")}
                   </td>
                   <td>
-                   <a href={`pending/${item?.id}`} >
+                   <Link to={`/admin/announce/details/${item.id}`} >
                     <button className="btn btn-active btn-warning">
                       ดูรายละเอียด
                     </button>
-                   </a>
+                   </Link>
                   </td>
                 </tr>
               ))}

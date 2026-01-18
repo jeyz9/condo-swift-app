@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import NotificationService from "../services/NotificationService";
 import Swal from "sweetalert2";
 import { FaBell, FaPaperPlane, FaUserFriends } from "react-icons/fa";
 import { extractErrorMessage } from "../utils/errorUtils";
+import ProvinceService from "../services/ProvinceService"; // Import ProvinceService
 
 export default function SendNotification() {
   const [title, setTitle] = useState("");
@@ -10,6 +11,11 @@ export default function SendNotification() {
   const [rawUserIds, setRawUserIds] = useState("");
   const [sendType, setSendType] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // New states for recipient search and selection
+  const [allRecipients, setAllRecipients] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedRecipientObjects, setSelectedRecipientObjects] = useState([]);
 
   // parse comma separated IDs -> number[] | empty | invalid
   const parsedUserIds = useMemo(() => {
@@ -27,6 +33,86 @@ export default function SendNotification() {
 
     return { type: "valid", value: numbers };
   }, [rawUserIds]);
+
+  // Fetch all recipients on component mount
+  useEffect(() => {
+    const fetchRecipients = async () => {
+      try {
+        const response = await ProvinceService.showAllRecipients();
+        if (response.status === 200 && response.data) {
+          setAllRecipients(response.data);
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "ไม่สามารถโหลดรายชื่อผู้รับได้",
+            text: "กรุณาลองใหม่อีกครั้ง",
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาดในการเชื่อมต่อ",
+          text: extractErrorMessage(error, "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์เพื่อโหลดรายชื่อผู้รับได้"),
+        });
+      }
+    };
+    fetchRecipients();
+  }, []); // Empty dependency array means this runs once on mount
+
+  // Sync: rawUserIds -> selectedRecipientObjects
+  useEffect(() => {
+    const idsFromRaw = rawUserIds
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map(Number)
+      .filter((id) => !isNaN(id));
+
+    const newSelected = allRecipients.filter((recipient) =>
+      idsFromRaw.includes(recipient.id)
+    );
+    setSelectedRecipientObjects(newSelected);
+  }, [rawUserIds, allRecipients]); // Rerun when rawUserIds or allRecipients change
+
+  // Sync: selectedRecipientObjects -> rawUserIds
+  useEffect(() => {
+    const ids = selectedRecipientObjects.map((recipient) => recipient.id);
+    setRawUserIds(ids.join(","));
+  }, [selectedRecipientObjects]);
+
+  // Filter recipients based on search term
+  const filteredRecipients = useMemo(() => {
+    if (!searchTerm) {
+      return allRecipients;
+    }
+    const lowercasedSearchTerm = searchTerm.toLowerCase();
+    return allRecipients.filter(
+      (recipient) =>
+        recipient.name.toLowerCase().includes(lowercasedSearchTerm) ||
+        (recipient.email && recipient.email.toLowerCase().includes(lowercasedSearchTerm)) ||
+        String(recipient.id).includes(lowercasedSearchTerm)
+    );
+  }, [allRecipients, searchTerm]);
+
+  const handleRecipientToggle = (recipientObject) => {
+    setSelectedRecipientObjects((prev) => {
+      const isAlreadySelected = prev.some((r) => r.id === recipientObject.id);
+
+      if (isAlreadySelected) {
+        return prev.filter((r) => r.id !== recipientObject.id);
+      } else {
+        if (prev.length >= 4) {
+          Swal.fire({
+            icon: "warning",
+            title: "เลือกได้สูงสุด 4 คนเท่านั้น",
+            text: "คุณสามารถเลือกผู้รับได้ไม่เกิน 4 คน",
+          });
+          return prev; // Do not add if limit is reached
+        }
+        return [...prev, recipientObject];
+      }
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -108,7 +194,7 @@ export default function SendNotification() {
     setMessage(
       "ระบบจะปรับปรุงภายใน 30 นาทีข้างหน้า การใช้งานอาจสะดุดเล็กน้อย ขออภัยในความไม่สะดวกค่ะ"
     );
-    setRawUserIds("1001, 1002");
+    setRawUserIds("1001,1002"); // Prefill rawUserIds, which will sync to selectedRecipientObjects
     setSendType("SELECTED");
   };
 
@@ -184,7 +270,10 @@ export default function SendNotification() {
               onChange={(e) => {
                 const val = e.target.value;
                 setSendType(val);
-                if (val === "ALL") setRawUserIds("");
+                if (val === "ALL") {
+                  setRawUserIds(""); // Clear rawUserIds
+                  setSelectedRecipientObjects([]); // Clear selectedRecipientObjects
+                }
               }}
             >
               <option value="">เลือก send type</option>
@@ -199,18 +288,50 @@ export default function SendNotification() {
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
               <FaUserFriends className="text-[#8C6239]" />
-              Target user ids
+              Target users
             </label>
             <input
               type="text"
-              value={rawUserIds}
-              onChange={(e) => setRawUserIds(e.target.value)}
-              placeholder="เช่น 1001, 1002"
-              className="input input-bordered w-full"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by name, email, or ID"
+              className="input input-bordered w-full mb-2"
               disabled={sendType === "ALL"}
             />
+            {sendType !== "ALL" && (
+              <div className="border rounded-lg max-h-48 overflow-y-auto bg-gray-50 p-2">
+                {filteredRecipients.length > 0 ? (
+                  filteredRecipients.slice(0, 4).map((recipient) => (
+                    <div
+                      key={recipient.id}
+                      className="flex items-center justify-between p-2 hover:bg-gray-100 rounded-md cursor-pointer"
+                      onClick={() => handleRecipientToggle(recipient)}
+                    >
+                      <span className="text-sm">
+                        {recipient.name || recipient.email} ({recipient.email || "No Email"})
+                      </span>
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm"
+                        checked={selectedRecipientObjects.some(r => r.id === recipient.id)}
+                        readOnly
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center text-sm text-gray-500">
+                    No recipients found or loaded.
+                  </p>
+                )}
+              </div>
+            )}
+            {selectedRecipientObjects.length > 0 && sendType !== "ALL" && (
+              <p className="text-xs text-gray-500 mt-2">
+                Selected: {selectedRecipientObjects.map(r => r.id).join(", ")}
+              </p>
+            )}
             <p className="text-xs text-gray-400">
-              ระบุ userIds หลายรายการคั่นด้วยจุลภาค (จำเป็นเมื่อเลือก SELECTED)
+              Select users from the list below (required when SELECTED is chosen)
             </p>
           </div>
 
@@ -221,7 +342,9 @@ export default function SendNotification() {
               onClick={() => {
                 setTitle("");
                 setMessage("");
-                setRawUserIds("");
+                setRawUserIds(""); // Clear rawUserIds
+                setSelectedRecipientObjects([]); // Clear selectedRecipientObjects
+                setSearchTerm(""); // Clear search term
                 setSendType("");
               }}
               disabled={loading}

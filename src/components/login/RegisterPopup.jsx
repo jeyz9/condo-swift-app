@@ -2,21 +2,22 @@ import React, { useState } from "react";
 import Swal from "sweetalert2";
 import AuthService from "../../services/AuthService";
 import { extractErrorMessage } from "../../utils/errorUtils";
-import { motion, AnimatePresence } from "framer-motion"; // 
+import { motion, AnimatePresence } from "framer-motion"; //
 import { form } from "framer-motion/client";
 
+const initialFormState = {
+  name: "",
+  description: "",
+  phone: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+  is_agent: false,
+  is_agree: false,
+};
+
 export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    phone: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    is_agent: false,
-    is_agree: false,
-  });
-  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState(initialFormState);  const [isLoading, setIsLoading] = useState(false);
 
   //  Animation settings
   const backdropVariant = {
@@ -92,7 +93,10 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
           title: "สมัครสมาชิกสำเร็จ!",
           text: "คุณสามารถเข้าสู่ระบบได้แล้ว",
           confirmButtonColor: "#8C6239",
-        }).then(() => onClose());
+        }).then(() => {
+          setFormData(initialFormState); // Reset form on success
+          onClose();
+        });
       }
     } catch (error) {
       Swal.fire({

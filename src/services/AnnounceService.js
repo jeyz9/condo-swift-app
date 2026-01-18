@@ -109,6 +109,7 @@ const deleteAnnounce = async (id) => api.delete(`${API_URL}/deletedAnnounce/${id
 // 🔍 Announce Detail
 const showAnnounceDetail = async (id) => api.get(`${API_URL}/showAnnounceDetails/${id}`);
 const showAnnouncePendingDetails = async (id) => api.get(`${API_URL}/showAnnouncePendingDetails/${id}`);
+const showAnnounceDetailByAgent = async (id) => api.get(`${API_URL}/showAnnounceDetailsByAgent/${id}`);
 
 // 📦 รวม category ทั้งหมด
 const getAnnounceWithCategory = async () => api.get(`${API_URL}/showAnnounceWithCategory`);
@@ -225,6 +226,7 @@ const AnnounceService = {
   deleteBadge: BadgesService.deleteBadge,
   addAnnounceBadge: BadgesService.addAnnounceBadge,
   deleteAnnounceBadge: BadgesService.deleteAnnounceBadge,
+  showAnnounceDetailByAgent,
 };
 
 export default AnnounceService;

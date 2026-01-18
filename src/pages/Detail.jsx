@@ -73,11 +73,38 @@ export const Detail = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await AnnounceService.showAnnounceDetail(id);
-        if (response.status === 200) {
-          setAnnounce(response.data);
+        let announcementData = null;
+        let isRejected = false;
+
+        try {
+          const response = await AnnounceService.showAnnounceDetail(id);
+          if (response.status === 200 && response.data) {
+            announcementData = response.data;
+            if (announcementData.approveStatusId === 3) {
+              isRejected = true;
+            }
+          } else {
+            isRejected = true;
+          }
+        } catch (error) {
+          isRejected = true;
+          console.warn("showAnnounceDetail failed, attempting showAnnounceDetailByAgent:", error);
+        }
+
+        if (isRejected) {
+          try {
+            const agentResponse = await AnnounceService.showAnnounceDetailByAgent(id);
+            if (agentResponse.status === 200) {
+              setAnnounce(agentResponse.data);
+            } else {
+              setAnnounce(null);
+            }
+          } catch (agentError) {
+            console.error("showAnnounceDetailByAgent also failed:", agentError);
+            setAnnounce(null);
+          }
         } else {
-          setAnnounce(null);
+          setAnnounce(announcementData);
         }
       } catch (error) {
         Swal.fire({
