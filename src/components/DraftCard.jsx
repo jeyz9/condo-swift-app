@@ -14,8 +14,17 @@ export const DraftCard = ({ announce }) => {
   const announceId = announce?.id ?? "";
   const editUrl = `/edit-announce/${announceId}`;
   const imageUrl =
-    announce?.imageList?.imageUrl || "https://via.placeholder.com/400x300?text=No+Image";
+    announce?.imageList?.imageUrl ||
+    "https://via.placeholder.com/400x300?text=No+Image";
   const price = formatPrice(announce?.price);
+  const status = announce?.status;
+
+  const statusDisplay = {
+    draft: { text: "แบบร่าง", className: "bg-blue-500 text-white" },
+    rejected: { text: "ถูกปฏิเสธ", className: "bg-red-500 text-white" },
+  };
+
+  const displayStatus = statusDisplay[status];
 
   return (
     <motion.div
@@ -38,9 +47,13 @@ export const DraftCard = ({ announce }) => {
           />
         </Link>
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/70 to-transparent" />
-        <div className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-gray-800 shadow-sm backdrop-blur">
-          แบบร่าง
-        </div>
+        {displayStatus && (
+          <div
+            className={`absolute top-3 right-3 rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${displayStatus.className}`}
+          >
+            {displayStatus.text}
+          </div>
+        )}
       </div>
 
       {/* Content Section */}
@@ -56,9 +69,9 @@ export const DraftCard = ({ announce }) => {
             </span>
           </p>
           {price && (
-             <div className="mt-2 text-lg font-semibold text-[#8C6239]">
-                ฿{price}
-             </div>
+            <div className="mt-2 text-lg font-semibold text-[#8C6239]">
+              ฿{price}
+            </div>
           )}
         </div>
 

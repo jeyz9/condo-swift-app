@@ -34,7 +34,7 @@ export const Profile = () => {
   const fetchProfile = async (type = "เช่า") => {
     try {
       setLoading(true);
-      const response = await UserService.profilePublic(userId);
+      const response = await UserService.profilePublic(userId, type);
       if (response?.status === 200) {
         setProfile(response.data);
       } else {

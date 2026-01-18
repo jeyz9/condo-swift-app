@@ -4,11 +4,23 @@ import { useAuthContext } from "../context/AuthContext"
 const RequireRole = ({children, allowedRoles = ['ROLE_ADMIN']}) => {
     const {user} = useAuthContext();
     
-    // Handle roles being a string (e.g., "ROLE_USER,ROLE_ADMIN") or an array.
+    // Handle roles being a string, an array of strings, or an array of objects.
     let userRoles = [];
     if (user?.roles) {
         if (Array.isArray(user.roles)) {
-            userRoles = user.roles;
+            if (user.roles.length > 0 && typeof user.roles[0] === 'object' && user.roles[0] !== null) {
+                // Handle array of objects, e.g., [{roleName: 'ROLE_ADMIN'}]
+                if (user.roles[0].roleName) {
+                    userRoles = user.roles.map(r => r.roleName);
+                } else if (user.roles[0].authority) { // A common alternative property name
+                    userRoles = user.roles.map(r => r.authority);
+                } else {
+                    // Fallback for unexpected object structure
+                    userRoles = user.roles.map(String);
+                }
+            } else {
+                 userRoles = user.roles; // It's an array of strings
+            }
         } else if (typeof user.roles === 'string') {
             userRoles = user.roles.split(/, ?/); // Split by comma with optional space
         }

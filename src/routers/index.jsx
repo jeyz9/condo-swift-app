@@ -28,6 +28,7 @@ import AdminAssignBadge from "../pages/AdminAssignBadge.jsx";
 import EditProfile from "../pages/EditProfile.jsx";
 import NotFound from "../pages/NotFound.jsx";
 import RequireRole from "../components/RequireRole.jsx";
+import RequireAuth from "../components/RequireAuth.jsx";
 import Forbidden from "../pages/Forbidden.jsx";
 import RequireVerification from "../components/RequireVerification.jsx";
 import VerifyEmail from "../pages/verifyEmail.jsx";
@@ -46,18 +47,18 @@ const router = createBrowserRouter([
       { path: "/filter", element: <Filter /> },
       { path: "/add-announce", element: <RequireRole allowedRoles={['ROLE_AGENT']}><RequireVerification><AddAnnounce /></RequireVerification></RequireRole> },
       { path: "/edit-announce/:id", element: <RequireRole allowedRoles={['ROLE_AGENT']}><RequireVerification><EditAnnounce /></RequireVerification></RequireRole> },
-      { path: "/profile", element: <Profile /> },
-      { path: "/profile/edit", element: <EditProfile /> },
+      { path: "/profile", element: <RequireAuth><Profile /></RequireAuth> },
+      { path: "/profile/edit", element: <RequireAuth><EditProfile /></RequireAuth> },
       { path: "/public-profile/:userId", element: <PublicProfile /> },
       { path: "/about-us", element: <About /> },
       { path: "/terms-of-service", element: <TermsOfService /> },
       { path: "/privacy-policy", element: <PrivacyPolicy /> },
-      { path: "/notifications/:notifyId", element:<NotificationDetail />},
+      { path: "/notifications/:notifyId", element: <RequireAuth><NotificationDetail /></RequireAuth>},
       { path: "/reset-password", element: <ResetPassword /> },
-      { path: "/bookmarks", element: <Bookmarks /> },
+      { path: "/bookmarks", element: <RequireAuth><Bookmarks /></RequireAuth> },
       { path: "/forbidden", element: <Forbidden /> },
       { path: "/verify-email/verify", element: <VerifyEmail /> },
-      { path: "/draft", element: <Draft /> },
+      { path: "/draft", element: <RequireAuth><Draft /></RequireAuth> },
       // catch-all สำหรับ path ที่ไม่ตรง
       { path: "*", element: <NotFound /> },
     ],
@@ -66,7 +67,7 @@ const router = createBrowserRouter([
   {
     path: "/admin",
     element: (
-      <RequireRole>
+      <RequireRole allowedRoles={["ROLE_ADMIN"]}>
         <AdminLayout />
       </RequireRole>
     ),

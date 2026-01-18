@@ -3,12 +3,12 @@ const API_URL = import.meta.env.VITE_NOTI_API
 import axios from 'axios';
 
 // service
-const showAllNotificationSelectedByUserId = async (userId) => {
-    return api.get(`${API_URL}/showAllNotificationSelectedByUserId/${userId}`)
+const showAllNotificationSelectedByUserId = async () => {
+    return api.get(`${API_URL}/showAllNotificationSelectedByUserId`)
 }
 
-const showNotificationDetailsSelected = async (notifyId, userId) => {
-    return api.get(`${API_URL}/showNotificationDetailsSelected/${notifyId}?userId=${userId}`)
+const showNotificationDetailsSelected = async (notifyId) => {
+    return api.get(`${API_URL}/showNotificationDetailsSelected/${notifyId}`)
 }
 
 const deleteNotification = async (notifyId) => {

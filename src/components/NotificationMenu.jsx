@@ -48,7 +48,7 @@ export default function NotificationMenu() {
       if (!userId) return;
       try {
         const response =
-          await NotificationService.showAllNotificationSelectedByUserId(userId);
+          await NotificationService.showAllNotificationSelectedByUserId();
 
         if (response?.status === 200) {
           setNotifications(response.data);
@@ -82,9 +82,7 @@ export default function NotificationMenu() {
       const refresh = async () => {
         try {
           const res =
-            await NotificationService.showAllNotificationSelectedByUserId(
-              userId
-            );
+            await NotificationService.showAllNotificationSelectedByUserId();
           if (res?.status === 200) {
             setNotifications(res.data);
             const unread = res.data.filter((n) => !n.is_read).length;

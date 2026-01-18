@@ -21,7 +21,6 @@ export default function NotificationDetail() {
       try {
         const res = await NotificationService.showNotificationDetailsSelected(
           notifyId,
-          userId
         );
         if (res.status === 200) {
           setDetail(res.data);

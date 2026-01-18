@@ -1,8 +1,23 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 const SellCard = ({ announce, onDelete }) => {
+
+  const handleCardClick = (e) => {
+    // We only allow navigation to the public detail page if the announcement is approved.
+    // Assuming `1` is the ID for "Approved" status.
+    if (announce?.approveStatusId !== 1) {
+      e.preventDefault();
+      Swal.fire({
+        icon: 'info',
+        title: 'ประกาศยังไม่ได้รับการอนุมัติ',
+        text: 'คุณจะสามารถดูหน้ารายละเอียดได้หลังจากที่ประกาศได้รับการอนุมัติแล้ว',
+        confirmButtonColor: '#8C6239'
+      });
+    }
+  };
 
   if (!announce) return null;
 
@@ -24,7 +39,7 @@ console.log("announce object =", announce);
 
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-      <Link to={`/detail/${announce?.id}`} className="flex flex-col h-full">
+      <Link to={`/detail/${announce?.id}`} onClick={handleCardClick} className="flex flex-col h-full">
         {/* รูปภาพ */}
         <img
           src={imageSrc}

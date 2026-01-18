@@ -20,12 +20,12 @@ const resolveEndpoint = (rawValue, fallbackPath) => {
 
 const API_URL = resolveEndpoint(import.meta.env.VITE_USER_API, "/api/v1/users");
 
-const profilePublic = async (userId) => {
+const profilePublic = async (userId, type) => {
   if (!userId) {
     console.error("User ID is missing or invalid. Aborting API call.");
     return Promise.reject(new Error("User ID is missing or invalid."));
   }
-  return await api.get(`${API_URL}/showUserProfileOverview/${userId}`);
+  return await api.get(`${API_URL}/showUserProfileOverview/${userId}?type=${type}`);
 };
 
 const showRecommendedAgents = async () => {

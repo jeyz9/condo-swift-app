@@ -33,12 +33,6 @@ export default function Forbidden() {
           >
             กลับหน้าหลัก
           </Link>
-          <button
-            className="btn bg-[#8C6239] hover:bg-[#704c2c] text-white"
-            onClick={() => setLoginOpen(true)}
-          >
-            เข้าสู่ระบบ
-          </button>
         </div>
       </div>
 
