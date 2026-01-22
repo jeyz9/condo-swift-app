@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import AuthService from '../services/AuthService';
+import AuthService from '../../services/AuthService';
 import Swal from 'sweetalert2';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { extractErrorMessage } from '../utils/errorUtils';
+import { extractErrorMessage } from '../../utils/errorUtils';
 
 function ResetPasswordPage() {
   const location = useLocation();

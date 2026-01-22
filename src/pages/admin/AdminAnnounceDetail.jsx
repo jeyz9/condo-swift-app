@@ -1,7 +1,7 @@
 // src/pages/AdminAnnounceDetail.jsx
 import React, { useEffect, useState } from "react";
-import { CardDetails } from "../components/details/CardDetails";
-import SalerCard from "../components/details/SalerCard";
+import { CardDetails } from "../../components/details/CardDetails.jsx";
+import SalerCard from "../../components/details/SalerCard.jsx";
 import { GrMapLocation } from "react-icons/gr";
 import { IoBedOutline } from "react-icons/io5";
 import { PiShower } from "react-icons/pi";
@@ -16,15 +16,15 @@ import {
   MdElevator,
   MdSecurity,
 } from "react-icons/md";
-import GrayscaleMap from "../components/details/GrayscaleMap";
-import AnnounceService from "../services/AnnounceService";
+import GrayscaleMap from "../../components/details/GrayscaleMap.jsx";
+import AnnounceService from "../../services/AnnounceService.js";
 import Swal from "sweetalert2";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { MdArrowBack, MdWarningAmber } from "react-icons/md";
-import { useAuthContext } from "../context/AuthContext";
-import { DetailSkeleton } from "./DetailSkeleton";
-import { extractErrorMessage } from "../utils/errorUtils";
-import SimilarDuplicateCard from "../components/SimilarDuplicateCard.jsx";
+import { useAuthContext } from "../../context/AuthContext.jsx";
+import { DetailSkeleton } from "../announcement/DetailSkeleton.jsx";
+import { extractErrorMessage } from "../../utils/errorUtils.js";
+import SimilarDuplicateCard from "../../components/SimilarDuplicateCard.jsx";
 
 const AdminAnnounceDetail = () => {
   const [announce, setAnnounce] = useState(null);
@@ -42,7 +42,7 @@ const AdminAnnounceDetail = () => {
       try {
         setLoading(true);
         const response = await AnnounceService.showAnnouncePendingDetails(id);
-        
+
         if (response.status === 200) {
           setAnnounce(response.data);
         } else {
@@ -51,12 +51,15 @@ const AdminAnnounceDetail = () => {
       } catch (error) {
         let errorMessage = extractErrorMessage(
           error,
-          "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"
+          "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
         );
 
-        if (errorMessage === "You do not have permission to access this announcement.") {
+        if (
+          errorMessage ===
+          "You do not have permission to access this announcement."
+        ) {
           errorMessage = "คุณไม่มีสิทธิ์เข้าถึงประกาศนี้";
-          console.log("คุณไม่มีสิทธิ์เข้าถึงประกาศนี้")
+          console.log("คุณไม่มีสิทธิ์เข้าถึงประกาศนี้");
         }
 
         Swal.fire({
@@ -73,59 +76,61 @@ const AdminAnnounceDetail = () => {
     fetchData();
   }, [id]);
 
-  const handleApprove = async () => {
+ const handleApprove = async () => {
+  try {
+    await AnnounceService.approveAnnounce(id);
+    Swal.fire({
+      icon: "success",
+      title: "อนุมัติสำเร็จ!",
+      text: "ประกาศได้รับการอนุมัติและเผยแพร่แล้ว",
+    }).then(() => {
+      navigate("/admin/announce/pending", { replace: true }); // เพิ่ม replace: true
+      window.location.reload();
+    });
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "เกิดข้อผิดพลาด",
+      text: extractErrorMessage(error, "ไม่สามารถอนุมัติประกาศได้"),
+    });
+  }
+};
+
+const handleReject = async () => {
+  const { value: reason } = await Swal.fire({
+    title: "ระบุเหตุผลที่ปฏิเสธ",
+    input: "textarea",
+    inputPlaceholder: "เช่น รูปภาพไม่ชัดเจน, ข้อมูลติดต่อไม่ถูกต้อง...",
+    inputAttributes: {
+      "aria-label": "Type your message here",
+    },
+    showCancelButton: true,
+    confirmButtonText: "ยืนยันการปฏิเสธ",
+    cancelButtonText: "ยกเลิก",
+    confirmButtonColor: "#d33",
+  });
+
+  if (reason) {
     try {
-      await AnnounceService.approveAnnounce(id);
+      await AnnounceService.rejectAnnounce(id, { reason });
       Swal.fire({
-        icon: 'success',
-        title: 'อนุมัติสำเร็จ!',
-        text: 'ประกาศได้รับการอนุมัติและเผยแพร่แล้ว',
+        icon: "success",
+        title: "ปฏิเสธสำเร็จ",
+        text: "ประกาศถูกปฏิเสธและส่งกลับไปให้ผู้ใช้แแก้ไข",
       }).then(() => {
-        navigate('/admin/announce/pending');
+        navigate("/admin/announce/pending", { replace: true }); // เพิ่ม replace: true
       });
     } catch (error) {
       Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: extractErrorMessage(error, 'ไม่สามารถอนุมัติประกาศได้'),
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: extractErrorMessage(error, "ไม่สามารถปฏิเสธประกาศได้"),
       });
     }
-  };
-
-  const handleReject = async () => {
-    const { value: reason } = await Swal.fire({
-      title: 'ระบุเหตุผลที่ปฏิเสธ',
-      input: 'textarea',
-      inputPlaceholder: 'เช่น รูปภาพไม่ชัดเจน, ข้อมูลติดต่อไม่ถูกต้อง...',
-      inputAttributes: {
-        'aria-label': 'Type your message here'
-      },
-      showCancelButton: true,
-      confirmButtonText: 'ยืนยันการปฏิเสธ',
-      cancelButtonText: 'ยกเลิก',
-      confirmButtonColor: '#d33',
-    });
-
-    if (reason) {
-      try {
-        await AnnounceService.rejectAnnounce(id, { reason });
-        Swal.fire({
-          icon: 'success',
-          title: 'ปฏิเสธสำเร็จ',
-          text: 'ประกาศถูกปฏิเสธและส่งกลับไปให้ผู้ใช้แก้ไข',
-        }).then(() => {
-          navigate('/admin/announce/pending');
-        });
-      } catch (error) {
-        Swal.fire({
-          icon: 'error',
-          title: 'เกิดข้อผิดพลาด',
-          text: extractErrorMessage(error, 'ไม่สามารถปฏิเสธประกาศได้'),
-        });
-      }
-    }
-  };
-
+  }
+};
+  console.log("approveStatusId:", announce?.approveStatusId);
+  console.log("type:", typeof announce?.approveStatusId);
   const sharePage = () => {
     // ... (sharePage function remains the same)
   };
@@ -140,8 +145,9 @@ const AdminAnnounceDetail = () => {
   const lng = parseFloat(announce?.mapPoint?.lng ?? 0);
   const agentData = announce?.agent ?? null;
 
-const similarDuplicates = announce?.similarDuplicates;
-const exactDuplicates = announce?.exactDuplicates;
+  const similarDuplicates = announce?.similarDuplicates;
+  const exactDuplicates = announce?.exactDuplicates;
+  console.log("approveStatusId:", announce?.approveStatusId);
   return (
     <>
       <div className="w-full max-w-6xl mx-auto px-4 pt-4">
@@ -155,29 +161,24 @@ const exactDuplicates = announce?.exactDuplicates;
       </div>
 
       {/* Admin Action Buttons */}
-      {(announce?.approveStatusId === 1) && (
-        <div className="w-full max-w-6xl mx-auto px-4 pt-4 flex gap-4">
-          <button
-            onClick={handleApprove}
-            className="btn btn-success text-white"
-          >
-            <FaCheck /> อนุมัติ
-          </button>
-          <button
-            onClick={handleReject}
-            className="btn btn-error text-white"
-          >
-            <FaTimes /> ปฏิเสธ
-          </button>
-        </div>
-      )}
+
+     {/* Admin Action Buttons */}
+<div className="w-full max-w-6xl mx-auto px-4 pt-4 flex gap-4">
+  <button
+    onClick={handleApprove}
+    className="btn btn-success text-white"
+  >
+    <FaCheck /> อนุมัติ
+  </button>
+  <button onClick={handleReject} className="btn btn-error text-white">
+    <FaTimes /> ปฏิเสธ
+  </button>
+</div>
 
       <div className="mt-4 flex justify-center px-4">
         <CardDetails images={announce.imageList} />
       </div>
-
       <div className="mt-7 divider w-full max-w-5xl mx-auto px-4"></div>
-
       <div className="w-full max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-[60%_40%] gap-6">
         {/* LEFT SIDE */}
         <div className="min-w-0">
@@ -192,7 +193,7 @@ const exactDuplicates = announce?.exactDuplicates;
               if (lat && lng) {
                 window.open(
                   `https://www.google.com/maps?q=${lat},${lng}`,
-                  "_blank"
+                  "_blank",
                 );
               } else {
                 alert("ไม่พบพิกัดของประกาศนี้ ❌");
@@ -337,9 +338,10 @@ const exactDuplicates = announce?.exactDuplicates;
             role="alert"
             className="alert alert-warning bg-[#FAAF1C40] h-[125px]"
           >
-            <MdWarningAmber className="w-6 w-6 shrink-0" />
+            <MdWarningAmber className="w-6 shrink-0" />
             <span>
-              คำเตือน: ห้ามโอนเงินก่อนเห็นห้องจริงและตรวจสอบเอกสารสิทธิ์ให้ครบถ้วน
+              คำเตือน:
+              ห้ามโอนเงินก่อนเห็นห้องจริงและตรวจสอบเอกสารสิทธิ์ให้ครบถ้วน
             </span>
           </div>
 
@@ -358,5 +360,3 @@ const exactDuplicates = announce?.exactDuplicates;
 };
 
 export default AdminAnnounceDetail;
-
-

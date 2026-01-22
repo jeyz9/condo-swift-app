@@ -2,20 +2,20 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router";
 import Swal from "sweetalert2";
-import { useAuthContext } from "../context/AuthContext";
+import { useAuthContext } from "../../context/AuthContext.jsx";
 
 // 🧩 Components
-import SearchableDropdown from "../components/SearchableDropdown";
-import AddressMapPreview from "../components/AddressMapPreview";
-import { CardDetails } from "../components/details/CardDetails";
-import GrayscaleMap from "../components/details/GrayscaleMap";
-import AnnounceService from "../services/AnnounceService";
-import UserService from "../services/UserService";
-import ProvinceService from "../services/ProvinceService";
+import SearchableDropdown from "../../components/SearchableDropdown";
+import AddressMapPreview from "../../components/AddressMapPreview";
+import { CardDetails } from "../../components/details/CardDetails";
+import GrayscaleMap from "../../components/details/GrayscaleMap";
+import AnnounceService from "../../services/AnnounceService";
+import UserService from "../../services/UserService";
+import ProvinceService from "../../services/ProvinceService";
 
 // 📚 Data
-import { provinces as fallbackProvinces } from "../data/provinces";
-import { extractErrorMessage } from "../utils/errorUtils";
+import { provinces as fallbackProvinces } from "../../data/provinces";
+import { extractErrorMessage } from "../../utils/errorUtils";
 
 
 

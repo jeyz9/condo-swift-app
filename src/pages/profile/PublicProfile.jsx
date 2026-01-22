@@ -1,40 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import Swal from "sweetalert2";
-import { useAuthContext } from "../context/AuthContext";
-import UserService from "../services/UserService";
-import AnnounceService from "../services/AnnounceService";
-import HeroProfile from "../components/profile/HeroProfile";
-import { ProfileDetail } from "../components/profile/ProfileDetail";
-import { RentCard } from "../components/profile/RentCard";
-import SellCard from "../components/profile/SellCard";
+import UserService from "../../services/UserService";
+import PublicHeroProfile from "../../components/profile/PublicHeroProfile";
+import { ProfileDetail } from "../../components/profile/ProfileDetail";
+import { RentCard } from "../../components/profile/RentCard";
+import SellCard from "../../components/profile/SellCard";
 import { Share2 } from "lucide-react"; // 📤 icon แชร์
 import { ProfileSkeleton } from "./ProfileSkeleton";
-import { useNavigate } from "react-router";
-import { extractErrorMessage } from "../utils/errorUtils";
+import { extractErrorMessage } from "../../utils/errorUtils";
 
 const FILTER_TABS = [
   { label: "เช่า", value: "เช่า" },
   { label: "ขาย", value: "ขาย" },
 ];
 
-export const Profile = () => {
-  const { user } = useAuthContext();
-  const { userId: paramId } = useParams(); //  รับ userId จาก URL เช่น /profile/2
-  const navigate = useNavigate();
+export const PublicProfile = () => {
+  const { userId } = useParams(); //  รับ userId จาก URL เช่น /public-profile/2
 
   const [profile, setProfile] = useState(null);
   const [activeTab, setActiveTab] = useState("เช่า");
   const [loading, setLoading] = useState(true);
-  const userId =  user?.userId;
-  console.log(userId)
-
 
   //  ดึงข้อมูลโปรไฟล์จาก backend
   const fetchProfile = async (type = "เช่า") => {
     try {
       setLoading(true);
-      const response = await UserService.profilePublic(userId, type);
+      const response = await UserService.profilePublic(userId);
       if (response?.status === 200) {
         setProfile(response.data);
       } else {
@@ -50,37 +42,6 @@ export const Profile = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDelete = (announceId) => {
-    Swal.fire({
-      title: 'คุณแน่ใจหรือไม่?',
-      text: "คุณจะไม่สามารถย้อนกลับการกระทำนี้ได้!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'ใช่, ลบเลย!',
-      cancelButtonText: 'ยกเลิก'
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await AnnounceService.deleteAnnounce(announceId);
-          Swal.fire(
-            'ลบแล้ว!',
-            'ประกาศของคุณถูกลบเรียบร้อยแล้ว.',
-            'success'
-          );
-          fetchProfile(activeTab); // Refresh the list
-        } catch (error) {
-          Swal.fire(
-            'เกิดข้อผิดพลาด!',
-            'ไม่สามารถลบประกาศได้',
-            'error'
-          );
-        }
-      }
-    })
   };
 
   // 🔹 โหลดครั้งแรก
@@ -114,13 +75,9 @@ export const Profile = () => {
     );
   }
 
-
-
   return (
     <div className="flex flex-col items-center gap-y-10">
-      <div className="w-full">
-        <HeroProfile profile={profile} />
-      </div>
+      <PublicHeroProfile profile={profile} />
       <ProfileDetail profile={profile} />
 
       <section className="w-full max-w-6xl px-6 pb-16">
@@ -163,10 +120,10 @@ export const Profile = () => {
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {activeTab === "เช่า"
               ? announceList.map((a) => (
-                  <RentCard key={a?.id ?? a?.announceId} announce={a} onDelete={handleDelete} />
+                  <RentCard key={a?.id ?? a?.announceId} announce={a} />
                 ))
               : announceList.map((a) => (
-                  <SellCard key={a?.id ?? a?.announceId} announce={a} onDelete={handleDelete} />
+                  <SellCard key={a?.id ?? a?.announceId} announce={a} />
                 ))}
           </div>
         ) : (

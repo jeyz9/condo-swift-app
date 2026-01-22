@@ -2,23 +2,23 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
-import { useAuthContext } from "../context/AuthContext";
+import { useAuthContext } from "../../context/AuthContext";
 
 // 🧩 Components
-import SearchableDropdown from "../components/SearchableDropdown";
-import AddressMapPreview from "../components/AddressMapPreview";
-import { CardDetails } from "../components/details/CardDetails";
-import GrayscaleMap from "../components/details/GrayscaleMap";
+import SearchableDropdown from "../../components/SearchableDropdown";
+import AddressMapPreview from "../../components/AddressMapPreview";
+import { CardDetails } from "../../components/details/CardDetails";
+import GrayscaleMap from "../../components/details/GrayscaleMap";
 
 // 🔧 Services
-import AnnounceService from "../services/AnnounceService";
-import UserService from "../services/UserService";
-import ProvinceService from "../services/ProvinceService";
+import AnnounceService from "../../services/AnnounceService";
+import UserService from "../../services/UserService";
+import ProvinceService from "../../services/ProvinceService";
 
 // 📚 Data
-import { provinces as fallbackProvinces } from "../data/provinces";
-import { stations as fallbackStations } from "../data/stations";
-import { extractErrorMessage } from "../utils/errorUtils";
+import { provinces as fallbackProvinces } from "../../data/provinces";
+import { stations as fallbackStations } from "../../data/stations";
+import { extractErrorMessage } from "../../utils/errorUtils";
 
 // 🧱 Icons
 import {

@@ -1,5 +1,5 @@
 import React from "react";
-import { SalerCardSkeleton } from "../components/details/SalerCardSkeleton";
+import { SalerCardSkeleton } from "../../components/details/SalerCardSkeleton";
 
 export const DetailSkeleton = () => {
   return (

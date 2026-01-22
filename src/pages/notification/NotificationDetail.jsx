@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import NotificationService from "../services/NotificationService";
-import { useAuthContext } from "../context/AuthContext";
+import NotificationService from "../../services/NotificationService.js";
+import { useAuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
 import { IoArrowBack } from "react-icons/io5";
 import { MdNotificationsActive } from "react-icons/md";
 import { NotificationDetailSkeleton } from "./NotificationDetailSkeleton";
-import { extractErrorMessage } from "../utils/errorUtils";
+import { extractErrorMessage } from "../../utils/errorUtils";
 
 export default function NotificationDetail() {
   const { user } = useAuthContext();

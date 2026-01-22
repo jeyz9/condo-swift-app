@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Detail } from "./Detail";
+import { Detail } from "../announcement/Detail";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { useNavigate, useParams } from "react-router-dom";
-import AnnounceService from "../services/AnnounceService";
+import AnnounceService from "../../services/AnnounceService";
 import Swal from "sweetalert2";
-import { extractErrorMessage } from "../utils/errorUtils";
+import { extractErrorMessage } from "../../utils/errorUtils";
 
 const ShareAnnounce = () => {
   const { id } = useParams();

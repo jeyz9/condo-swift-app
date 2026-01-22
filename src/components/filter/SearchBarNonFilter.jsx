@@ -1,14 +1,12 @@
 ﻿import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import Swal from "sweetalert2";
 import {
   FaFilter,
   FaBuilding,
   FaMoneyBillWave,
   FaBed,
-  FaGem,
 } from "react-icons/fa";
-import AnnounceService from "../../services/AnnounceService";
 import ProvinceService from "../../services/ProvinceService";
 import { provinces as fallbackProvinces } from "../../data/provinces";
 import { stations as fallbackStations } from "../../data/stations";
@@ -20,30 +18,29 @@ export default function SearchBarNonFilter({
   defaultFilter = "",
   defaultSaleType = "",
   defaultSaleAbout = "",
-  defaultStation = "", // Add defaultStation prop
-  defaultProvince = "", // Add defaultProvince prop
-  defaultBadge = "", // Add defaultBadge prop
+  defaultStation = "",
+  defaultProvince = "",
+  defaultBadge = "",
   onSearch,
 }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [searchText, setSearchText] = useState(defaultKeyword);
-  const [saleType, setSaleType] = useState(
-    defaultSaleType || defaultSaleAbout || ""
-  );
+  const [saleType, setSaleType] = useState(defaultSaleType || defaultSaleAbout || "");
   const [filters, setFilters] = useState({
     type: defaultFilter || "",
     bedroomCount: "",
     minPrice: "",
     maxPrice: "",
     isPremium: false,
-    station: defaultStation || "", // Initialize station state
-    province: defaultProvince || "", // Initialize province state
-    badge: defaultBadge || "", // Initialize badge state
+    station: defaultStation || "",
+    province: defaultProvince || "",
+    badge: defaultBadge || "",
   });
   const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
   const [stationOptions, setStationOptions] = useState(fallbackStationOptions);
   const [announceTypes, setAnnounceTypes] = useState([]);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     ProvinceService.showAllAnnounceTypes()
@@ -71,7 +68,7 @@ export default function SearchBarNonFilter({
       })
       .catch(() => setProvinceOptions(fallbackProvinces));
 
-      ProvinceService.getAllStations()
+    ProvinceService.getAllStations()
       .then((res) => {
         const raw = res?.data;
         const list = Array.isArray(raw)
@@ -158,20 +155,19 @@ export default function SearchBarNonFilter({
   }, [defaultFilter, defaultStation, defaultProvince, defaultBadge]);
 
   const goFilter = (overrides = {}) => {
+    const currentParams = new URLSearchParams(location.search);
+    
     const merged = {
-      keyword: (overrides.keyword ?? searchText)?.trim(),
-      type: overrides.type ?? filters.type,
-      saleType: overrides.saleType ?? saleType,
-      bedroomCount: overrides.bedroomCount ?? filters.bedroomCount,
-      minPrice: overrides.minPrice ?? filters.minPrice,
-      maxPrice: overrides.maxPrice ?? filters.maxPrice,
-      isPremium:
-        overrides.isPremium !== undefined
-          ? overrides.isPremium
-          : filters.isPremium,
-      station: overrides.station ?? filters.station,
-      province: overrides.province ?? filters.province,
-      badge: overrides.badge ?? filters.badge,
+      keyword: overrides.keyword ?? searchText?.trim() ?? currentParams.get("keyword") ?? "",
+      type: overrides.type ?? filters.type ?? currentParams.get("type") ?? "",
+      saleType: overrides.saleType ?? saleType ?? currentParams.get("saleType") ?? "",
+      bedroomCount: overrides.bedroomCount ?? filters.bedroomCount ?? currentParams.get("bedroomCount") ?? "",
+      minPrice: overrides.minPrice ?? filters.minPrice ?? currentParams.get("minPrice") ?? "",
+      maxPrice: overrides.maxPrice ?? filters.maxPrice ?? currentParams.get("maxPrice") ?? "",
+      isPremium: overrides.isPremium !== undefined ? overrides.isPremium : filters.isPremium,
+      station: overrides.station ?? filters.station ?? currentParams.get("station") ?? "",
+      province: overrides.province ?? filters.province ?? currentParams.get("province") ?? "",
+      badge: overrides.badge ?? filters.badge ?? currentParams.get("badge") ?? "",
       page: overrides.page ?? 0,
       size: overrides.size ?? 10,
     };
@@ -218,15 +214,13 @@ export default function SearchBarNonFilter({
       Object.entries(params).filter(([_, value]) => value !== undefined)
     );
 
+    console.log("🎯 goFilter - Current URL:", location.search);
+    console.log("🎯 goFilter - Merged params:", cleaned);
+
+    // ส่งไปให้ Filter.jsx จัดการ navigate
     if (onSearch) {
       onSearch(cleaned);
     }
-
-    const query = Object.entries(cleaned)
-      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-      .join("&");
-
-    navigate(`/filter?${query}`);
   };
 
   const handleSearch = (e) => {
@@ -245,8 +239,7 @@ export default function SearchBarNonFilter({
       cancelButtonText: "ยกเลิก",
       showCancelButton: true,
       customClass: {
-        popup:
-          "rounded-3xl p-0 overflow-hidden shadow-2xl border border-[#8C6239]/30",
+        popup: "rounded-3xl p-0 overflow-hidden shadow-2xl border border-[#8C6239]/30",
       },
       html: `
         <div class="p-6 space-y-6 font-sans text-gray-700 text-left">
@@ -319,75 +312,71 @@ export default function SearchBarNonFilter({
               </div>
             </div>
             <p class="mt-1 text-[11px] text-gray-500">เว้นว่าง = ไม่จำกัด</p>
-                    </div>
+          </div>
           
-                    <div>
-                      <label class="block font-semibold text-[#8C6239] mb-1 text-sm">ประเภทประกาศ</label>
-                      <select id="filter-badge" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
-                        <option value="">ทั้งหมด</option>
-                        <option value="ราคาพิเศษ" ${filters.badge === "ราคาพิเศษ" ? "selected" : ""}>ราคาพิเศษ</option>
-                        <option value="ประกาศใหม่" ${filters.badge === "ประกาศใหม่" ? "selected" : ""}>ประกาศใหม่</option>
-                        <option value="แนะนำ" ${filters.badge === "แนะนำ" ? "selected" : ""}>แนะนำ</option>
-                      </select>
-                    </div>
-                  </div>
-                `,
-                preConfirm: () => {
-                  const type = document.getElementById("filter-type").value;
-                  const station = document.getElementById("filter-station").value;
-                  const province = document.getElementById("filter-province").value;
-                  const badge = document.getElementById("filter-badge").value;
-                  const bedroom = document.getElementById("bedroomCount").value;
-                  const min = normalizePriceValue(
-                    document.getElementById("minPrice").value
-                  );
-                  const max = normalizePriceValue(
-                    document.getElementById("maxPrice").value
-                  );
-          
-                  if (min === null || max === null) {
-                    Swal.showValidationMessage("กรุณากรอกราคาให้ถูกต้อง");
-                    return false;
-                  }
-          
-                  if (min !== "" && max !== "" && Number(min) > Number(max)) {
-                    Swal.showValidationMessage("ราคาสูงสุดต้องมากกว่าราคาต่ำสุด");
-                    return false;
-                  }
-          
-                  return {
-                    type,
-                    station,
-                    province,
-                    badge,
-                    bedroomCount: bedroom,
-                    minPrice: min,
-                    maxPrice: max,
-                  };
-                },
-              });
-          
-              if (result.isConfirmed && result.value) {
-                const v = result.value;
-                const normalized = {
-                  type: v.type || "",
-                  station: v.station || "",
-                  province: v.province || "",
-                  badge: v.badge || "",
-                  bedroomCount: v.bedroomCount || "",
-                  minPrice: v.minPrice === "" ? "" : v.minPrice,
-                  maxPrice: v.maxPrice === "" ? "" : v.maxPrice,
-                };
-          
-                setFilters((prev) => ({
-                  ...prev,
-                  ...normalized,
-                }));
-          
-                goFilter(normalized);
-              }
-            };
-          
+          <div>
+            <label class="block font-semibold text-[#8C6239] mb-1 text-sm">ประเภทประกาศ</label>
+            <select id="filter-badge" class="w-full border border-[#d0bfa8] rounded-xl p-2.5 text-sm">
+              <option value="">ทั้งหมด</option>
+              <option value="ราคาพิเศษ" ${filters.badge === "ราคาพิเศษ" ? "selected" : ""}>ราคาพิเศษ</option>
+              <option value="ประกาศใหม่" ${filters.badge === "ประกาศใหม่" ? "selected" : ""}>ประกาศใหม่</option>
+              <option value="แนะนำ" ${filters.badge === "แนะนำ" ? "selected" : ""}>แนะนำ</option>
+            </select>
+          </div>
+        </div>
+      `,
+      preConfirm: () => {
+        const type = document.getElementById("filter-type").value;
+        const station = document.getElementById("filter-station").value;
+        const province = document.getElementById("filter-province").value;
+        const badge = document.getElementById("filter-badge").value;
+        const bedroom = document.getElementById("bedroomCount").value;
+        const min = normalizePriceValue(document.getElementById("minPrice").value);
+        const max = normalizePriceValue(document.getElementById("maxPrice").value);
+
+        if (min === null || max === null) {
+          Swal.showValidationMessage("กรุณากรอกราคาให้ถูกต้อง");
+          return false;
+        }
+
+        if (min !== "" && max !== "" && Number(min) > Number(max)) {
+          Swal.showValidationMessage("ราคาสูงสุดต้องมากกว่าราคาต่ำสุด");
+          return false;
+        }
+
+        return {
+          type,
+          station,
+          province,
+          badge,
+          bedroomCount: bedroom,
+          minPrice: min,
+          maxPrice: max,
+        };
+      },
+    });
+
+    if (result.isConfirmed && result.value) {
+      const v = result.value;
+      const normalized = {
+        type: v.type || "",
+        station: v.station || "",
+        province: v.province || "",
+        badge: v.badge || "",
+        bedroomCount: v.bedroomCount || "",
+        minPrice: v.minPrice === "" ? "" : v.minPrice,
+        maxPrice: v.maxPrice === "" ? "" : v.maxPrice,
+      };
+
+      setFilters((prev) => ({
+        ...prev,
+        ...normalized,
+      }));
+
+      goFilter(normalized);
+    }
+  };
+
   const handlePropertyType = async () => {
     const propertyOptions = announceTypes.reduce((acc, curr) => {
       acc[curr.typeName] = curr.typeName;
@@ -405,12 +394,12 @@ export default function SearchBarNonFilter({
       cancelButtonColor: "#aaa",
       inputValue: filters.type || "",
     });
-          
-              if (isConfirmed) {
-                setFilters((prev) => ({ ...prev, type: value || "" }));
-                goFilter({ type: value || "" });
-              }
-            };
+
+    if (isConfirmed) {
+      setFilters((prev) => ({ ...prev, type: value || "" }));
+      goFilter({ type: value || "" });
+    }
+  };
 
   const handlePrice = async () => {
     const shortcuts = [
@@ -429,8 +418,7 @@ export default function SearchBarNonFilter({
       confirmButtonText: "ตกลง",
       showCancelButton: true,
       customClass: {
-        popup:
-          "rounded-3xl p-0 overflow-hidden shadow-2xl border border-[#8C6239]/20",
+        popup: "rounded-3xl p-0 overflow-hidden shadow-2xl border border-[#8C6239]/20",
         title: "pt-6 text-[22px]",
       },
       html: `
@@ -561,14 +549,6 @@ export default function SearchBarNonFilter({
     }
   };
 
-  // ? ???? Premium / ??????????????
-  // const handlePremiumClick = () => {
-  //   const newVal = !filters.isPremium;
-  //   setFilters((prev) => ({ ...prev, isPremium: newVal }));
-  //   // ? ???????????: ??? isPremium ????????? ? ? goFilter ?? map ???? badge=???????? ???
-  //   goFilter({ isPremium: newVal });
-  // };
-
   const priceLabel = formatPriceLabel(filters.minPrice, filters.maxPrice);
 
   const filterButtons = [
@@ -591,17 +571,10 @@ export default function SearchBarNonFilter({
           : "จำนวนห้องนอน",
       action: handleBedroom,
     },
-    // {
-    //   icon: <FaGem className="text-yellow-500" />,
-    //   label: filters.isPremium ? "????? Premium ?" : "??????????????",
-    //   action: handlePremiumClick,
-    //   isPremiumButton: true,
-    // },
   ];
 
   return (
     <div className="w-full">
-      {/* ?? ????????? */}
       <form
         onSubmit={handleSearch}
         className="flex flex-col sm:flex-row sm:items-center w-full max-w-full bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden gap-2 sm:gap-0 p-2 sm:p-0"
@@ -636,31 +609,20 @@ export default function SearchBarNonFilter({
         </div>
       </form>
 
-      {/* ?? ????????????????????? */}
       <div className="flex flex-wrap justify-start gap-2 sm:gap-3 mt-4 sm:mt-6">
-        {filterButtons.map((item, i) => {
-          const isPremiumBtn = item.isPremiumButton === true;
-          const activePremium = isPremiumBtn && filters.isPremium;
-
-          return (
-            <button
-              key={i}
-              type="button"
-              onClick={item.action}
-              className={`btn flex items-center gap-2 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm md:text-base font-medium shadow-sm transition min-w-[120px]
-                ${
-                  activePremium
-                    ? "bg-[#fef3c7] border border-[#d97706] text-[#8C6239]"
-                    : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
-                }`}
-            >
-              <span className="text-sm sm:text-base">{item.icon}</span>
-              <span className="whitespace-nowrap truncate max-w-[120px] sm:max-w-none">
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
+        {filterButtons.map((item, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={item.action}
+            className="btn flex items-center gap-2 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm md:text-base font-medium shadow-sm transition min-w-[120px] bg-white border border-gray-300 text-gray-700 hover:bg-gray-100"
+          >
+            <span className="text-sm sm:text-base">{item.icon}</span>
+            <span className="whitespace-nowrap truncate max-w-[120px] sm:max-w-none">
+              {item.label}
+            </span>
+          </button>
+        ))}
       </div>
     </div>
   );

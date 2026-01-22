@@ -224,7 +224,7 @@ export const Home = () => {
                 <CondoCardSkeleton />
               </motion.div>
             ))
-                          : nearbyPlaces?.length > 0 ? (
+              : nearbyPlaces?.length > 0 ? (
             nearbyPlaces.map((item, i) => (
               <motion.div
                 key={item.id}

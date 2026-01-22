@@ -46,8 +46,8 @@ const deleteProfilePicture = async (userId) => {
   return await api.delete(`${API_URL}/${userId}/deleteProfilePicture`);
 };
 
-const acceptTerms = async (userId) => {
-  return await api.post(`${API_URL}/${userId}/acceptTerms`)
+const acceptTerms = async () => {
+  return await api.post(`${API_URL}/acceptTerms`)
 }
 
 const showAllAnnounceBookmark = async () => {

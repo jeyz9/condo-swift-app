@@ -1,5 +1,5 @@
 import React from "react";
-import { CondoCardSkeleton } from "../components/CondoCardSkeleton";
+import { CondoCardSkeleton } from "../../components/CondoCardSkeleton";
 
 export const ProfileSkeleton = () => {
   return (

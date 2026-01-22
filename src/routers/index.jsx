@@ -3,39 +3,38 @@ import { MainLayout } from "../layouts/MainLayout.jsx";
 import { AdminLayout } from "../layouts/AdminLayout.jsx";
 
 import { Home } from "../pages/Home.jsx";
-import { Detail } from "../pages/Detail.jsx";
-import { Filter } from "../pages/Filter.jsx";
-import { AddAnnounce } from "../pages/AddAnnounce.jsx";
-import { EditAnnounce } from "../pages/EditAnnounce.jsx";
-import { Profile } from "../pages/Profile.jsx";
-import { PublicProfile } from "../pages/PublicProfile.jsx";
-
-import Dashboard from "../pages/Dashboard.jsx";
-import HistoryTable from "../pages/HistoryTable.jsx";
-import Publish from "../pages/Publish.jsx";
+import { Detail } from "../pages/announcement/Detail.jsx";
+import {Filter} from "../pages/Filter.jsx";
+import { AddAnnounce } from "../pages/announcement/AddAnnounce.jsx";
+import { EditAnnounce } from "../pages/announcement/EditAnnounce.jsx";
+import { Profile } from "../pages/profile/Profile.jsx";
+import { PublicProfile } from "../pages/profile/PublicProfile.jsx";
+import Dashboard from "../pages/admin/Dashboard.jsx";
+import HistoryTable from "../pages/admin/HistoryTable.jsx";
+import Publish from "../pages/admin/Publish.jsx";
 import {About} from "../pages/About.jsx";
 import TermsOfService from "../pages/Terms.jsx";
 import PrivacyPolicy from "../pages/Privacy.jsx";
-import NotificationDetail from "../pages/NotificationDetail.jsx";
-import PendingTable from "../pages/PendingTable.jsx";
-import ShareAnnounce from "../pages/ShareAnnounce.jsx";
-import { ResetPassword } from "../pages/ResetPassword.jsx";
+import NotificationDetail from "../pages/notification/NotificationDetail.jsx";
+import PendingTable from "../pages/admin/PendingTable.jsx";
+import ShareAnnounce from "../pages/admin/ShareAnnounce.jsx";
+import { ResetPassword } from "../pages/auth/ResetPassword.jsx";
 import Bookmarks from "../pages/Bookmarks.jsx";
 import {Payment} from "../pages/Payment.jsx";
-import SendNotification from "../pages/SendNotification.jsx";
-import AdminBadges from "../pages/AdminBadges.jsx";
-import AdminAssignBadge from "../pages/AdminAssignBadge.jsx";
-import EditProfile from "../pages/EditProfile.jsx";
-import NotFound from "../pages/NotFound.jsx";
+import SendNotification from "../pages/admin/SendNotification.jsx";
+import AdminBadges from "../pages/admin/AdminBadges.jsx";
+import AdminAssignBadge from "../pages/admin/AdminAssignBadge.jsx";
+import EditProfile from "../pages/profile/EditProfile.jsx";
+import NotFound from "../pages/auth/NotFound.jsx";
 import RequireRole from "../components/RequireRole.jsx";
 import RequireAuth from "../components/RequireAuth.jsx";
-import Forbidden from "../pages/Forbidden.jsx";
+import Forbidden from "../pages/auth/Forbidden.jsx";
 import RequireVerification from "../components/RequireVerification.jsx";
-import VerifyEmail from "../pages/verifyEmail.jsx";
-import Draft from "../pages/Draft.jsx";
-import AdminAnnounceDetail from "../pages/AdminAnnounceDetail.jsx";
-import AdminManageRoles from "../pages/AdminManageRoles.jsx";
-import { EditAnnounceReject } from "../pages/EditAnnounceReject.jsx";
+import VerifyEmail from "../pages/auth/verifyEmail.jsx";
+import Draft from "../pages/announcement/Draft.jsx";
+import AdminAnnounceDetail from "../pages/admin/AdminAnnounceDetail.jsx";
+import AdminManageRoles from "../pages/admin/AdminManageRoles.jsx";
+import { EditAnnounceReject } from "../pages/announcement/EditAnnounceReject.jsx";
 
 const router = createBrowserRouter([
   // 🏠 Layout หลักสำหรับผู้ใช้ทั่วไป
@@ -61,6 +60,7 @@ const router = createBrowserRouter([
       { path: "/verify-email/verify", element: <VerifyEmail /> },
       { path: "/draft", element: <RequireAuth><Draft /></RequireAuth> },
       { path: "/edit-announce-reject/:id", element:<RequireRole allowedRoles={['ROLE_AGENT']}><RequireVerification><EditAnnounceReject /></RequireVerification></RequireRole> },
+      { path: "/share-announce/:id", element: <ShareAnnounce /> },
       // catch-all สำหรับ path ที่ไม่ตรง
       { path: "*", element: <NotFound /> },
     ],

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { extractErrorMessage } from "../utils/errorUtils";
-import AnnounceService from "../services/AnnounceService";
+import { extractErrorMessage } from "../../utils/errorUtils";
+import AnnounceService from "../../services/AnnounceService";
 
 export default function AdminAssignBadge() {
   const [announces, setAnnounces] = useState([]);

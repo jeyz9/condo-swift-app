@@ -115,65 +115,57 @@ const showAnnounceDetailByAgent = async (id) => api.get(`${API_URL}/showAnnounce
 const getAnnounceWithCategory = async () => api.get(`${API_URL}/showAnnounceWithCategory`);
 
 // 🧠 ฟังก์ชันใหม่ — สำหรับหน้า /filter
-const getFilterAnnounceWithAgent = async (arg1, arg2, arg3, arg4) => {
-  if (typeof arg1 === 'object' && arg1 !== null) {
-    //  ดึงค่าที่เกี่ยวข้องจาก arg1
-    const {
-      keyword,
-      filter,
-      type,
-      saleType,
-      effectiveType, //  เพิ่มรองรับชื่อใหม่
-      badge, //  เพิ่ม badge
-      bedroomCount,
-      minPrice,
-      maxPrice,
-      station, //  เพิ่ม station
-      province, //  เพิ่ม province
-      page = 0,
-      size = 8,
-    } = arg1;
-
-    //  ใช้ effectiveType ถ้ามี (เช่นจาก SearchBarWithFilter)
-    const finalSaleType = saleType ?? effectiveType ?? "";
-
-    //  สร้าง params พร้อม clean undefined ออก
-    const params = {
-      keyword,
-      type: type ?? filter,
-      saleType: finalSaleType, //  key เดิมที่ backend ใช้
-      badge, //  เพิ่ม badge
-      bedroomCount,
-      minPrice,
-      maxPrice,
-      station, //  เพิ่ม station
-      province, //  เพิ่ม province
-      page,
-      size,
-    };
-
-    Object.keys(params).forEach((key) => {
-      const value = params[key];
-      const isEmptyString = typeof value === "string" && value.trim() === "";
-      const isZeroBedroom = key === "bedroomCount" && value === 0;
-      if (value === undefined || value === null || isEmptyString || isZeroBedroom) {
-        delete params[key];
-      }
-    });
-
-    return await api.get(`${API_URL}/filterAnnounceWithAgent`, { params });
+const getFilterAnnounceWithAgent = async (params) => {
+  if (typeof params !== "object" || params === null) {
+    throw new Error("getFilterAnnounceWithAgent ต้องเรียกด้วย object เท่านั้น");
   }
 
-  //  fallback mode: เรียกแบบเดิม (arg1,arg2,arg3,arg4)
-  const keyword = arg1;
-  const filter = arg2;
-  const page = arg3 ?? 0;
-  const size = arg4 ?? 8;
+  const {
+    keyword,
+    filter,
+    type,
+    saleType,
+    effectiveType,
+    badge,
+    bedroomCount,
+    minPrice,
+    maxPrice,
+    station,
+    province,
+    page = 0,
+    size,
+  } = params;
 
-  return await api.get(`${API_URL}/filterAnnounceWithAgent`, {
-    params: { keyword, type: filter, page, size },
+  const finalSaleType = saleType ?? effectiveType ?? "";
+
+  const finalParams = {
+    keyword,
+    type: type ?? filter,
+    saleType: finalSaleType,
+    badge,
+    bedroomCount,
+    minPrice,
+    maxPrice,
+    station,
+    province,
+    page,
+    size,
+  };
+
+  // ลบค่าที่ว่างออก
+  Object.keys(finalParams).forEach((key) => {
+    const value = finalParams[key];
+    const isEmptyString = typeof value === "string" && value.trim() === "";
+    if (value === undefined || value === null || isEmptyString) {
+      delete finalParams[key];
+    }
+  });
+
+  return api.get(`${API_URL}/filterAnnounceWithAgent`, {
+    params: finalParams,
   });
 };
+
 
 const showAllAnnouncePending = async (keyword, page, size) => {
   return await api.get(`${API_URL}/showAllAnnouncePendingByAdmin?keyword=${keyword? keyword:''}&page=${page? page:0}&size=${size? size:10}`)

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { useAuthContext } from "../context/AuthContext";
-import { extractErrorMessage } from "../utils/errorUtils";
-import UserService from "../services/UserService";
+import { useAuthContext } from "../../context/AuthContext";
+import { extractErrorMessage } from "../../utils/errorUtils";
+import UserService from "../../services/UserService";
 
 const initialForm = {
   name: "",

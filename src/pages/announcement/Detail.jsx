@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { CardDetails } from "../components/details/CardDetails";
-import SalerCard from "../components/details/SalerCard";
+import { CardDetails } from "../../components/details/CardDetails";
+import SalerCard from "../../components/details/SalerCard";
 import { GrMapLocation } from "react-icons/gr";
 import { IoBedOutline } from "react-icons/io5";
 import { PiShower } from "react-icons/pi";
@@ -16,18 +16,18 @@ import {
   MdElevator,
   MdSecurity,
 } from "react-icons/md";
-import GrayscaleMap from "../components/details/GrayscaleMap";
-import AnnounceService from "../services/AnnounceService";
+import GrayscaleMap from "../../components/details/GrayscaleMap";
+import AnnounceService from "../../services/AnnounceService";
 import Swal from "sweetalert2";
 import { Link, useParams } from "react-router";
 import { MdWarningAmber } from "react-icons/md";
-import LoginPopup from "../components/login/LoginPopup";
-import RegisterPopup from "../components/login/RegisterPopup";
-import { useAuthContext } from "../context/AuthContext";
-import AuthService from "../services/AuthService";
+import LoginPopup from "../../components/login/LoginPopup";
+import RegisterPopup from "../../components/login/RegisterPopup";
+import { useAuthContext } from "../../context/AuthContext";
+import AuthService from "../../services/AuthService";
 import { DetailSkeleton } from "./DetailSkeleton";
-import { extractErrorMessage } from "../utils/errorUtils";
-import UserService from "../services/UserService";
+import { extractErrorMessage } from "../../utils/errorUtils";
+import UserService from "../../services/UserService";
 import { useNavigate } from "react-router";
 export const Detail = () => {
   const [announce, setAnnounce] = useState(null);

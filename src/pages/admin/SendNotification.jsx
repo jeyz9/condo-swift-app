@@ -1,9 +1,9 @@
 import React, { useMemo, useState, useEffect } from "react";
-import NotificationService from "../services/NotificationService";
+import NotificationService from "../../services/NotificationService";
 import Swal from "sweetalert2";
 import { FaBell, FaPaperPlane, FaUserFriends } from "react-icons/fa";
-import { extractErrorMessage } from "../utils/errorUtils";
-import ProvinceService from "../services/ProvinceService"; // Import ProvinceService
+import { extractErrorMessage } from "../../utils/errorUtils";
+import ProvinceService from "../../services/ProvinceService"; // Import ProvinceService
 
 export default function SendNotification() {
   const [title, setTitle] = useState("");

@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import LoginPopup from "../components/login/LoginPopup";
-import { useAuthContext } from "../context/AuthContext";
+import LoginPopup from "../../components/login/LoginPopup";
+import { useAuthContext } from "../../context/AuthContext";
 
 export default function Forbidden() {
   const location = useLocation();

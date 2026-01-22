@@ -260,7 +260,7 @@ const UserProfile = () => {
                 
                 className=" text-sm text-gray-700  cursor-pointer"
               >
-              แบบร่าง
+              ประกาศของฉัน
               </button>
               </Link>
             </li>

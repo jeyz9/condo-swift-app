@@ -45,30 +45,53 @@ export const Filter = () => {
 
     const fetchData = async () => {
       if (ignore) return;
+      
+      console.log("🔍 Fetching with params:", {
+        keyword,
+        type,
+        saleType,
+        station,
+        province,
+        badge,
+        bedroomCount,
+        minPrice,
+        maxPrice,
+        page
+      });
+      
       setLoading(true);
 
       try {
-        // All params are derived from the URL at the top of the component
-        const res = await AnnounceService.getFilterAnnounceWithAgent({
-          keyword,
-          type,
-          saleType,
-          badge,
-          bedroomCount: bedroomCount ? Number(bedroomCount) : undefined,
-          minPrice: minPrice ? Number(minPrice) : undefined,
-          maxPrice: maxPrice ? Number(maxPrice) : undefined,
-          station,
-          province,
+        const params = {
           page,
           size: itemsPerPage,
-        });
+        };
+
+        // เพิ่ม params ที่มีค่าเท่านั้น
+        if (keyword) params.keyword = keyword;
+        if (type) params.type = type;
+        if (saleType) params.saleType = saleType;
+        if (badge) params.badge = badge;
+        if (station) params.station = station;
+        if (province) params.province = province;
+        if (bedroomCount) params.bedroomCount = Number(bedroomCount);
+        if (minPrice) params.minPrice = Number(minPrice);
+        if (maxPrice) params.maxPrice = Number(maxPrice);
+
+        console.log("📤 Sending to API:", params);
+
+        const res = await AnnounceService.getFilterAnnounceWithAgent(params);
+
+        console.log("📥 API Response:", res);
 
         if (res.status === 200) {
           const data = res.data?.announceDetailsWithAgents || [];
           setAnnounces(data);
           setTotal(res.data?.total || data.length);
+          console.log("✅ Data loaded:", data.length, "items");
         }
       } catch (error) {
+        console.error("❌ Fetch error:", error);
         Swal.fire({
           icon: "error",
           title: "ไม่สามารถโหลดข้อมูลได้",
@@ -86,7 +109,7 @@ export const Filter = () => {
     return () => {
       ignore = true;
     };
-  }, [location.search]); // Only re-run when the URL search params change
+  }, [keyword, type, saleType, station, province, badge, bedroomCount, minPrice, maxPrice, page]);
 
   // 🔥 Recommended Agents (runs only once)
   useEffect(() => {
@@ -111,8 +134,8 @@ export const Filter = () => {
 
   const handlePageClick = (newPage) => {
     const q = new URLSearchParams(location.search);
-    q.set("page", newPage);
-    q.set("size", itemsPerPage);
+    q.set("page", String(newPage));
+    q.set("size", String(itemsPerPage));
     navigate(`/filter?${q.toString()}`);
     listTopRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -144,12 +167,12 @@ export const Filter = () => {
           defaultProvince={province}
           defaultBadge={badge}
           onSearch={(params) => {
-            const q = new URLSearchParams(); // Start with fresh params for search
+            const q = new URLSearchParams();
             Object.entries(params).forEach(([k, v]) => {
-              if (v) q.set(k, v);
+              if (v !== undefined && v !== null && v !== "") {
+                q.set(k, String(v));
+              }
             });
-            q.set("page", "0");
-            q.set("size", String(itemsPerPage));
             navigate(`/filter?${q.toString()}`);
           }}
         />

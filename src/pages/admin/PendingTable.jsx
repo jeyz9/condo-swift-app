@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import AnnounceService from "../services/AnnounceService";
+import AnnounceService from "../../services/AnnounceService";
 import dayjs from "dayjs";
 import "dayjs/locale/th";
-import { TableSkeleton } from "../components/TableSkeleton";
+import { TableSkeleton } from "../../components/TableSkeleton";
 
 export default function PendingTable() {
   const location = useLocation();

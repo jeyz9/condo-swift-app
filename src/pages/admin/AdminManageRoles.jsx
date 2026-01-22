@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useCallback } from "react";
 import Swal from "sweetalert2";
-import { extractErrorMessage } from "../utils/errorUtils";
-import UserService from "../services/UserService";
-import ProvinceService from "../services/ProvinceService";
-import { TableSkeleton } from "../components/TableSkeleton";
-import Pagination from "../components/filter/Pagination";
+import { extractErrorMessage } from "../../utils/errorUtils";
+import UserService from "../../services/UserService";
+import ProvinceService from "../../services/ProvinceService";
+import { TableSkeleton } from "../../components/TableSkeleton";
+import Pagination from "../../components/filter/Pagination";
 
 export default function AdminManageRoles() {
   const [users, setUsers] = useState([]);

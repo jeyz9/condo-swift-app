@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { FaPlus, FaRegEdit, FaTrash, FaMedal } from "react-icons/fa";
 import Swal from "sweetalert2";
-import { extractErrorMessage } from "../utils/errorUtils";
-import AnnounceService from "../services/AnnounceService";
+import { extractErrorMessage } from "../../utils/errorUtils";
+import AnnounceService from "../../services/AnnounceService";
 
 const defaultForm = { id: null, badgeName: "" };
 

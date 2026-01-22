@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { DraftCard } from "../components/DraftCard.jsx";
-import { CondoCardSkeleton } from "../components/CondoCardSkeleton";
+import { DraftCard } from "../../components/DraftCard";
+import { CondoCardSkeleton } from "../../components/CondoCardSkeleton";
 import Swal from "sweetalert2";
-import AnnounceService from "../services/AnnounceService";
-import { extractErrorMessage } from "../utils/errorUtils";
+import AnnounceService from "../../services/AnnounceService.js";
+import { extractErrorMessage } from "../../utils/errorUtils.js";
 
 const Draft = () => {
   const [draft, setDraft] = useState([]);
@@ -30,10 +30,10 @@ const Draft = () => {
 
     fetchDraft();
   }, []);
-  console.log("draft:", draft);
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">แบบร่าง</h1>
+      <h1 className="text-3xl font-bold mb-8">ประกาศของฉัน</h1>
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
@@ -48,7 +48,7 @@ const Draft = () => {
         </div>
       ) : (
         <div className="text-center text-gray-500">
-          <p>คุณยังไม่มีแบบร่าง</p>
+          <p>คุณยังไม่มีประกาศ แบบร่าง และ ประกาศที่ตีกลับ  </p>
         </div>
       )}
     </div>

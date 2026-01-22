@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import AuthService from '../services/AuthService';
+import AuthService from '../../services/AuthService';
 import Swal from 'sweetalert2';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { extractErrorMessage } from '../utils/errorUtils';
+import { extractErrorMessage } from '../../utils/errorUtils';
 
 export const ResetPassword = () => {
   const [searchParams] = useSearchParams();

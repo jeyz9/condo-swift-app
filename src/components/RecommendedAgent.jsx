@@ -39,7 +39,7 @@ const RecommendedAgent = ({ recommendedAgents }) => {
 
     try {
       // 2) บันทึกการยอมรับเงื่อนไข
-      const response = await UserService.acceptTerms(userId);
+      const response = await UserService.acceptTerms();
 
       if (response.status === 200 || response.status === 201) {
         setTermsAccepted(true);
