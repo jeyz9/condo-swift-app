@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import { MainLayout } from "../layouts/MainLayout.jsx";
 import { AdminLayout } from "../layouts/AdminLayout.jsx";
-
 import { Home } from "../pages/Home.jsx";
 import { Detail } from "../pages/announcement/Detail.jsx";
 import {Filter} from "../pages/Filter.jsx";
@@ -30,11 +29,11 @@ import RequireRole from "../components/RequireRole.jsx";
 import RequireAuth from "../components/RequireAuth.jsx";
 import Forbidden from "../pages/auth/Forbidden.jsx";
 import RequireVerification from "../components/RequireVerification.jsx";
-import VerifyEmail from "../pages/auth/VerifyEmail.jsx"
 import Draft from "../pages/announcement/Draft.jsx";
 import AdminAnnounceDetail from "../pages/admin/AdminAnnounceDetail.jsx";
 import AdminManageRoles from "../pages/admin/AdminManageRoles.jsx";
 import { EditAnnounceReject } from "../pages/announcement/EditAnnounceReject.jsx";
+import VerifyEmail from "../pages/auth/VerifyEmail.jsx";
 
 const router = createBrowserRouter([
   // 🏠 Layout หลักสำหรับผู้ใช้ทั่วไป
