@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 import { motion, AnimatePresence } from "framer-motion";
 import { extractErrorMessage } from "../../utils/errorUtils";
 import AuthService from "../../services/AuthService";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -65,8 +64,8 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
 
   // 🔁 ถ้ามี user แล้วให้ redirect
   useEffect(() => {
-    if (user) navigate(location.pathname, { replace: true });
-  }, [user, navigate, location.pathname]);
+    if (user) navigate(location.pathname + location.search, { replace: true });
+  }, [user, navigate, location.pathname, location.search]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -154,7 +153,7 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
         confirmButtonColor: "#8C6239",
       }).then(() => {
         onClose?.();
-        navigate("/");
+        navigate(location.pathname + location.search);
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -296,19 +295,16 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
                         name="password"
                         value={loginData.password}
                         onChange={handleChange}
-                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none pr-10" // Added pr-10 for icon spacing
+                        className=" w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none"
                         placeholder="รหัสผ่าน"
                       />
-                      <span
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                      <button
+                        type="button"
                         onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600"
                       >
-                        {showPassword ? (
-                          <FaEyeSlash className="h-5 w-5 text-gray-500" />
-                        ) : (
-                          <FaEye className="h-5 w-5 text-gray-500" />
-                        )}
-                      </span>
+                        {showPassword ? "ซ่อน" : "แสดง"}
+                      </button>
                     </div>
                     <div onClick={handleForgotPassword} className="text-right mt-1 text-sm text-[#8C6239] hover:underline cursor-pointer">
                       ลืมรหัสผ่าน?

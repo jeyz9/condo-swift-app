@@ -167,9 +167,20 @@ const getFilterAnnounceWithAgent = async (params) => {
 };
 
 
-const showAllAnnouncePending = async (keyword, page, size) => {
-  return await api.get(`${API_URL}/showAllAnnouncePendingByAdmin?keyword=${keyword? keyword:''}&page=${page? page:0}&size=${size? size:10}`)
-}
+const showAllAnnouncePending = async (keyword = "", page = 0, size = 1000) => {
+  return await api.get(
+    `${API_URL}/showAllAnnouncePendingByAdmin`,
+    {
+      params: {
+        keyword,
+        page,
+        size,
+      },
+    }
+  );
+};
+
+
 const showAllAnnounceApprove = async (keyword, page, size) => {
   return await api.get(`${API_URL}/showAllAnnounceApproveByAdmin?keyword=${keyword? keyword:''}&page=${page? page:0}&size=${size? size:10}`)
 }

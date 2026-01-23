@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation } from "react-router-dom";
 import AnnounceService from "../../services/AnnounceService";
 import dayjs from "dayjs";
 import "dayjs/locale/th";

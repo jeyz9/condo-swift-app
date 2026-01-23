@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useAuthContext } from "../../context/AuthContext.jsx";
 
@@ -56,6 +56,7 @@ export const AddAnnounce = () => {
   const [canPostFreely, setCanPostFreely] = useState(false);
   const [accountAgeChecked, setAccountAgeChecked] = useState(false);
   const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [announce, setAnnounce] = useState({
     title: "",
     location: "",
@@ -338,28 +339,14 @@ const handleDropdownChange = (field, value) => {
 };
 
   const submitAnnounce = async (statusId) => {
+    if (isSubmitting) return;
+
     // For final submission (not draft), run all validations
     if (statusId === 3 && !validate()) {
       return;
     }
 
-    // if (accountAgeChecked && !canPostFreely) {
-    //   const result = await Swal.fire({
-    //     icon: "warning",
-    //     title: "สิทธิลงประกาศฟรี 4 เดือนหมดแล้ว",
-    //     text: "บัญชีที่มีอายุมากกว่า 4 เดือน ไม่สามารถลงประกาศฟรีได้ กรุณาเติมเครดิตเพื่อใช้งานต่อ",
-    //     confirmButtonText: "เติมเครดิต",
-    //     cancelButtonText: "ปิด",
-    //     showCancelButton: true,
-    //     confirmButtonColor: "#8C6239",
-    //     reverseButtons: true,
-    //   });
-    //   if (result.isConfirmed) {
-    //     navigate("/payment");
-    //   }
-    //   return;
-    // }
-
+    setIsSubmitting(true);
     try {
       if (!user?.userId) {
         await Swal.fire({
@@ -422,6 +409,8 @@ const handleDropdownChange = (field, value) => {
         title: "เกิดข้อผิดพลาด",
         text: extractErrorMessage(err, "ไม่สามารถบันทึกประกาศได้"),
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1001,14 +990,16 @@ const handleDropdownChange = (field, value) => {
               <button
                 onClick={() => submitAnnounce(4)}
                 className="btn btn-outline w-full sm:w-auto px-6 sm:px-8"
+                disabled={isSubmitting}
               >
-                บันทึกเป็นฉบับร่าง
+                {isSubmitting ? "กำลังบันทึก..." : "บันทึกเป็นฉบับร่าง"}
               </button>
               <button
                 onClick={() => submitAnnounce(3)}
                 className="btn bg-[#8c6239] text-white w-full sm:w-auto px-6 sm:px-8"
+                disabled={isSubmitting}
               >
-                เผยแพร่
+                {isSubmitting ? "กำลังเผยแพร่..." : "เผยแพร่"}
               </button>
             </div>
           )}

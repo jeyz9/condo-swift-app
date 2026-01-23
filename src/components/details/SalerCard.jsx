@@ -8,7 +8,7 @@ import UserService from "../../services/UserService";
 import { Link } from "react-router-dom";
 import { FaPhoneAlt, FaLine } from "react-icons/fa";
 
-const SalerCard = ({ agent }) => {
+const SalerCard = ({ agent, onLoginRequest }) => {
   const { user } = useAuthContext();
   const userId = user?.userId || user?.id;
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -25,14 +25,34 @@ const SalerCard = ({ agent }) => {
     }
   }, [termsKey]);
 
+  const handleShowContact = () => {
+    const phoneMasked = phoneNumber
+      ? phoneNumber.replace(/(\d{3})\d+(\d{2})/, "$1xxxxx$2")
+      : "ไม่พบ";
+    const phoneFull = phoneNumber || "ไม่พบเบอร์";
+    const lineUrl = lineId ? `https://line.me/ti/p/~${lineId}` : null;
+    showContactPopup(phoneMasked, phoneFull, lineUrl);
+  };
+
   const handleClickTerms = async () => {
+    if (!user) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'กรุณาเข้าสู่ระบบ',
+        text: 'คุณต้องเข้าสู่ระบบเพื่อติดต่อผู้ประกาศ',
+        confirmButtonText: 'เข้าสู่ระบบ',
+        showCancelButton: true,
+        cancelButtonText: 'ยกเลิก'
+      }).then((result) => {
+        if (result.isConfirmed && onLoginRequest) {
+          onLoginRequest();
+        }
+      });
+      return;
+    }
+
     if (termsAccepted) {
-      const phoneMasked = phoneNumber
-        ? phoneNumber.replace(/(\d{3})\d+(\d{2})/, "$1xxxxx$2")
-        : "ไม่พบ";
-      const phoneFull = phoneNumber || "ไม่พบเบอร์";
-      const lineUrl = `https://line.me/ti/p/${"~"}${agent.lineId}` 
-      showContactPopup(phoneMasked, phoneFull, lineUrl);
+      handleShowContact();
       return;
     }
 
@@ -44,12 +64,7 @@ const SalerCard = ({ agent }) => {
       if (response.status === 200 || response.status === 201) {
         setTermsAccepted(true);
         if (termsKey) localStorage.setItem(termsKey, "true");
-        const phoneMasked = phoneNumber
-          ? phoneNumber.replace(/(\d{3})\d+(\d{2})/, "$1xxxxx$2")
-          : "ไม่พบ";
-        const phoneFull = phoneNumber || "ไม่พบเบอร์";
-        const lineUrl = `https://line.me/ti/p/${"~"}${agent.lineId}` 
-        showContactPopup(phoneMasked, phoneFull, lineUrl);
+        handleShowContact();
       }
     } catch (error) {
       Swal.fire({

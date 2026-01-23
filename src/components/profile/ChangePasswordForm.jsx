@@ -5,7 +5,6 @@ import withReactContent from 'sweetalert2-react-content';
 import { useNavigate } from 'react-router-dom';
 import { extractErrorMessage } from '../../utils/errorUtils';
 import { useAuthContext } from '../../context/AuthContext';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const MySwal = withReactContent(Swal);
 
@@ -73,22 +72,19 @@ const ChangePasswordForm = () => {
           <label className="block text-sm font-medium text-gray-700">รหัสผ่านเก่า</label>
           <div className="relative">
             <input
-              type={showOldPassword ? 'text' : 'password'}
+              type={showOldPassword ? "text" : "password"}
               value={oldPassword}
               onChange={(e) => setOldPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
+              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none [&::-ms-reveal]:hidden"
               required
             />
-            <span
-              className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+            <button
+              type="button"
               onClick={() => setShowOldPassword(!showOldPassword)}
+              className="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600"
             >
-              {showOldPassword ? (
-                <FaEyeSlash className="h-5 w-5 text-gray-500" />
-              ) : (
-                <FaEye className="h-5 w-5 text-gray-500" />
-              )}
-            </span>
+              {showOldPassword ? "ซ่อน" : "แสดง"}
+            </button>
           </div>
         </div>
 
@@ -97,23 +93,20 @@ const ChangePasswordForm = () => {
           <label className="block text-sm font-medium text-gray-700">รหัสผ่านใหม่</label>
           <div className="relative">
             <input
-              type={showNewPassword ? 'text' : 'password'}
+              type={showNewPassword ? "text" : "password"}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               minLength={8}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
+              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none [&::-ms-reveal]:hidden"
               required
             />
-            <span
-              className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+            <button
+              type="button"
               onClick={() => setShowNewPassword(!showNewPassword)}
+              className="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600"
             >
-              {showNewPassword ? (
-                <FaEyeSlash className="h-5 w-5 text-gray-500" />
-              ) : (
-                <FaEye className="h-5 w-5 text-gray-500" />
-              )}
-            </span>
+              {showNewPassword ? "ซ่อน" : "แสดง"}
+            </button>
           </div>
         </div>
 
@@ -122,23 +115,20 @@ const ChangePasswordForm = () => {
           <label className="block text-sm font-medium text-gray-700">ยืนยันรหัสผ่านใหม่</label>
           <div className="relative">
             <input
-              type={showConfirmPassword ? 'text' : 'password'}
+              type={showConfirmPassword ? "text" : "password"}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               minLength={8}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
+              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none [&::-ms-reveal]:hidden"
               required
             />
-            <span
-              className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+            <button
+              type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600"
             >
-              {showConfirmPassword ? (
-                <FaEyeSlash className="h-5 w-5 text-gray-500" />
-              ) : (
-                <FaEye className="h-5 w-5 text-gray-500" />
-              )}
-            </span>
+              {showConfirmPassword ? "ซ่อน" : "แสดง"}
+            </button>
           </div>
         </div>
 
@@ -159,5 +149,3 @@ const ChangePasswordForm = () => {
 };
 
 export default ChangePasswordForm;
-
-

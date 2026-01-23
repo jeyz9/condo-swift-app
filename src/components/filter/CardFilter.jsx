@@ -112,7 +112,7 @@ const CardFilter = ({ announce }) => {
     const phoneFull = phoneNumber || "ไม่พบเบอร์";
 
     const rawLine = agent?.lineId;
-    const lineUrl = `https://line.me/ti/p/~${rawLine}`;
+    const lineUrl = rawLine ? `https://line.me/ti/p/~${rawLine}` : null;
 
     showContactPopup(phoneMasked, phoneFull, lineUrl);
   };
@@ -253,13 +253,13 @@ const CardFilter = ({ announce }) => {
           <button
             type="button"
             onClick={handleClickTerms}
-            className="btn flex-1 rounded-full border-none bg-[#8C6239] text-white shadow-sm transition hover:bg-[#704c2c]"
+            className="btn flex-1 rounded-full border-none bg-[#8C6239] text-white shadow-sm transition hover:bg-[#704c2c] btn-lg md:btn-md p-2"
           >
             ติดต่อผู้ประกาศ
           </button>
           <Link
             to={`/detail/${announceId}`}
-            className="btn flex-1 rounded-full border border-[#8C6239]/30 bg-white text-[#8C6239] transition hover:bg-[#8C6239]/5"
+            className="btn btn-lg p-2 md:btn-md flex-1 rounded-full border border-[#8C6239]/30 bg-white text-[#8C6239] transition hover:bg-[#8C6239]/5 "
           >
             ดูรายละเอียด
           </Link>

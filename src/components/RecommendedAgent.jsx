@@ -52,7 +52,7 @@ const RecommendedAgent = ({ recommendedAgents }) => {
             : "-");
 
         const phoneFull = agent?.phone || agent?.phoneFull || phoneMasked;
-        const lineUrl = `https://line.me/ti/p/${"~"}${agent.lineId}` 
+        const lineUrl = agent.lineId ? `https://line.me/ti/p/~${agent.lineId}`: null; 
          
         showContactPopup(phoneMasked, phoneFull, lineUrl);
       } else {

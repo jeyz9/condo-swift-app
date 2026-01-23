@@ -67,3 +67,8 @@ body {
   border-radius: 999px;
   background: #e5e7eb;
 }
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}

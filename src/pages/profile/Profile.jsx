@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useAuthContext } from "../../context/AuthContext";
 import UserService from "../../services/UserService";
@@ -10,7 +10,7 @@ import { RentCard } from "../../components/profile/RentCard";
 import SellCard from "../../components/profile/SellCard";
 import { Share2 } from "lucide-react"; // 📤 icon แชร์
 import { ProfileSkeleton } from "./ProfileSkeleton";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { extractErrorMessage } from "../../utils/errorUtils";
 
 const FILTER_TABS = [

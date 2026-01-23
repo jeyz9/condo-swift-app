@@ -10,19 +10,30 @@ import { loadGoogleMaps } from "../services/googleLoader";
 
 const containerStyle = { width: "100%", height: "400px" };
 
-export default function AddressMapPreview({ query, onGeocode }) {
-  const defaultCenter = useMemo(() => ({ lat: 13.7563, lng: 100.5018 }), []);
+// fallback center (Bangkok)
+const FALLBACK_CENTER = { lat: 13.7563, lng: 100.5018 };
+
+export default function AddressMapPreview({
+  query,
+  onGeocode,
+  initialCenter,
+}) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [center, setCenter] = useState(defaultCenter);
+  const [center, setCenter] = useState(FALLBACK_CENTER);
   const [zoom, setZoom] = useState(13);
   const [hasMarker, setHasMarker] = useState(false);
   const [placeName, setPlaceName] = useState("");
   const [searchError, setSearchError] = useState("");
+
   const geocodeTimeout = useRef(null);
   const geocoderRef = useRef(null);
 
+  // ===============================
+  // Load Google Maps
+  // ===============================
   useEffect(() => {
     let mounted = true;
+
     loadGoogleMaps()
       .then(() => {
         if (mounted) setIsLoaded(true);
@@ -31,11 +42,31 @@ export default function AddressMapPreview({ query, onGeocode }) {
         console.error("Failed to load Google Maps:", error);
         setSearchError("Unable to load Google Maps. Please retry.");
       });
+
     return () => {
       mounted = false;
     };
   }, []);
 
+  // ===============================
+  // Apply initialCenter (if exists)
+  // ===============================
+  useEffect(() => {
+    if (initialCenter?.lat && initialCenter?.lng) {
+      setCenter({
+        lat: initialCenter.lat,
+        lng: initialCenter.lng,
+      });
+      setZoom(17);
+      setHasMarker(true);
+    } else {
+      setHasMarker(false);
+    }
+  }, [initialCenter]);
+
+  // ===============================
+  // Ensure Geocoder
+  // ===============================
   const ensureGeocoder = useCallback(() => {
     if (!window.google?.maps) return null;
     if (!geocoderRef.current) {
@@ -44,6 +75,9 @@ export default function AddressMapPreview({ query, onGeocode }) {
     return geocoderRef.current;
   }, []);
 
+  // ===============================
+  // Pin location
+  // ===============================
   const pinLocation = useCallback(
     (lat, lng, result = null) => {
       setCenter({ lat, lng });
@@ -79,6 +113,9 @@ export default function AddressMapPreview({ query, onGeocode }) {
     [ensureGeocoder, onGeocode]
   );
 
+  // ===============================
+  // Geocode address fallback
+  // ===============================
   const geocodeAddress = useCallback(
     (address) => {
       const trimmed = address.trim();
@@ -109,6 +146,9 @@ export default function AddressMapPreview({ query, onGeocode }) {
     [ensureGeocoder, pinLocation]
   );
 
+  // ===============================
+  // Handle search query
+  // ===============================
   useEffect(() => {
     if (!isLoaded) return;
 
@@ -137,13 +177,16 @@ export default function AddressMapPreview({ query, onGeocode }) {
 
         service.findPlaceFromQuery(request, (results, status) => {
           if (
-            status === window.google.maps.places.PlacesServiceStatus.OK &&
+            status ===
+              window.google.maps.places.PlacesServiceStatus.OK &&
             Array.isArray(results) &&
             results[0]
           ) {
             const loc = results[0].geometry.location;
-            const lat = typeof loc.lat === "function" ? loc.lat() : loc.lat;
-            const lng = typeof loc.lng === "function" ? loc.lng() : loc.lng;
+            const lat =
+              typeof loc.lat === "function" ? loc.lat() : loc.lat;
+            const lng =
+              typeof loc.lng === "function" ? loc.lng() : loc.lng;
             pinLocation(lat, lng, results[0]);
           } else {
             geocodeAddress(trimmedQuery);
@@ -160,11 +203,15 @@ export default function AddressMapPreview({ query, onGeocode }) {
     };
   }, [query, isLoaded, geocodeAddress, pinLocation]);
 
+  // ===============================
+  // Use my location
+  // ===============================
   const handleUseMyLocation = () => {
     if (!navigator.geolocation) {
       alert("Device does not support geolocation.");
       return;
     }
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
@@ -174,6 +221,9 @@ export default function AddressMapPreview({ query, onGeocode }) {
     );
   };
 
+  // ===============================
+  // Map click / marker drag
+  // ===============================
   const handleMapInteraction = useCallback(
     (e) => {
       const lat = e.latLng.lat();
@@ -183,7 +233,10 @@ export default function AddressMapPreview({ query, onGeocode }) {
     [pinLocation]
   );
 
-  if (!isLoaded)
+  // ===============================
+  // Loading state
+  // ===============================
+  if (!isLoaded) {
     return (
       <div
         style={containerStyle}
@@ -192,7 +245,11 @@ export default function AddressMapPreview({ query, onGeocode }) {
         <p className="text-gray-500">Loading map...</p>
       </div>
     );
+  }
 
+  // ===============================
+  // Render
+  // ===============================
   return (
     <div className="relative mt-3 w-full">
       <GoogleMap
@@ -207,15 +264,20 @@ export default function AddressMapPreview({ query, onGeocode }) {
           gestureHandling: "auto",
         }}
       >
-              <button
-        onClick={handleUseMyLocation}
-        className="mt-3 btn absolute right-3 bg-white shadow-md rounded-xl flex items-center justify-center hover:bg-gray-100"
-        title="Use my current position"
-      >
-        Use my location
-      </button>
+        <button
+          onClick={handleUseMyLocation}
+          className="absolute top-3 right-3 bg-white shadow-md rounded-xl px-3 py-1 text-sm hover:bg-gray-100"
+          title="Use my current position"
+        >
+          Use my location
+        </button>
+
         {hasMarker && (
-          <Marker position={center} draggable onDragEnd={handleMapInteraction} />
+          <Marker
+            position={center}
+            draggable
+            onDragEnd={handleMapInteraction}
+          />
         )}
       </GoogleMap>
 
@@ -224,15 +286,14 @@ export default function AddressMapPreview({ query, onGeocode }) {
           ? `Selected location: ${placeName}`
           : "Search or click on the map to choose the announce location."}
       </div>
+
       {searchError && (
         <div className="mt-2 text-sm text-red-600">{searchError}</div>
       )}
+
       <div className="text-xs text-gray-500 text-right">
         Coordinates: {center.lat.toFixed(5)}, {center.lng.toFixed(5)}
-        
       </div>
-      
-      
     </div>
   );
 }

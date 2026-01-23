@@ -1,4 +1,4 @@
-import {Navigate} from "react-router"
+import {Navigate} from "react-router-dom"
 import { useAuthContext } from "../context/AuthContext"
 
 const RequireRole = ({children, allowedRoles = ['ROLE_ADMIN']}) => {

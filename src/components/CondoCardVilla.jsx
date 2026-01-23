@@ -1,47 +1,25 @@
 import { Link } from "react-router-dom";
 
-const imageMap = {
-  วิลล่ากรุงเทพมหานคร: "/villa/Bangkok-กรุงเทพมหานคร.jpg",
-  วิลล่าชลบุรี: "/villa/chonburi.png",
-  วิลล่าพัทยา: "/villa/pattaya.jpg",
-  วิลล่าระยอง: "/villa/rayong.jpg",
-  วิลล่าภูเก็ต: "/villa/phuket.jpg",
-  วิลล่ากระบี่: "/villa/krabi.jpg",
-  วิลล่าสงขลา: "/villa/songkhla.jpg",
-  วิลล่าสมุย: "/villa/samui.jpg",
-  วิลล่าสุราษฎร์ธานี: "/villa/surat.jpg",
-  วิลล่านครศรีธรรมราช: "/villa/nakhonsi.jpg",
-  วิลล่าขอนแก่น: "/villa/khonkaen.jpg",
-  วิลล่าอุดรธานี: "/villa/udon.jpg",
-  วิลล่านครราชสีมา: "/villa/korat.jpg",
-  วิลล่าเชียงใหม่: "/villa/chiangmai.jpg",
-  วิลล่าประจวบคีรีขันธ์: "/villa/prachuap.jpg",
-  วิลล่าหัวหิน: "/villa/huahin.jpg",
-  วิลล่าราชบุรี: "/villa/raatchaburi.jpg",
-  วิลล่านนทบุรี: "/villa/nonthaburi.jpg",
-  วิลล่าปทุมธานี: "/villa/pathum.jpg",
-  วิลล่านครปฐม: "/villa/nakhonpathom.jpg",
-  วิลล่าสมุทรปราการ: "/villa/samutprakan.jpg",
-  วิลล่ากาญจนบุรี: "/villa/kanchanaburi.jpg",
-  วิลล่าเพชรบุรี: "/villa/phetburi.jpg",
-  Default: "/villa/default.jpg",
-};
-
 const CondoCardVilla = ({ item }) => {
   const name = item?.name || "วิลล่าแนะนำ";
   const total =
     typeof item?.totalAnnounce === "number" ? item.totalAnnounce : 0;
 
+    console.log("item in Villa card: ", item)
   //  ตัดคำว่า "วิลล่า" ออก จะได้ชื่อจังหวัด/พื้นที่
   const provinceFromName = name.replace("วิลล่า", "").trim();
 
+  console.log("provinceFromName: ", provinceFromName);
+
   //  กำหนดค่า province & type (เผื่อ backend ส่งมาใน item ด้วย)
-  const province = item?.province || provinceFromName;
+  const province = provinceFromName 
+;
+
+  console.log("province: ", province);
   const type = item?.type || "วิลล่า"; // ถ้า backend ใช้ "VILLA" ก็เปลี่ยนเป็น "VILLA"
 
   //  เอาไว้ใช้เลือกภาพ
-  const cleanName = name?.replace(/\s+/g, "") || "";
-  const image = imageMap[cleanName] || imageMap.Default;
+  const image = "/villa/poolvilla-1.png";
 
   //  สร้าง query string ให้ filter หน้า /filter รองรับ province + type
   const queryString = new URLSearchParams({

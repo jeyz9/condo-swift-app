@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useAuthContext } from "../context/AuthContext";
 import { FaRegCreditCard, FaShieldAlt, FaGift, FaCheck } from "react-icons/fa";

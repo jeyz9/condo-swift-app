@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Swal from "sweetalert2";
 import AuthService from "../../services/AuthService";
 import { extractErrorMessage } from "../../utils/errorUtils";
-import { motion, AnimatePresence } from "framer-motion"; //
+import { motion, AnimatePresence } from "framer-motion";
 import { form } from "framer-motion/client";
 
 const initialFormState = {
@@ -17,7 +17,10 @@ const initialFormState = {
 };
 
 export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
-  const [formData, setFormData] = useState(initialFormState);  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState(initialFormState);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   //  Animation settings
   const backdropVariant = {
@@ -234,27 +237,47 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
                       <label className="text-sm font-medium text-gray-700">
                         รหัสผ่าน
                       </label>
-                      <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none"
-                        placeholder="รหัสผ่าน"
-                      />
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          name="password"
+                          value={formData.password}
+                          onChange={handleChange}
+                          className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none"
+                          placeholder="รหัสผ่าน"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600"
+                        >
+                          {showPassword ? "ซ่อน" : "แสดง"}
+                        </button>
+                      </div>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-700">
                         ยืนยันรหัสผ่าน
                       </label>
-                      <input
-                        type="password"
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none"
-                        placeholder="ยืนยันรหัสผ่าน"
-                      />
+                      <div className="relative">
+                        <input
+                          type={showConfirmPassword ? "text" : "password"}
+                          name="confirmPassword"
+                          value={formData.confirmPassword}
+                          onChange={handleChange}
+                          className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none"
+                          placeholder="ยืนยันรหัสผ่าน"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
+                          className="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600"
+                        >
+                          {showConfirmPassword ? "ซ่อน" : "แสดง"}
+                        </button>
+                      </div>
                     </div>
                   </div>
 

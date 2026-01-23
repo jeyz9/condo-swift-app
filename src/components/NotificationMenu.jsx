@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import NotificationService from "../services/NotificationService";
 import { useAuthContext } from "../context/AuthContext";
 import Swal from "sweetalert2";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate, useLocation } from "react-router-dom";
 import { NotificationMenuSkeleton } from "./NotificationMenuSkeleton";
 import { LuBell } from "react-icons/lu";
 import { LuBellDot } from "react-icons/lu";

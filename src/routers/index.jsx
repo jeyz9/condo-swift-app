@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 import { MainLayout } from "../layouts/MainLayout.jsx";
 import { AdminLayout } from "../layouts/AdminLayout.jsx";
 
@@ -30,7 +30,7 @@ import RequireRole from "../components/RequireRole.jsx";
 import RequireAuth from "../components/RequireAuth.jsx";
 import Forbidden from "../pages/auth/Forbidden.jsx";
 import RequireVerification from "../components/RequireVerification.jsx";
-import VerifyEmail from "../pages/auth/verifyEmail.jsx";
+import VerifyEmail from "../pages/auth/VerifyEmail.jsx";
 import Draft from "../pages/announcement/Draft.jsx";
 import AdminAnnounceDetail from "../pages/admin/AdminAnnounceDetail.jsx";
 import AdminManageRoles from "../pages/admin/AdminManageRoles.jsx";

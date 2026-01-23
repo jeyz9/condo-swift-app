@@ -5,7 +5,6 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { extractErrorMessage } from '../../utils/errorUtils';
 import { useAuthContext } from '../../context/AuthContext';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MySwal = withReactContent(Swal);
@@ -128,19 +127,17 @@ const ChangePasswordPopup = ({ onClose }) => {
                   type={showOldPassword ? "text" : "password"}
                   value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
+                  className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none [&::-ms-reveal]:hidden"
+                  placeholder="รหัสผ่านเก่า"
                   required
                 />
-                <span
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                <button
+                  type="button"
                   onClick={() => setShowOldPassword(!showOldPassword)}
+                  className="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600"
                 >
-                  {showOldPassword ? (
-                    <FaEyeSlash className="h-5 w-5 text-gray-500" />
-                  ) : (
-                    <FaEye className="h-5 w-5 text-gray-500" />
-                  )}
-                </span>
+                  {showOldPassword ? "ซ่อน" : "แสดง"}
+                </button>
               </div>
             </div>
 
@@ -155,19 +152,17 @@ const ChangePasswordPopup = ({ onClose }) => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   minLength={8}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
+                  className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none [&::-ms-reveal]:hidden"
+                  placeholder="รหัสผ่านใหม่"
                   required
                 />
-                <span
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                <button
+                  type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600"
                 >
-                  {showNewPassword ? (
-                    <FaEyeSlash className="h-5 w-5 text-gray-500" />
-                  ) : (
-                    <FaEye className="h-5 w-5 text-gray-500" />
-                  )}
-                </span>
+                  {showNewPassword ? "ซ่อน" : "แสดง"}
+                </button>
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 อย่างน้อย 8 ตัวอักษร
@@ -185,19 +180,17 @@ const ChangePasswordPopup = ({ onClose }) => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   minLength={8}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#8C6239] focus:border-[#8C6239] pr-10"
+                  className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none [&::-ms-reveal]:hidden"
+                  placeholder="ยืนยันรหัสผ่านใหม่"
                   required
                 />
-                <span
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                <button
+                  type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600"
                 >
-                  {showConfirmPassword ? (
-                    <FaEyeSlash className="h-5 w-5 text-gray-500" />
-                  ) : (
-                    <FaEye className="h-5 w-5 text-gray-500" />
-                  )}
-                </span>
+                  {showConfirmPassword ? "ซ่อน" : "แสดง"}
+                </button>
               </div>
             </div>
 

@@ -1,4 +1,3 @@
-// src/pages/AdminAnnounceDetail.jsx
 import React, { useEffect, useState } from "react";
 import { CardDetails } from "../../components/details/CardDetails.jsx";
 import SalerCard from "../../components/details/SalerCard.jsx";
@@ -15,12 +14,15 @@ import {
   MdStorefront,
   MdElevator,
   MdSecurity,
+  MdNavigateBefore,
+  MdNavigateNext,
+  MdArrowBack,
+  MdWarningAmber,
 } from "react-icons/md";
 import GrayscaleMap from "../../components/details/GrayscaleMap.jsx";
 import AnnounceService from "../../services/AnnounceService.js";
 import Swal from "sweetalert2";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { MdArrowBack, MdWarningAmber } from "react-icons/md";
 import { useAuthContext } from "../../context/AuthContext.jsx";
 import { DetailSkeleton } from "../announcement/DetailSkeleton.jsx";
 import { extractErrorMessage } from "../../utils/errorUtils.js";
@@ -29,6 +31,8 @@ import SimilarDuplicateCard from "../../components/SimilarDuplicateCard.jsx";
 const AdminAnnounceDetail = () => {
   const [announce, setAnnounce] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [pendingIds, setPendingIds] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(-1);
 
   const { id } = useParams();
   const { user } = useAuthContext();
@@ -37,10 +41,39 @@ const AdminAnnounceDetail = () => {
   const userId = user?.userId;
   const agentId = announce?.agent?.id;
 
+
+  // -------------------------------
+  // 1. โหลด pending list แค่ครั้งเดียว
+  // -------------------------------
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchPending = async () => {
+      try {
+        const pendingResponse = await AnnounceService.showAllAnnouncePending(
+          "",
+          0,
+          1000
+        );
+
+        if (pendingResponse.data?.content) {
+          const ids = pendingResponse.data.content.map((a) => a.id);
+          setPendingIds(ids);
+        }
+      } catch (error) {
+        console.error("โหลด pending list ไม่สำเร็จ", error);
+      }
+    };
+
+    fetchPending();
+  }, []);
+
+  // -------------------------------
+  // 2. โหลด detail + คำนวณ currentIndex ทุกครั้งที่ id เปลี่ยน
+  // -------------------------------
+  useEffect(() => {
+    const fetchDetail = async () => {
       try {
         setLoading(true);
+
         const response = await AnnounceService.showAnnouncePendingDetails(id);
 
         if (response.status === 200) {
@@ -48,10 +81,16 @@ const AdminAnnounceDetail = () => {
         } else {
           setAnnounce(null);
         }
+
+        // คำนวณ currentIndex จาก pendingIds
+        if (pendingIds.length > 0) {
+          const current = pendingIds.indexOf(Number(id));
+          setCurrentIndex(current);
+        }
       } catch (error) {
         let errorMessage = extractErrorMessage(
           error,
-          "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
+          "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"
         );
 
         if (
@@ -59,7 +98,6 @@ const AdminAnnounceDetail = () => {
           "You do not have permission to access this announcement."
         ) {
           errorMessage = "คุณไม่มีสิทธิ์เข้าถึงประกาศนี้";
-          console.log("คุณไม่มีสิทธิ์เข้าถึงประกาศนี้");
         }
 
         Swal.fire({
@@ -73,73 +111,108 @@ const AdminAnnounceDetail = () => {
       }
     };
 
-    fetchData();
-  }, [id]);
+    if (id) {
+      fetchDetail();
+    }
+  }, [id, pendingIds]);
 
- const handleApprove = async () => {
-  try {
-    await AnnounceService.approveAnnounce(id);
-    Swal.fire({
-      icon: "success",
-      title: "อนุมัติสำเร็จ!",
-      text: "ประกาศได้รับการอนุมัติและเผยแพร่แล้ว",
-    }).then(() => {
-      navigate("/admin/announce/pending", { replace: true }); // เพิ่ม replace: true
-      window.location.reload();
-    });
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "เกิดข้อผิดพลาด",
-      text: extractErrorMessage(error, "ไม่สามารถอนุมัติประกาศได้"),
-    });
-  }
-};
-
-const handleReject = async () => {
-  const { value: reason } = await Swal.fire({
-    title: "ระบุเหตุผลที่ปฏิเสธ",
-    input: "textarea",
-    inputPlaceholder: "เช่น รูปภาพไม่ชัดเจน, ข้อมูลติดต่อไม่ถูกต้อง...",
-    inputAttributes: {
-      "aria-label": "Type your message here",
-    },
-    showCancelButton: true,
-    confirmButtonText: "ยืนยันการปฏิเสธ",
-    cancelButtonText: "ยกเลิก",
-    confirmButtonColor: "#d33",
-  });
-
-  if (reason) {
+  // -------------------------------
+  // Action handlers
+  // -------------------------------
+  const handleApprove = async () => {
     try {
-      await AnnounceService.rejectAnnounce(id, { reason });
+      await AnnounceService.approveAnnounce(id);
       Swal.fire({
         icon: "success",
-        title: "ปฏิเสธสำเร็จ",
-        text: "ประกาศถูกปฏิเสธและส่งกลับไปให้ผู้ใช้แแก้ไข",
+        title: "อนุมัติสำเร็จ!",
+        text: "ประกาศได้รับการอนุมัติและเผยแพร่แล้ว",
       }).then(() => {
-        navigate("/admin/announce/pending", { replace: true }); // เพิ่ม replace: true
+        if (currentIndex < pendingIds.length - 1) {
+          handleNext();
+        } else {
+          navigate("/admin/announce/pending", { replace: true });
+        }
       });
     } catch (error) {
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
-        text: extractErrorMessage(error, "ไม่สามารถปฏิเสธประกาศได้"),
+        text: extractErrorMessage(error, "ไม่สามารถอนุมัติประกาศได้"),
       });
     }
-  }
-};
-  console.log("approveStatusId:", announce?.approveStatusId);
-  console.log("type:", typeof announce?.approveStatusId);
-  const sharePage = () => {
-    // ... (sharePage function remains the same)
   };
 
+  const handleReject = async () => {
+    const { value: reason } = await Swal.fire({
+      title: "ระบุเหตุผลที่ปฏิเสธ",
+      input: "textarea",
+      inputPlaceholder: "เช่น รูปภาพไม่ชัดเจน, ข้อมูลติดต่อไม่ถูกต้อง...",
+      showCancelButton: true,
+      confirmButtonText: "ยืนยันการปฏิเสธ",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#d33",
+    });
+
+    if (reason) {
+      try {
+        await AnnounceService.rejectAnnounce(id, { reason });
+        Swal.fire({
+          icon: "success",
+          title: "ปฏิเสธสำเร็จ",
+          text: "ประกาศถูกปฏิเสธและส่งกลับไปให้ผู้ใช้แก้ไข",
+        }).then(() => {
+          if (currentIndex < pendingIds.length - 1) {
+            handleNext();
+          } else {
+            navigate("/admin/announce/pending", { replace: true });
+          }
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: extractErrorMessage(error, "ไม่สามารถปฏิเสธประกาศได้"),
+        });
+      }
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      const prevId = pendingIds[currentIndex - 1];
+      navigate(`/admin/announce/details/${prevId}`);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIndex < pendingIds.length - 1) {
+      const nextId = pendingIds[currentIndex + 1];
+      navigate(`/admin/announce/details/${nextId}`);
+    }
+  };
+
+  const sharePage = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: announce?.title,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      Swal.fire("คัดลอกลิงก์แล้ว", "คุณสามารถนำลิงก์ไปแชร์ได้", "success");
+    }
+  };
+
+  // -------------------------------
+  // Render
+  // -------------------------------
   if (loading) return <DetailSkeleton />;
-  if (!announce)
+
+  if (!announce) {
     return (
       <div className="p-10 text-center text-red-500">ไม่พบข้อมูลประกาศ</div>
     );
+  }
 
   const lat = parseFloat(announce?.mapPoint?.lat ?? 0);
   const lng = parseFloat(announce?.mapPoint?.lng ?? 0);
@@ -147,9 +220,13 @@ const handleReject = async () => {
 
   const similarDuplicates = announce?.similarDuplicates;
   const exactDuplicates = announce?.exactDuplicates;
-  console.log("approveStatusId:", announce?.approveStatusId);
+
+    console.log("pendingIds =", pendingIds);
+console.log("current route id =", Number(id));
+console.log("index =", pendingIds.indexOf(Number(id)));
   return (
     <>
+      {/* Back */}
       <div className="w-full max-w-6xl mx-auto px-4 pt-4">
         <Link
           to="/admin/announce/pending"
@@ -160,29 +237,17 @@ const handleReject = async () => {
         </Link>
       </div>
 
-      {/* Admin Action Buttons */}
-
-     {/* Admin Action Buttons */}
-<div className="w-full max-w-6xl mx-auto px-4 pt-4 flex gap-4">
-  <button
-    onClick={handleApprove}
-    className="btn btn-success text-white"
-  >
-    <FaCheck /> อนุมัติ
-  </button>
-  <button onClick={handleReject} className="btn btn-error text-white">
-    <FaTimes /> ปฏิเสธ
-  </button>
-</div>
-
+      {/* Images */}
       <div className="mt-4 flex justify-center px-4">
         <CardDetails images={announce.imageList} />
       </div>
+
       <div className="mt-7 divider w-full max-w-5xl mx-auto px-4"></div>
+
       <div className="w-full max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-[60%_40%] gap-6">
-        {/* LEFT SIDE */}
+        {/* LEFT */}
         <div className="min-w-0">
-          <h1 className="text-[28px] sm:text-[36px] font-bold break-words whitespace-normal">
+          <h1 className="text-[28px] sm:text-[36px] font-bold break-words">
             {announce.title}
           </h1>
           <p className="text-[18px] mt-2 text-gray-700">{announce.location}</p>
@@ -193,7 +258,7 @@ const handleReject = async () => {
               if (lat && lng) {
                 window.open(
                   `https://www.google.com/maps?q=${lat},${lng}`,
-                  "_blank",
+                  "_blank"
                 );
               } else {
                 alert("ไม่พบพิกัดของประกาศนี้ ❌");
@@ -226,10 +291,11 @@ const handleReject = async () => {
                 ฿{announce.price.toLocaleString()}
               </div>
             </div>
+
             <div className="divider divider-horizontal"></div>
 
             <div className="flex gap-8 text-gray-600 mt-4">
-              <div className="flex flex-col items-center ">
+              <div className="flex flex-col items-center">
                 <IoBedOutline className="w-6 h-6" />
                 <span>{announce.bedroomCount} ห้องนอน</span>
               </div>
@@ -310,7 +376,7 @@ const handleReject = async () => {
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
+        {/* RIGHT */}
         <div className="w-full">
           <SalerCard agent={agentData} />
           <div className="divider my-4" />
@@ -345,8 +411,6 @@ const handleReject = async () => {
             </span>
           </div>
 
-          {/* Similar duplicates card */}
-
           <div className="mt-4">
             <SimilarDuplicateCard
               similarDuplicates={similarDuplicates}
@@ -354,6 +418,21 @@ const handleReject = async () => {
             />
           </div>
         </div>
+      </div>
+
+      {/* Bottom Admin Actions */}
+      <div className="w-full max-w-6xl mx-auto px-4 py-8 flex justify-center items-center gap-4">
+
+
+        <button onClick={handleApprove} className="btn btn-success text-white">
+          <FaCheck /> อนุมัติ
+        </button>
+
+        <button onClick={handleReject} className="btn btn-error text-white">
+          <FaTimes /> ปฏิเสธ
+        </button>
+
+       
       </div>
     </>
   );

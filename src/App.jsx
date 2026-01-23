@@ -1,4 +1,4 @@
-import { RouterProvider } from 'react-router'
+import { RouterProvider} from 'react-router-dom'
 import './index.css'
 import router from './routers/index.jsx'
 

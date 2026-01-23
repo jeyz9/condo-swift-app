@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import UserService from "../../services/UserService";
 import PublicHeroProfile from "../../components/profile/PublicHeroProfile";
