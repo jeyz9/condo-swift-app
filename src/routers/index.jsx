@@ -30,7 +30,7 @@ import RequireRole from "../components/RequireRole.jsx";
 import RequireAuth from "../components/RequireAuth.jsx";
 import Forbidden from "../pages/auth/Forbidden.jsx";
 import RequireVerification from "../components/RequireVerification.jsx";
-import VerifyEmail from "../pages/auth/VerifyEmail.jsx";
+import VerifyEmail from "../pages/auth/VerifyEmail.jsx"
 import Draft from "../pages/announcement/Draft.jsx";
 import AdminAnnounceDetail from "../pages/admin/AdminAnnounceDetail.jsx";
 import AdminManageRoles from "../pages/admin/AdminManageRoles.jsx";
