@@ -1,4 +1,3 @@
-// src/components/DraftCard.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -10,7 +9,7 @@ const formatPrice = (value) => {
   return numeric.toLocaleString("th-TH");
 };
 
-export const DraftCard = ({ announce }) => {
+export const AnnounceCard = ({ announce }) => {
   const announceId = announce?.id ?? "";
   const status = announce?.status?.toLowerCase();
   const editUrl = `/edit-announce-reject/${announceId}?status=${status || ''}`;
@@ -23,6 +22,8 @@ export const DraftCard = ({ announce }) => {
   const statusDisplay = {
     draft: { text: "แบบร่าง", className: "bg-blue-500 text-white" },
     rejected: { text: "ถูกปฏิเสธ", className: "bg-red-500 text-white" },
+    approved: { text: "อนุมัติ", className: "bg-green-500 text-white" },
+    pending: { text: "รอการอนุมัติ", className: "bg-yellow-500 text-white" },
   };
 
   const displayStatus = statusDisplay[status];
@@ -82,7 +83,7 @@ export const DraftCard = ({ announce }) => {
             to={editUrl}
             className="btn btn-block rounded-full border-none bg-[#8C6239] text-white shadow-sm transition hover:bg-[#704c2c]"
           >
-            แก้ไขแบบร่าง
+            แก้ไข
           </Link>
         </div>
       </div>

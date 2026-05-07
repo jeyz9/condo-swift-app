@@ -200,10 +200,52 @@ const getAllAnnouncesWithBadges = async (keyword, badges, page, size) => {
   return await api.get(`${API_URL}/showAllAnnounceBadges?keyword=${keyword}&badges=${badges}&page=${page}&size=${size}`)
 }
 
-const showAllAnnounceDraft = async () => {
-  return await api.get(`${API_URL}/showAllAnnounceDraft`);
+const showAllMyAnnounce = async () => {
+  return await api.get(`${API_URL}/showAllMyAnnounce`);
 };
 
+const getMyManagedAnnounces = async () => {
+  return await api.get(`${import.meta.env.VITE_ANNOUNCE_AGENT}/getMyManagedAnnounces`);
+};
+
+const requestToManageAnnounce = async (id) => {
+  return await api.post(`${import.meta.env.VITE_ANNOUNCE_AGENT}/requestToManageAnnounce/${id}`);
+};
+
+const cancelManageRequest = async (id) => {
+  return await api.delete(`${import.meta.env.VITE_ANNOUNCE_AGENT}/cancelManageRequest/${id}`);
+}
+
+const getAgentsByAnnounce = (announceId) => {
+  return api.get(`${import.meta.env.VITE_ANNOUNCE_AGENT}/getAgentsByAnnounce/${announceId}`);
+}
+
+const approveAgent = (announceAgentId, data) => {
+  return api.put(`${import.meta.env.VITE_ANNOUNCE_AGENT}/approveAgent/${announceAgentId}`, data);
+}
+
+const revokeAgent = (announceAgentId) => {
+  return api.put(`${import.meta.env.VITE_ANNOUNCE_AGENT}/revokeAgent/${announceAgentId}`);
+}
+
+const updateAgentPermission = (announceAgentId, data) => {
+  return api.put(
+    `${import.meta.env.VITE_ANNOUNCE_AGENT}/updateAgentPermission/${announceAgentId}`,
+    data
+  );
+}
+
+const updateAnnounceByAgent = (announceAgentId, formData) => {
+  return api.put(
+    `${import.meta.env.VITE_ANNOUNCE_AGENT}/updateAnnounceByAgent/${announceAgentId}`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+}
 
 
 //  export ฟังก์ชันทั้งหมดไว้ให้เรียกง่าย
@@ -222,7 +264,7 @@ const AnnounceService = {
   approveAnnounce,
   rejectAnnounce,
   getAllAnnouncesWithBadges,
-  showAllAnnounceDraft,
+  showAllMyAnnounce,
   getAllBadges: BadgesService.getAllBadges,
   addBadge: BadgesService.addBadge,
   updateBadge: BadgesService.updateBadge,
@@ -230,6 +272,14 @@ const AnnounceService = {
   addAnnounceBadge: BadgesService.addAnnounceBadge,
   deleteAnnounceBadge: BadgesService.deleteAnnounceBadge,
   showAnnounceDetailByAgent,
+  getMyManagedAnnounces,
+  requestToManageAnnounce,
+  cancelManageRequest,
+  getAgentsByAnnounce,
+  approveAgent,
+  revokeAgent,
+  updateAgentPermission,
+  updateAnnounceByAgent,
 };
 
 export default AnnounceService;

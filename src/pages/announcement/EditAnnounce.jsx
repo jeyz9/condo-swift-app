@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useAuthContext } from "../../context/AuthContext";
 
@@ -86,7 +86,7 @@ export const EditAnnounce = () => {
   const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
   const [stationOptions, setStationOptions] = useState(fallbackStations);
   const [announceTypes, setAnnounceTypes] = useState([]);
-
+  const [permission, setPermission] = useState("");
 
   useEffect(() => {
     if (!user) {
@@ -105,7 +105,8 @@ export const EditAnnounce = () => {
         const data = response.data;
 
         // Security check: ensure the current user is the owner
-        if (data.agent.id !== user.userId) {
+        setPermission(data?.announceAgent?.permission || "");
+        if (data.agent.id !== user.userId && !data?.announceAgent?.permission.includes('EDIT_CONTENT') && !data?.announceAgent?.permission.includes('FULL_ACCESS')) {
           Swal.fire({
             icon: "error",
             title: "เข้าถึงถูกปฏิเสธ",
@@ -137,7 +138,6 @@ export const EditAnnounce = () => {
         });
 
         setExistingImages(data.imageList || []);
-        setSearchText(data.location || ""); // Set initial search text for map
 
       } catch (error) {
         Swal.fire({
@@ -160,7 +160,17 @@ export const EditAnnounce = () => {
             ]);
 
             const provinceNames = provincesRes.data?.map(item => item?.provinceName || item?.name).filter(Boolean) || [];
-            setProvinceOptions(provinceNames.length > 0 ? provinceNames : fallbackProvinces);
+            
+            const formattedOptions = (
+              provinceNames.length > 0
+                ? provinceNames
+                : fallbackProvinces
+            ).map((province, index) => ({
+              value: province.id || index + 1,
+              label: province.name || province,
+            }));
+
+            setProvinceOptions(formattedOptions);
 
             if (userProfileRes.status === 200) {
                 setUserProfile(userProfileRes.data);
@@ -185,7 +195,7 @@ export const EditAnnounce = () => {
     fetchInitialData();
   }, [announceId, user, navigate]);
 
-
+  const isEditContentAgent = permission.includes('EDIT_CONTENT');
   const displayName = userProfile?.name?.trim() || user?.name?.trim() || user?.sub || "User";
   const displayImage = userProfile?.image || user?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}`;
 
@@ -269,6 +279,47 @@ export const EditAnnounce = () => {
     else setActiveTab(activeTab - 1);
   };
   
+  // สำหรับ agent ที่มี EDIT_CONTENT
+  const submitUpdateByAgent = async () => {
+    if (!validate()) return;
+    try {
+      // ส่งเฉพาะ field ที่ backend อนุญาต
+      const announcePayload = {
+        title: announce.title,
+        bathroomCount: Number(announce.bathroomCount) || 0,
+        bedroomCount: Number(announce.bedroomCount) || 0,
+        areaSize: Number(announce.areaSize) || 0,
+        hasPool: announce.hasPool,
+        hasConvenienceStore: announce.hasConvenienceStore,
+        hasFitness: announce.hasFitness,
+        hasElevator: announce.hasElevator,
+        hasParking: announce.hasParking,
+        hasSecurity: announce.hasSecurity,
+      };
+      // เตรียมไฟล์ภาพ (ถ้าต้องการส่ง)
+      const formData = new FormData();
+      formData.append('announce', new Blob([JSON.stringify(announcePayload)], { type: 'application/json' }));
+      newImages.forEach((img, idx) => {
+        formData.append('files', img.file);
+      });
+      // เรียก API
+      const response = await AnnounceService.updateAnnounceByAgent(announceId, formData);
+      if (response.status === 200) {
+        await Swal.fire({
+          icon: "success",
+          title: "แก้ไขประกาศสำเร็จ!",
+        });
+        navigate(`/detail/${announceId}`);
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: extractErrorMessage(err, "ไม่สามารถบันทึกการเปลี่ยนแปลงได้"),
+      });
+    }
+  };  
+  
   const submitUpdate = async () => {
     if (!validate()) return;
   
@@ -277,7 +328,7 @@ export const EditAnnounce = () => {
         id: Number(announceId),
         title: announce.title,
         location: announce.location,
-        province: announce.province,
+        province: typeof announce.province === "object" && announce.province !== null ? announce.province.name : announce.province,
         station: announce.station,
         price: Number(announce.price) || 0,
         bedroomCount: Number(announce.bedroomCount) || 0,
@@ -362,9 +413,16 @@ export const EditAnnounce = () => {
                     </div>
                   )}
                 </div>
-                <div className="w-full md:w-[35%] relative z-10">
+                 <div className="w-full md:w-[35%] relative z-10">
                   <label className="block text-sm font-medium text-gray-700 mb-2">ค้นหาสถานที่ / โครงการ</label>
-                  <input name="search" value={searchText} onChange={(e) => setSearchText(e.target.value)} type="text" placeholder="พิมพ์ชื่อโครงการหรือสถานที่" className="input input-bordered w-full mb-4"/>
+                  <input
+                    name="search"
+                    value={searchText}
+                    onChange={e => setSearchText(e.target.value)}
+                    type="text"
+                    placeholder="พิมพ์ชื่อโครงการหรือสถานที่"
+                    className="input input-bordered w-full mb-4"
+                  />
                 </div>
               </div>
             </motion.div>
@@ -413,8 +471,26 @@ export const EditAnnounce = () => {
              <input name="price" value={announce.price} onChange={handleChange} type="number" placeholder="ระบุราคา" className="input input-bordered w-full mb-6 rounded-xl"/>
              <label className="block font-medium text-gray-700 mb-2">ที่อยู่</label>
              <input name="location" value={announce.location} onChange={handleChange} type="text" placeholder="รายละเอียดที่อยู่" className="input select-bordered w-full mb-6 rounded-xl"/>
-             <label className="block font-medium text-gray-700 mb-2">จังหวัด</label>
-             <SearchableDropdown options={provinceOptions} value={announce.province} onChange={(value) => handleDropdownChange("province", value)} placeholder="เลือกจังหวัด" className="select select-bordered w-full mb-6 rounded-xl"/>
+             
+             <label className="block font-medium text-gray-700 mb-2">
+                จังหวัด
+              </label>
+              <SearchableDropdown
+                options={provinceOptions}
+                value={announce.province?.id || ""}
+                onChange={(value) =>
+                  setAnnounce((prev) => ({
+                    ...prev,
+                    province: {
+                      id: value,
+                      name:
+                        provinceOptions.find((p) => p.value === value)?.label || "",
+                    },
+                  }))
+                }
+                placeholder="เลือกจังหวัด"
+              />
+
              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                <div>
                  <label className="block font-medium text-gray-700 mb-2">รายละเอียด ห้องนอน</label>
@@ -541,7 +617,10 @@ export const EditAnnounce = () => {
               ถัดไป ➜
             </button>
           ) : (
-            <button onClick={submitUpdate} className="btn bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto px-6 sm:px-8">
+            <button
+              onClick={isEditContentAgent ? submitUpdateByAgent : submitUpdate}
+              className="btn bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto px-6 sm:px-8"
+            >
               บันทึกการเปลี่ยนแปลง
             </button>
           )}

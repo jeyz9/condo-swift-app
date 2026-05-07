@@ -1,39 +1,65 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 
-const SearchableDropdown = ({ options, value, onChange, placeholder }) => {
-  const [inputValue, setInputValue] = useState(value);
+const SearchableDropdown = ({
+  options = [],
+  value,
+  onChange,
+  placeholder,
+}) => {
+  const [inputValue, setInputValue] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [isOpen, setIsOpen] = useState(false);
+
   const dropdownRef = useRef(null);
 
+  // sync selected value
   useEffect(() => {
-    setInputValue(value);
-    setFilteredOptions(options.filter(option => option.toLowerCase().includes(value.toLowerCase())));
+    const selectedOption = options.find(
+      (option) => String(option.value) === String(value)
+    );
+
+    setInputValue(selectedOption?.label || "");
+    setFilteredOptions(options);
   }, [value, options]);
 
   const handleInputChange = (e) => {
     const text = e.target.value;
+
     setInputValue(text);
-    setFilteredOptions(options.filter(option => option.toLowerCase().includes(text.toLowerCase())));
+
+    const filtered = options.filter((option) =>
+      option.label.toLowerCase().includes(text.toLowerCase())
+    );
+
+    setFilteredOptions(filtered);
     setIsOpen(true);
   };
 
   const handleOptionClick = (option) => {
-    setInputValue(option);
-    onChange(option);
+    setInputValue(option.label);
+
+    onChange(option.value);
+
     setIsOpen(false);
   };
 
   const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(event.target)
+    ) {
       setIsOpen(false);
     }
   };
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
     };
   }, []);
 
@@ -47,17 +73,24 @@ const SearchableDropdown = ({ options, value, onChange, placeholder }) => {
         onFocus={() => setIsOpen(true)}
         className="input input-bordered w-full"
       />
+
       {isOpen && (
-        <ul className="absolute z-10 w-full bg-base-100 shadow-lg max-h-60 overflow-y-auto">
-          {filteredOptions.map((option, index) => (
-            <li
-              key={index}
-              onClick={() => handleOptionClick(option)}
-              className="p-2 hover:bg-base-300 cursor-pointer"
-            >
-              {option}
+        <ul className="absolute z-10 w-full rounded-xl bg-base-100 shadow-lg max-h-60 overflow-y-auto border border-gray-200">
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((option) => (
+              <li
+                key={`${option.value}-${option.label}`}
+                onClick={() => handleOptionClick(option)}
+                className="cursor-pointer p-3 hover:bg-base-200 transition"
+              >
+                {option.label}
+              </li>
+            ))
+          ) : (
+            <li className="p-3 text-gray-500">
+              ไม่พบข้อมูล
             </li>
-          ))}
+          )}
         </ul>
       )}
     </div>

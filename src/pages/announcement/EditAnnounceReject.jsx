@@ -16,7 +16,6 @@ import UserService from "../../services/UserService";
 import ProvinceService from "../../services/ProvinceService";
 
 // 📚 Data
-import { provinces as fallbackProvinces } from "../../data/provinces";
 import { stations as fallbackStations } from "../../data/stations";
 import { extractErrorMessage } from "../../utils/errorUtils";
 
@@ -83,9 +82,10 @@ export const EditAnnounceReject = () => {
   const [searchText, setSearchText] = useState("");
   const [userProfile, setUserProfile] = useState(null);
 
-  const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
   const [stationOptions, setStationOptions] = useState(fallbackStations);
   const [announceTypes, setAnnounceTypes] = useState([]);
+
+  const [provinceOptions, setProvinceOptions] = useState([]);
 
 
   useEffect(() => {
@@ -137,8 +137,6 @@ export const EditAnnounceReject = () => {
         });
 
         setExistingImages(data.imageList || []);
-        setSearchText(data.location || ""); // Set initial search text for map
-
       } catch (error) {
         Swal.fire({
           icon: "error",
@@ -160,7 +158,15 @@ export const EditAnnounceReject = () => {
             ]);
 
             const provinceNames = provincesRes.data?.map(item => item?.provinceName || item?.name).filter(Boolean) || [];
-            setProvinceOptions(provinceNames.length > 0 ? provinceNames : fallbackProvinces);
+            const formattedOptions = (
+              provinceNames.length > 0
+                ? provinceNames
+                : fallbackProvinces
+            ).map((province, index) => ({
+              value: province.id || index + 1,
+              label: province.name || province,
+            }));
+            setProvinceOptions(formattedOptions);
 
             if (userProfileRes.status === 200) {
                 setUserProfile(userProfileRes.data);
@@ -277,7 +283,11 @@ export const EditAnnounceReject = () => {
         id: Number(announceId),
         title: announce.title,
         location: announce.location,
-        province: announce.province,
+        province: (() => {
+          // provinceOptions: [{ value, label }]
+          const found = provinceOptions.find(p => p.value === announce.province);
+          return found ? found.label : announce.province?.name;
+        })(),
         station: announce.station,
         price: Number(announce.price) || 0,
         bedroomCount: Number(announce.bedroomCount) || 0,
@@ -414,7 +424,17 @@ export const EditAnnounceReject = () => {
              <label className="block font-medium text-gray-700 mb-2">ที่อยู่</label>
              <input name="location" value={announce.location} onChange={handleChange} type="text" placeholder="รายละเอียดที่อยู่" className="input select-bordered w-full mb-6 rounded-xl"/>
              <label className="block font-medium text-gray-700 mb-2">จังหวัด</label>
-             <SearchableDropdown options={provinceOptions} value={announce.province} onChange={(value) => handleDropdownChange("province", value)} placeholder="เลือกจังหวัด" className="select select-bordered w-full mb-6 rounded-xl"/>
+             <SearchableDropdown
+                options={provinceOptions}
+                value={announce.province || ""}
+                onChange={(value) =>
+                  setAnnounce((prev) => ({
+                    ...prev,
+                    province: value,
+                  }))
+                }
+                placeholder="เลือกจังหวัด"
+              />
              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                <div>
                  <label className="block font-medium text-gray-700 mb-2">รายละเอียด ห้องนอน</label>

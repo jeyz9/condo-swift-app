@@ -29,7 +29,7 @@ import RequireRole from "../components/RequireRole.jsx";
 import RequireAuth from "../components/RequireAuth.jsx";
 import Forbidden from "../pages/auth/Forbidden.jsx";
 import RequireVerification from "../components/RequireVerification.jsx";
-import Draft from "../pages/announcement/Draft.jsx";
+import MyAnnounce from "../pages/announcement/MyAnnounce.jsx";
 import AdminAnnounceDetail from "../pages/admin/AdminAnnounceDetail.jsx";
 import AdminManageRoles from "../pages/admin/AdminManageRoles.jsx";
 import { EditAnnounceReject } from "../pages/announcement/EditAnnounceReject.jsx";
@@ -44,8 +44,8 @@ const router = createBrowserRouter([
       { path: "/", element: <Home /> },
       { path: "/detail/:id", element: <Detail /> },
       { path: "/filter", element: <Filter /> },
-      { path: "/add-announce", element: <RequireRole allowedRoles={['ROLE_AGENT']}><RequireVerification><AddAnnounce /></RequireVerification></RequireRole> },
-      { path: "/edit-announce/:id", element: <RequireRole allowedRoles={['ROLE_AGENT']}><RequireVerification><EditAnnounce /></RequireVerification></RequireRole> },
+      { path: "/add-announce", element: <RequireRole allowedRoles={['ROLE_AGENT', "ROLE_OWNER"]}><RequireVerification><AddAnnounce /></RequireVerification></RequireRole> },
+      { path: "/edit-announce/:id", element: <RequireRole allowedRoles={['ROLE_AGENT', "ROLE_OWNER"]}><RequireVerification><EditAnnounce /></RequireVerification></RequireRole> },
       { path: "/profile", element: <RequireAuth><Profile /></RequireAuth> },
       { path: "/profile/edit", element: <RequireAuth><EditProfile /></RequireAuth> },
       { path: "/public-profile/:userId", element: <PublicProfile /> },
@@ -57,7 +57,7 @@ const router = createBrowserRouter([
       { path: "/bookmarks", element: <RequireAuth><Bookmarks /></RequireAuth> },
       { path: "/forbidden", element: <Forbidden /> },
       { path: "/verify-email/verify", element: <VerifyEmail /> },
-      { path: "/draft", element: <RequireAuth><Draft /></RequireAuth> },
+      { path: "/draft", element: <RequireAuth><MyAnnounce /></RequireAuth> },
       { path: "/edit-announce-reject/:id", element:<RequireRole allowedRoles={['ROLE_AGENT']}><RequireVerification><EditAnnounceReject /></RequireVerification></RequireRole> },
       { path: "/share-announce/:id", element: <ShareAnnounce /> },
       // catch-all สำหรับ path ที่ไม่ตรง
