@@ -29,6 +29,8 @@ import { DetailSkeleton } from "./DetailSkeleton";
 import { extractErrorMessage } from "../../utils/errorUtils";
 import UserService from "../../services/UserService";
 import { useNavigate } from "react-router-dom";
+import { AgentManageModal } from "../../components/AgentManageModel";
+
 export const Detail = () => {
   const [announce, setAnnounce] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -38,9 +40,21 @@ export const Detail = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isAgentModalOpen, setIsAgentModalOpen] = useState(false);
 
   const userId = user?.userId;
+
+  const ownerId = announce?.agent?.id;
   const agentId = announce?.agent?.id;
+
+  const isOwner = userId === ownerId;
+
+  const userRoles = user?.roles || [];
+
+  const isAgent =
+    typeof userRoles === "string"
+      ? userRoles.includes("ROLE_AGENT")
+      : Array.isArray(userRoles) && userRoles.includes("ROLE_AGENT");
 
   const handleDelete = async () => {
     Swal.fire({
@@ -59,11 +73,7 @@ export const Detail = () => {
           Swal.fire("ลบแล้ว!", "ประกาศของคุณถูกลบแล้ว.", "success");
           navigate("/");
         } catch (error) {
-          Swal.fire(
-            "เกิดข้อผิดพลาด!",
-            "ไม่สามารถลบประกาศได้ในขณะนี้",
-            "error"
-          );
+          Swal.fire("เกิดข้อผิดพลาด!", "ไม่สามารถลบประกาศได้ในขณะนี้", "error");
         }
       }
     });
@@ -88,12 +98,16 @@ export const Detail = () => {
           }
         } catch (error) {
           isRejected = true;
-          console.warn("showAnnounceDetail failed, attempting showAnnounceDetailByAgent:", error);
+          console.warn(
+            "showAnnounceDetail failed, attempting showAnnounceDetailByAgent:",
+            error,
+          );
         }
 
         if (isRejected) {
           try {
-            const agentResponse = await AnnounceService.showAnnounceDetailByAgent(id);
+            const agentResponse =
+              await AnnounceService.showAnnounceDetailByAgent(id);
             if (agentResponse.status === 200) {
               setAnnounce(agentResponse.data);
             } else {
@@ -110,7 +124,10 @@ export const Detail = () => {
         Swal.fire({
           icon: "error",
           title: "เกิดข้อผิดพลาดในการเชื่อมต่อ",
-          text: extractErrorMessage(error, "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"),
+          text: extractErrorMessage(
+            error,
+            "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้",
+          ),
           confirmButtonText: "ตกลง",
         });
       } finally {
@@ -128,7 +145,7 @@ export const Detail = () => {
           const response = await UserService.showAllAnnounceBookmark();
           if (response.data) {
             const isMarked = response.data.some(
-              (bookmark) => bookmark.id === parseInt(id)
+              (bookmark) => bookmark.id === parseInt(id),
             );
             setIsBookmarked(isMarked);
           }
@@ -180,17 +197,15 @@ export const Detail = () => {
       });
     }
   };
-  
 
+  const sharePage = () => {
+    const pageUrl = window.location.href; // URL จริง
+    const encodedUrl = encodeURIComponent(pageUrl); // สำหรับแชร์
+    const agentLineId = announce?.agent?.lineId;
 
- const sharePage = () => {
-  const pageUrl = window.location.href;                 // URL จริง
-  const encodedUrl = encodeURIComponent(pageUrl);       // สำหรับแชร์
-  const agentLineId = announce?.agent?.lineId;
-
-  Swal.fire({
-  title: "<span class='text-xl font-semibold'>แชร์ลิงก์หน้านี้</span>",
-  html: `
+    Swal.fire({
+      title: "<span class='text-xl font-semibold'>แชร์ลิงก์หน้านี้</span>",
+      html: `
     <div class="flex flex-col gap-3 mt-2">
 
       {/* Facebook */}
@@ -207,7 +222,9 @@ export const Detail = () => {
         แชร์ผ่าน Facebook
       </a>
 
-      ${agentLineId ? `
+      ${
+        agentLineId
+          ? `
       <!-- LINE -->
       <a
         href="https://line.me/R/msg/text/?${encodedUrl}"
@@ -221,7 +238,9 @@ export const Detail = () => {
         </svg>
         แชร์ผ่าน LINE
       </a>
-      ` : ''}
+      `
+          : ""
+      }
 
       {/* Copy */}
       <button
@@ -239,36 +258,33 @@ export const Detail = () => {
 
     </div>
   `,
-  showConfirmButton: false,
-  width: "420px",
-});
-
-document.getElementById("copy-link")?.addEventListener("click", () => {
-  navigator.clipboard.writeText(pageUrl);
-  Swal.fire({
-    toast: true,
-    position: "top",
-    icon: "success",
-    title: "คัดลอกลิงก์แล้ว",
-    showConfirmButton: false,
-    timer: 1500,
-  });
-});
-
-
-  // ปุ่มคัดลอกลิงก์
-  const popup = Swal.getPopup();
-  const copyBtn = popup?.querySelector("#copy-link");
-
-  if (copyBtn) {
-    copyBtn.addEventListener("click", () => {
-      navigator.clipboard.writeText(pageUrl);           // ⬅ ใช้ URL จริง
-      copyBtn.textContent = "คัดลอกเรียบร้อย ✓";
+      showConfirmButton: false,
+      width: "420px",
     });
-  }
-};
 
+    document.getElementById("copy-link")?.addEventListener("click", () => {
+      navigator.clipboard.writeText(pageUrl);
+      Swal.fire({
+        toast: true,
+        position: "top",
+        icon: "success",
+        title: "คัดลอกลิงก์แล้ว",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    });
 
+    // ปุ่มคัดลอกลิงก์
+    const popup = Swal.getPopup();
+    const copyBtn = popup?.querySelector("#copy-link");
+
+    if (copyBtn) {
+      copyBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(pageUrl); // ⬅ ใช้ URL จริง
+        copyBtn.textContent = "คัดลอกเรียบร้อย ✓";
+      });
+    }
+  };
 
   if (loading) return <DetailSkeleton />;
   if (!announce)
@@ -280,19 +296,28 @@ document.getElementById("copy-link")?.addEventListener("click", () => {
   const lng = parseFloat(announce?.mapPoint?.lng ?? 0);
 
   const agentData = announce?.agent ?? announce?.agent ?? null;
-  console.log(agentData)
+  console.log(agentData);
 
   const handleLogin = async ({ email, password }) => {
     try {
       await login(email, password);
       setIsLoginOpen(false);
-      Swal.fire({ icon: "success", title: "เข้าสู่ระบบสำเร็จ", timer: 1200, showConfirmButton: false });
+      Swal.fire({
+        icon: "success",
+        title: "เข้าสู่ระบบสำเร็จ",
+        timer: 1200,
+        showConfirmButton: false,
+      });
     } catch (e) {
-      Swal.fire({ icon: "error", title: "เข้าสู่ระบบไม่สำเร็จ", text: extractErrorMessage(e, "เกิดข้อผิดพลาดที่ไม่คาดคิด") });
+      Swal.fire({
+        icon: "error",
+        title: "เข้าสู่ระบบไม่สำเร็จ",
+        text: extractErrorMessage(e, "เกิดข้อผิดพลาดที่ไม่คาดคิด"),
+      });
     }
   };
 
-    return (
+  return (
     <>
       <div className="mt-10 flex justify-center px-4">
         <CardDetails images={announce.imageList} />
@@ -411,7 +436,8 @@ document.getElementById("copy-link")?.addEventListener("click", () => {
             )}
             {announce.hasSecurity && (
               <div className="flex items-center gap-2">
-                <MdSecurity className="w-5 h-5" /> <span>รักษาความปลอดภัย 24/7</span>
+                <MdSecurity className="w-5 h-5" />{" "}
+                <span>รักษาความปลอดภัย 24/7</span>
               </div>
             )}
           </div>
@@ -419,7 +445,9 @@ document.getElementById("copy-link")?.addEventListener("click", () => {
           <div className="divider my-4"></div>
 
           {/* MAP */}
-          <h2 className="font-bold text-[20px] mb-2">ที่ตั้ง & สถานที่ใกล้เคียง</h2>
+          <h2 className="font-bold text-[20px] mb-2">
+            ที่ตั้ง & สถานที่ใกล้เคียง
+          </h2>
           {lat && lng ? (
             <GrayscaleMap lat={lat} lng={lng} />
           ) : (
@@ -442,27 +470,32 @@ document.getElementById("copy-link")?.addEventListener("click", () => {
 
         {/* RIGHT SIDE */}
         <div className="w-full">
-          <SalerCard agent={agentData} onLoginRequest={() => setIsLoginOpen(true)} />
+          <SalerCard
+            agent={agentData}
+            onLoginRequest={() => setIsLoginOpen(true)}
+          />
           <div className="divider my-4" />
 
-          <div className="flex gap-x-4 mb-5">
-            {userId === agentId ? (
+          <div className="mb-5 flex flex-wrap gap-4">
+            {isOwner ? (
               <>
                 <Link
                   to={`/edit-announce/${id}`}
-                  className="btn rounded-full pl-7 pr-7 border-gray-700"
+                  className="btn rounded-full border-gray-700 px-7"
                 >
                   แก้ไขประกาศ
                 </Link>
+
                 <button
                   onClick={handleDelete}
-                  className="btn rounded-full pl-7 pr-7 bg-red-500 text-white border-none"
+                  className="btn rounded-full border-none bg-red-500 px-7 text-white hover:bg-red-600"
                 >
                   ลบประกาศ
                 </button>
               </>
             ) : (
               <>
+                {/* BOOKMARK */}
                 <button
                   onClick={handleBookmarkToggle}
                   className={`btn rounded-full border-gray-700 ${
@@ -474,19 +507,78 @@ document.getElementById("copy-link")?.addEventListener("click", () => {
                   ) : (
                     <IoBookmarkOutline className="w-6 h-6" />
                   )}
+
                   {isBookmarked ? "บันทึกแล้ว" : "บันทึก"}
                 </button>
 
+                {/* SHARE */}
                 <button
                   onClick={sharePage}
-                  className="btn rounded-full pl-12 pr-12 border-gray-700"
+                  className="btn rounded-full border-gray-700 px-8"
                 >
                   <PiShareFat className="w-6 h-6" />
                   แชร์
                 </button>
+
+                {/* REQUEST AGENT */}
+                {isAgent && (
+                  <button
+                    className="btn rounded-full border-none bg-[#8C6239] px-8 text-white hover:bg-[#704c2c]"
+                    onClick={() => {
+                      Swal.fire({
+                        icon: "question",
+                        title: "ยืนยันคำขอ",
+                        text: "คุณต้องการขอเป็นตัวแทนขายประกาศนี้ใช่หรือไม่?",
+                        showCancelButton: true,
+                        confirmButtonText: "ยืนยัน",
+                        cancelButtonText: "ยกเลิก",
+                        confirmButtonColor: "#8C6239",
+                      }).then(async (result) => {
+                        if (result.isConfirmed) {
+                          try {
+                            await AnnounceService.requestToManageAnnounce(id);
+                            Swal.fire({
+                              icon: "success",
+                              title: "ส่งคำขอสำเร็จ",
+                              text: "ระบบได้ส่งคำขอไปยังเจ้าของประกาศแล้ว",
+                              timer: 1800,
+                              showConfirmButton: false,
+                            });
+                          } catch (error) {
+                            Swal.fire({
+                              icon: "error",
+                              title: "เกิดข้อผิดพลาด",
+                              text: extractErrorMessage(
+                                error,
+                                "ไม่สามารถส่งคำขอได้",
+                              ),
+                            });
+                          }
+                        }
+                      });
+                    }}
+                  >
+                    ขอเป็นตัวแทนขาย
+                  </button>
+                )}
               </>
             )}
+
+            {userId === agentId && (
+              <button
+                onClick={() => setIsAgentModalOpen(true)}
+                className="btn rounded-full border-gray-700"
+              >
+                จัดการตัวแทน
+              </button>
+            )}
           </div>
+
+          <AgentManageModal
+            announceId={id}
+            isOpen={isAgentModalOpen}
+            onClose={() => setIsAgentModalOpen(false)}
+          />
 
           <div
             role="alert"
@@ -494,7 +586,8 @@ document.getElementById("copy-link")?.addEventListener("click", () => {
           >
             <MdWarningAmber className="h-6 w-6 shrink-0" />
             <span>
-              คำเตือน: ห้ามโอนเงินก่อนเห็นห้องจริงและตรวจสอบเอกสารสิทธิ์ให้ครบถ้วน
+              คำเตือน:
+              ห้ามโอนเงินก่อนเห็นห้องจริงและตรวจสอบเอกสารสิทธิ์ให้ครบถ้วน
             </span>
           </div>
         </div>

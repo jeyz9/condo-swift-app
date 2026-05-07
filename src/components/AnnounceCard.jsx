@@ -1,4 +1,3 @@
-// src/components/DraftCard.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -10,7 +9,7 @@ const formatPrice = (value) => {
   return numeric.toLocaleString("th-TH");
 };
 
-export const DraftCard = ({ announce }) => {
+export const AnnounceCard = ({ announce }) => {
   const announceId = announce?.id ?? "";
   const status = announce?.status?.toLowerCase();
   const editUrl = `/edit-announce-reject/${announceId}?status=${status || ''}`;
