@@ -17,7 +17,7 @@ const MyAnnounce = () => {
         setLoading(true);
 
         const [draftResponse, managedResponse] = await Promise.all([
-          AnnounceService.showAllAnnounceDraft(),
+          AnnounceService.showAllMyAnnounce(),
           AnnounceService.getMyManagedAnnounces(),
         ]);
 

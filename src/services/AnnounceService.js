@@ -200,8 +200,8 @@ const getAllAnnouncesWithBadges = async (keyword, badges, page, size) => {
   return await api.get(`${API_URL}/showAllAnnounceBadges?keyword=${keyword}&badges=${badges}&page=${page}&size=${size}`)
 }
 
-const showAllAnnounceDraft = async () => {
-  return await api.get(`${API_URL}/showAllAnnounceDraft`);
+const showAllMyAnnounce = async () => {
+  return await api.get(`${API_URL}/showAllMyAnnounce`);
 };
 
 const getMyManagedAnnounces = async () => {
@@ -264,7 +264,7 @@ const AnnounceService = {
   approveAnnounce,
   rejectAnnounce,
   getAllAnnouncesWithBadges,
-  showAllAnnounceDraft,
+  showAllMyAnnounce,
   getAllBadges: BadgesService.getAllBadges,
   addBadge: BadgesService.addBadge,
   updateBadge: BadgesService.updateBadge,

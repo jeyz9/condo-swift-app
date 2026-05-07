@@ -137,7 +137,6 @@ export const EditAnnounce = () => {
         });
 
         setExistingImages(data.imageList || []);
-        setSearchText(data.location || ""); // Set initial search text for map
 
       } catch (error) {
         Swal.fire({
@@ -160,7 +159,17 @@ export const EditAnnounce = () => {
             ]);
 
             const provinceNames = provincesRes.data?.map(item => item?.provinceName || item?.name).filter(Boolean) || [];
-            setProvinceOptions(provinceNames.length > 0 ? provinceNames : fallbackProvinces);
+            
+            const formattedOptions = (
+              provinceNames.length > 0
+                ? provinceNames
+                : fallbackProvinces
+            ).map((province, index) => ({
+              value: province.id || index + 1,
+              label: province.name || province,
+            }));
+
+            setProvinceOptions(formattedOptions);
 
             if (userProfileRes.status === 200) {
                 setUserProfile(userProfileRes.data);
@@ -277,7 +286,7 @@ export const EditAnnounce = () => {
         id: Number(announceId),
         title: announce.title,
         location: announce.location,
-        province: announce.province,
+        province: typeof announce.province === "object" && announce.province !== null ? announce.province.name : announce.province,
         station: announce.station,
         price: Number(announce.price) || 0,
         bedroomCount: Number(announce.bedroomCount) || 0,
@@ -362,9 +371,16 @@ export const EditAnnounce = () => {
                     </div>
                   )}
                 </div>
-                <div className="w-full md:w-[35%] relative z-10">
+                 <div className="w-full md:w-[35%] relative z-10">
                   <label className="block text-sm font-medium text-gray-700 mb-2">ค้นหาสถานที่ / โครงการ</label>
-                  <input name="search" value={searchText} onChange={(e) => setSearchText(e.target.value)} type="text" placeholder="พิมพ์ชื่อโครงการหรือสถานที่" className="input input-bordered w-full mb-4"/>
+                  <input
+                    name="search"
+                    value={searchText}
+                    onChange={e => setSearchText(e.target.value)}
+                    type="text"
+                    placeholder="พิมพ์ชื่อโครงการหรือสถานที่"
+                    className="input input-bordered w-full mb-4"
+                  />
                 </div>
               </div>
             </motion.div>
@@ -391,30 +407,59 @@ export const EditAnnounce = () => {
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                <div>
                  <label className="block font-medium text-gray-700 mb-2">ประเภทของการประกาศ</label>
-                 <select name="saleType" value={announce.saleType} onChange={handleChange} className="select select-bordered w-full rounded-xl">
-                   <option value="">เลือกประเภทของการประกาศ</option>
-                   <option value="1">ให้เช่า</option>
-                   <option value="2">ขาย</option>
-                 </select>
+                 <select
+                    name="saleType"
+                    value={announce.saleType?.id || ""}
+                    onChange={handleChange}
+                    className="select select-bordered w-full rounded-xl"
+                  >
+                    <option value="">เลือกประเภทของการประกาศ</option>
+                    <option value="1">ให้เช่า</option>
+                    <option value="2">ขาย</option>
+                  </select>
                </div>
                <div>
                  <label className="block font-medium text-gray-700 mb-2">ประเภทอสังหาริมทรัพย์</label>
-                 <select name="announceType" value={announce.announceType} onChange={handleChange} className="select select-bordered w-full">
-                   <option value="">เลือกประเภทอสังหาริมทรัพย์</option>
-                   {announceTypes.map((type) => (
-                     <option key={type.id} value={type.id}>
-                       {type.typeName}
-                     </option>
-                   ))}
-                 </select>
+                 <select
+                    name="announceType"
+                    value={announce.announceType?.id || ""}
+                    onChange={handleChange}
+                    className="select select-bordered w-full"
+                  >
+                    <option value="">เลือกประเภทอสังหาริมทรัพย์</option>
+
+                    {announceTypes.map((type) => (
+                      <option key={type.id} value={type.id}>
+                        {type.typeName}
+                      </option>
+                    ))}
+                  </select>
                </div>
              </div>
              <label className="block font-medium text-gray-700 mb-2">ราคา</label>
              <input name="price" value={announce.price} onChange={handleChange} type="number" placeholder="ระบุราคา" className="input input-bordered w-full mb-6 rounded-xl"/>
              <label className="block font-medium text-gray-700 mb-2">ที่อยู่</label>
              <input name="location" value={announce.location} onChange={handleChange} type="text" placeholder="รายละเอียดที่อยู่" className="input select-bordered w-full mb-6 rounded-xl"/>
-             <label className="block font-medium text-gray-700 mb-2">จังหวัด</label>
-             <SearchableDropdown options={provinceOptions} value={announce.province} onChange={(value) => handleDropdownChange("province", value)} placeholder="เลือกจังหวัด" className="select select-bordered w-full mb-6 rounded-xl"/>
+             
+             <label className="block font-medium text-gray-700 mb-2">
+                จังหวัด
+              </label>
+              <SearchableDropdown
+                options={provinceOptions}
+                value={announce.province?.id || ""}
+                onChange={(value) =>
+                  setAnnounce((prev) => ({
+                    ...prev,
+                    province: {
+                      id: value,
+                      name:
+                        provinceOptions.find((p) => p.value === value)?.label || "",
+                    },
+                  }))
+                }
+                placeholder="เลือกจังหวัด"
+              />
+
              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                <div>
                  <label className="block font-medium text-gray-700 mb-2">รายละเอียด ห้องนอน</label>

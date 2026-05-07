@@ -22,6 +22,8 @@ export const AnnounceCard = ({ announce }) => {
   const statusDisplay = {
     draft: { text: "แบบร่าง", className: "bg-blue-500 text-white" },
     rejected: { text: "ถูกปฏิเสธ", className: "bg-red-500 text-white" },
+    approved: { text: "อนุมัติ", className: "bg-green-500 text-white" },
+    pending: { text: "รอการอนุมัติ", className: "bg-yellow-500 text-white" },
   };
 
   const displayStatus = statusDisplay[status];
@@ -81,7 +83,7 @@ export const AnnounceCard = ({ announce }) => {
             to={editUrl}
             className="btn btn-block rounded-full border-none bg-[#8C6239] text-white shadow-sm transition hover:bg-[#704c2c]"
           >
-            แก้ไขแบบร่าง
+            แก้ไข
           </Link>
         </div>
       </div>
