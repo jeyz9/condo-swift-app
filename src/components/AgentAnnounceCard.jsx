@@ -151,12 +151,18 @@ export const AgentAnnounceCard = ({ announce, onCancelSuccess }) => {
 
           <div className="flex gap-2">
             <Link
-              to={`/agent/announce/${announce?.id}`}
+              to={`/detail/${announce?.announceId}`}
               className="flex-1 rounded-full bg-[#8C6239] px-4 py-2 text-center text-sm font-medium text-white transition hover:bg-[#704c2c]"
             >
               ดูรายละเอียด
             </Link>
-
+            <Link
+              to={`/edit-announce/${announce?.announceId}`}
+              state={{ permission: announce?.permission }}
+              className="flex-1 rounded-full bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white transition hover:bg-blue-800"
+            >
+              แก้ไข
+            </Link>
             <button
               onClick={handleCancelAgent}
               className="rounded-full border border-red-500 px-4 py-2 text-sm font-medium text-red-500 transition hover:bg-red-500 hover:text-white"

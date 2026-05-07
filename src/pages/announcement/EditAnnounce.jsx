@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useAuthContext } from "../../context/AuthContext";
 
@@ -86,7 +86,7 @@ export const EditAnnounce = () => {
   const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
   const [stationOptions, setStationOptions] = useState(fallbackStations);
   const [announceTypes, setAnnounceTypes] = useState([]);
-
+  const [permission, setPermission] = useState("");
 
   useEffect(() => {
     if (!user) {
@@ -105,7 +105,8 @@ export const EditAnnounce = () => {
         const data = response.data;
 
         // Security check: ensure the current user is the owner
-        if (data.agent.id !== user.userId) {
+        setPermission(data?.announceAgent?.permission || "");
+        if (data.agent.id !== user.userId && !data?.announceAgent?.permission.includes('EDIT_CONTENT') && !data?.announceAgent?.permission.includes('FULL_ACCESS')) {
           Swal.fire({
             icon: "error",
             title: "เข้าถึงถูกปฏิเสธ",
@@ -194,7 +195,7 @@ export const EditAnnounce = () => {
     fetchInitialData();
   }, [announceId, user, navigate]);
 
-
+  const isEditContentAgent = permission.includes('EDIT_CONTENT');
   const displayName = userProfile?.name?.trim() || user?.name?.trim() || user?.sub || "User";
   const displayImage = userProfile?.image || user?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}`;
 
@@ -277,6 +278,47 @@ export const EditAnnounce = () => {
     if (activeTab === 0) navigate(`/detail/${announceId}`);
     else setActiveTab(activeTab - 1);
   };
+  
+  // สำหรับ agent ที่มี EDIT_CONTENT
+  const submitUpdateByAgent = async () => {
+    if (!validate()) return;
+    try {
+      // ส่งเฉพาะ field ที่ backend อนุญาต
+      const announcePayload = {
+        title: announce.title,
+        bathroomCount: Number(announce.bathroomCount) || 0,
+        bedroomCount: Number(announce.bedroomCount) || 0,
+        areaSize: Number(announce.areaSize) || 0,
+        hasPool: announce.hasPool,
+        hasConvenienceStore: announce.hasConvenienceStore,
+        hasFitness: announce.hasFitness,
+        hasElevator: announce.hasElevator,
+        hasParking: announce.hasParking,
+        hasSecurity: announce.hasSecurity,
+      };
+      // เตรียมไฟล์ภาพ (ถ้าต้องการส่ง)
+      const formData = new FormData();
+      formData.append('announce', new Blob([JSON.stringify(announcePayload)], { type: 'application/json' }));
+      newImages.forEach((img, idx) => {
+        formData.append('files', img.file);
+      });
+      // เรียก API
+      const response = await AnnounceService.updateAnnounceByAgent(announceId, formData);
+      if (response.status === 200) {
+        await Swal.fire({
+          icon: "success",
+          title: "แก้ไขประกาศสำเร็จ!",
+        });
+        navigate(`/detail/${announceId}`);
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: extractErrorMessage(err, "ไม่สามารถบันทึกการเปลี่ยนแปลงได้"),
+      });
+    }
+  };  
   
   const submitUpdate = async () => {
     if (!validate()) return;
@@ -407,33 +449,22 @@ export const EditAnnounce = () => {
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                <div>
                  <label className="block font-medium text-gray-700 mb-2">ประเภทของการประกาศ</label>
-                 <select
-                    name="saleType"
-                    value={announce.saleType?.id || ""}
-                    onChange={handleChange}
-                    className="select select-bordered w-full rounded-xl"
-                  >
-                    <option value="">เลือกประเภทของการประกาศ</option>
-                    <option value="1">ให้เช่า</option>
-                    <option value="2">ขาย</option>
-                  </select>
+                 <select name="saleType" value={announce.saleType} onChange={handleChange} className="select select-bordered w-full rounded-xl">
+                   <option value="">เลือกประเภทของการประกาศ</option>
+                   <option value="1">ให้เช่า</option>
+                   <option value="2">ขาย</option>
+                 </select>
                </div>
                <div>
                  <label className="block font-medium text-gray-700 mb-2">ประเภทอสังหาริมทรัพย์</label>
-                 <select
-                    name="announceType"
-                    value={announce.announceType?.id || ""}
-                    onChange={handleChange}
-                    className="select select-bordered w-full"
-                  >
-                    <option value="">เลือกประเภทอสังหาริมทรัพย์</option>
-
-                    {announceTypes.map((type) => (
-                      <option key={type.id} value={type.id}>
-                        {type.typeName}
-                      </option>
-                    ))}
-                  </select>
+                 <select name="announceType" value={announce.announceType} onChange={handleChange} className="select select-bordered w-full">
+                   <option value="">เลือกประเภทอสังหาริมทรัพย์</option>
+                   {announceTypes.map((type) => (
+                     <option key={type.id} value={type.id}>
+                       {type.typeName}
+                     </option>
+                   ))}
+                 </select>
                </div>
              </div>
              <label className="block font-medium text-gray-700 mb-2">ราคา</label>
@@ -586,7 +617,10 @@ export const EditAnnounce = () => {
               ถัดไป ➜
             </button>
           ) : (
-            <button onClick={submitUpdate} className="btn bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto px-6 sm:px-8">
+            <button
+              onClick={isEditContentAgent ? submitUpdateByAgent : submitUpdate}
+              className="btn bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto px-6 sm:px-8"
+            >
               บันทึกการเปลี่ยนแปลง
             </button>
           )}
