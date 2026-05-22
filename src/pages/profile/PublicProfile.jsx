@@ -4,8 +4,7 @@ import Swal from "sweetalert2";
 import UserService from "../../services/UserService";
 import PublicHeroProfile from "../../components/profile/PublicHeroProfile";
 import { ProfileDetail } from "../../components/profile/ProfileDetail";
-import { RentCard } from "../../components/profile/RentCard";
-import SellCard from "../../components/profile/SellCard";
+import PropertyCard from "../../components/profile/SellCard";
 import { Share2 } from "lucide-react"; // 📤 icon แชร์
 import { ProfileSkeleton } from "./ProfileSkeleton";
 import { extractErrorMessage } from "../../utils/errorUtils";
@@ -118,13 +117,9 @@ export const PublicProfile = () => {
         {/* รายการประกาศ */}
         {announceList.length > 0 ? (
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {activeTab === "เช่า"
-              ? announceList.map((a) => (
-                  <RentCard key={a?.id ?? a?.announceId} announce={a} />
-                ))
-              : announceList.map((a) => (
-                  <SellCard key={a?.id ?? a?.announceId} announce={a} />
-                ))}
+            {announceList.map((a) => (
+              <PropertyCard key={a?.id ?? a?.announceId} announce={a} />
+            ))}
           </div>
         ) : (
           <p className="mt-8 text-center text-gray-500">

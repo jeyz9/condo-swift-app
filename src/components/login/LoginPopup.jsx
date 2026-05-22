@@ -152,6 +152,7 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#8C6239",
       }).then(() => {
+        setLoginData({ email: "", password: "" });
         onClose?.();
         navigate(location.pathname + location.search);
       });

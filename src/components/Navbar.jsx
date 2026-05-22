@@ -154,7 +154,7 @@ const Navbar = () => {
       <div className="navbar-end">
         {user ? (
           <>
-            {roles.includes("ROLE_AGENT") && (
+            {(roles.includes("ROLE_AGENT") || roles.includes("ROLE_OWNER")) && (
               <button
                 onClick={() => handleAddAnnounceClick()}
                 className="btn btn-sm sm:btn-md bg-[#8C6239] text-white border-none hover:bg-[#704c2c] mx-2"
