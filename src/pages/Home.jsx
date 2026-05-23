@@ -8,6 +8,10 @@ import Swal from "sweetalert2";
 import CondoCardNearby from "../components/CondoCardNearby";
 import CondoCardLuxury from "../components/CondoCardLuxury";
 import CondoCardVilla from "../components/CondoCardVilla";
+import villa1 from "../assets/villa1.jpg";
+import villa2 from "../assets/villa2.jpg";
+import villa3 from "../assets/villa3.jpg";
+import villa4 from "../assets/villa4.jpg";
 import { CondoCard } from "../components/CondoCard";
 import { CondoCardSkeleton } from "../components/CondoCardSkeleton";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,13 +24,8 @@ export const Home = () => {
   const [loading, setLoading] = useState(true);
   const [saleType, setSaleType] = useState("");
 
-  //  รูป MRT (เรียงตาม index)
-  const imageList = [
-    "/mrt/BTS-and-MRT-Bangkok.jpg",
-    "/mrt/IM2019100039MO.jpg",
-    "/mrt/MRT-BLUELINE-BLE.jpg",
-    "/mrt/c1_1851229.jpg",
-  ];
+  //  รูป villa (เรียงตาม index)
+  const imageList = [villa1, villa2, villa3, villa4];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -319,7 +318,7 @@ export const Home = () => {
                 <CondoCardSkeleton />
               </motion.div>
             ))
-                          : villaProvince?.length > 0 ? (
+            : villaProvince?.length > 0 ? (
             villaProvince.map((item, i) => (
               <motion.div
                 key={item.id}
@@ -327,7 +326,7 @@ export const Home = () => {
                 initial="hidden"
                 animate="visible"
               >
-                <CondoCardVilla item={item} />
+                <CondoCardVilla item={item} image={imageList[i % imageList.length]} />
               </motion.div>
             ))
           ) : (

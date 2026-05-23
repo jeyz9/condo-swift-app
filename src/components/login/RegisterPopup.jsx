@@ -12,7 +12,7 @@ const initialFormState = {
   email: "",
   password: "",
   confirmPassword: "",
-  is_agent: false,
+  roleName: "",
   is_agree: false,
 };
 
@@ -287,18 +287,19 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
                       ประเภทผู้ใช้งาน
                     </label>
                     <select
-                      name="is_agent"
-                      value={formData.is_agent ? "agent" : "buyer"}
+                      name="roleName"
+                      value={formData.roleName}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
-                          is_agent: e.target.value === "agent",
+                          roleName: e.target.value,
                         }))
                       }
                       className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none"
                     >
-                      <option value="buyer">ผู้ซื้อ / ผู้เช่า</option>
-                      <option value="agent">นายหน้า (Agent)</option>
+                      <option value="USER">ผู้ซื้อ / ผู้เช่า</option>
+                      <option value="OWNER">เจ้าของ</option>
+                      <option value="AGENT">นายหน้า (Agent)</option>
                     </select>
                   </div>
 

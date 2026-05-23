@@ -6,8 +6,8 @@ import { Detail } from "../pages/announcement/Detail.jsx";
 import {Filter} from "../pages/Filter.jsx";
 import { AddAnnounce } from "../pages/announcement/AddAnnounce.jsx";
 import { EditAnnounce } from "../pages/announcement/EditAnnounce.jsx";
-import { Profile } from "../pages/profile/Profile.jsx";
-import { PublicProfile } from "../pages/profile/PublicProfile.jsx";
+import Profile from "../pages/profile/Profile.jsx";
+// import { PublicProfile } from "../pages/profile/PublicProfile.jsx";
 import Dashboard from "../pages/admin/Dashboard.jsx";
 import HistoryTable from "../pages/admin/HistoryTable.jsx";
 import Publish from "../pages/admin/Publish.jsx";
@@ -48,7 +48,7 @@ const router = createBrowserRouter([
       { path: "/edit-announce/:id", element: <RequireRole allowedRoles={['ROLE_AGENT', "ROLE_OWNER"]}><RequireVerification><EditAnnounce /></RequireVerification></RequireRole> },
       { path: "/profile", element: <RequireAuth><Profile /></RequireAuth> },
       { path: "/profile/edit", element: <RequireAuth><EditProfile /></RequireAuth> },
-      { path: "/public-profile/:userId", element: <PublicProfile /> },
+      { path: "/public-profile/:userId", element: <Profile /> },
       { path: "/about-us", element: <About /> },
       { path: "/terms-of-service", element: <TermsOfService /> },
       { path: "/privacy-policy", element: <PrivacyPolicy /> },

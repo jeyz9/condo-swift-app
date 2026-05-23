@@ -19,7 +19,7 @@ import {
   MdArrowBack,
   MdWarningAmber,
 } from "react-icons/md";
-import GrayscaleMap from "../../components/details/GrayscaleMap.jsx";
+import SimpleMap from "../../components/details/SimpleMap.jsx";
 import AnnounceService from "../../services/AnnounceService.js";
 import Swal from "sweetalert2";
 import { Link, useParams, useNavigate } from "react-router-dom";
@@ -358,7 +358,7 @@ console.log("index =", pendingIds.indexOf(Number(id)));
             ที่ตั้ง & สถานที่ใกล้เคียง
           </h2>
           {lat && lng ? (
-            <GrayscaleMap lat={lat} lng={lng} />
+            <SimpleMap lat={lat} lng={lng} />
           ) : (
             <p className="text-gray-500">ไม่มีพิกัดแผนที่</p>
           )}
