@@ -26,6 +26,12 @@ export const Home = () => {
 
   //  รูป villa (เรียงตาม index)
   const imageList = [villa1, villa2, villa3, villa4];
+  const mrtImageList = [
+    "/mrt/BTS-and-MRT-Bangkok.jpg",
+    "/mrt/IM2019100039MO.jpg",
+    "/mrt/MRT-BLUELINE-BLE.jpg",
+    "/mrt/c1_1851229.jpg",
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -234,7 +240,7 @@ export const Home = () => {
                 {/*  ใช้รูปเรียงตามลำดับ */}
                 <CondoCardNearby
                   item={item}
-                  image={imageList[i % imageList.length]}
+                  image={mrtImageList[i % mrtImageList.length]}
                 />
               </motion.div>
             ))
