@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const CondoCardVilla = ({ item }) => {
+const CondoCardVilla = ({ item, image }) => {
   const name = item?.name || "วิลล่าแนะนำ";
   const total =
     typeof item?.totalAnnounce === "number" ? item.totalAnnounce : 0;
@@ -18,8 +18,9 @@ const CondoCardVilla = ({ item }) => {
   console.log("province: ", province);
   const type = item?.type || "วิลล่า"; // ถ้า backend ใช้ "VILLA" ก็เปลี่ยนเป็น "VILLA"
 
-  //  เอาไว้ใช้เลือกภาพ
-  const image = "/villa/poolvilla-1.png";
+  // รับรูปจาก prop ถ้าไม่มีใช้ default
+  // ใช้ image จาก prop ถ้าไม่มีให้ fallback เป็น string path เดิม
+  const imageToShow = image || "/villa/poolvilla-1.png";
 
   //  สร้าง query string ให้ filter หน้า /filter รองรับ province + type
   const queryString = new URLSearchParams({
@@ -38,7 +39,7 @@ const CondoCardVilla = ({ item }) => {
 
         <figure className="h-56 w-full sm:h-64">
           <img
-            src={image}
+            src={imageToShow}
             alt={name}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"

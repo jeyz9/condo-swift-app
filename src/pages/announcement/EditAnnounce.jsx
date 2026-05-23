@@ -8,7 +8,7 @@ import { useAuthContext } from "../../context/AuthContext";
 import SearchableDropdown from "../../components/SearchableDropdown";
 import AddressMapPreview from "../../components/AddressMapPreview";
 import { CardDetails } from "../../components/details/CardDetails";
-import GrayscaleMap from "../../components/details/GrayscaleMap";
+import SimpleMap from "../../components/details/SimpleMap";
 
 // 🔧 Services
 import AnnounceService from "../../services/AnnounceService";
@@ -575,7 +575,7 @@ export const EditAnnounce = () => {
                     <>
                       <div className="divider my-6"></div>
                       <h2 className="font-bold text-[20px] mb-3">ที่ตั้ง & สถานที่ใกล้เคียง</h2>
-                      <GrayscaleMap lat={announce.mapPoints[0].lat} lng={announce.mapPoints[0].lng} />
+                      <SimpleMap lat={announce.mapPoints[0].lat} lng={announce.mapPoints[0].lng} />
                     </>
                   )}
                   <div className="divider my-6"></div>

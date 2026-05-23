@@ -8,7 +8,7 @@ import { useAuthContext } from "../../context/AuthContext.jsx";
 import SearchableDropdown from "../../components/SearchableDropdown";
 import AddressMapPreview from "../../components/AddressMapPreview";
 import { CardDetails } from "../../components/details/CardDetails";
-import GrayscaleMap from "../../components/details/GrayscaleMap";
+import SimpleMap from "../../components/details/SimpleMap";
 import AnnounceService from "../../services/AnnounceService";
 import UserService from "../../services/UserService";
 import ProvinceService from "../../services/ProvinceService";
@@ -55,7 +55,7 @@ export const AddAnnounce = () => {
   const [announceTypes, setAnnounceTypes] = useState([]);
   const [canPostFreely, setCanPostFreely] = useState(false);
   const [accountAgeChecked, setAccountAgeChecked] = useState(false);
-  const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces);
+  const [provinceOptions, setProvinceOptions] = useState(fallbackProvinces.map((p) => ({ label: p, value: p })));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [announce, setAnnounce] = useState({
     title: "",
@@ -154,10 +154,12 @@ export const AddAnnounce = () => {
               : item?.provinceName || item?.name || item?.title
           )
           .filter(Boolean);
-        setProvinceOptions(names.length > 0 ? names : fallbackProvinces);
+        // Always convert to { label, value }
+        const arr = (names.length > 0 ? names : fallbackProvinces).map((p) => ({ label: p, value: p }));
+        setProvinceOptions(arr);
       })
       .catch(() => {
-        setProvinceOptions(fallbackProvinces);
+        setProvinceOptions(fallbackProvinces.map((p) => ({ label: p, value: p })));
         Swal.fire({
           icon: "error",
           title: "เกิดข้อผิดพลาด",
@@ -468,11 +470,13 @@ const handleDropdownChange = (field, value) => {
                   <div className="rounded-lg overflow-hidden shadow-sm">
                     <AddressMapPreview
                       query={searchText.trim() || null}
-                      onGeocode={(lat, lng) => {
-                        setAnnounce((prev) => ({
-                          ...prev,
-                          mapPoints: [{ lat, lng }],
-                        }));
+                      onGeocode={(pos) => {
+                        if (pos && typeof pos.lat === "number" && typeof pos.lng === "number") {
+                          setAnnounce((prev) => ({
+                            ...prev,
+                            mapPoints: [{ lat: pos.lat, lng: pos.lng }],
+                          }));
+                        }
                       }}
                     />
                   </div>
@@ -900,7 +904,7 @@ const handleDropdownChange = (field, value) => {
                   <h2 className="font-bold text-[20px] mb-3">
                     ที่ตั้ง & สถานที่ใกล้เคียง
                   </h2>
-                  <GrayscaleMap
+                  <SimpleMap
                     lat={announce.mapPoints[0].lat}
                     lng={announce.mapPoints[0].lng}
                   />

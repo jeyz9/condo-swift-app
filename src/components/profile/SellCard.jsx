@@ -1,23 +1,13 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Swal from "sweetalert2";
 
-const SellCard = ({ announce, onDelete }) => {
-
-  const handleCardClick = (e) => {
-    // We only allow navigation to the public detail page if the announcement is approved.
-    // Assuming `1` is the ID for "Approved" status.
-    if (announce?.approveStatusId !== 1) {
-      e.preventDefault();
-      Swal.fire({
-        icon: 'info',
-        title: 'ประกาศยังไม่ได้รับการอนุมัติ',
-        text: 'คุณจะสามารถดูหน้ารายละเอียดได้หลังจากที่ประกาศได้รับการอนุมัติแล้ว',
-        confirmButtonColor: '#8C6239'
-      });
-    }
-  };
+// รวม SellCard และ RentCard เป็น PropertyCard
+const PropertyCard = ({ announce, onDelete, userId }) => {
+  // ไม่ต้องเช็คสถานะอนุมัติแล้ว API กรองให้แล้ว
+  const handleCardClick = () => {};
 
   if (!announce) return null;
 
@@ -27,15 +17,25 @@ const SellCard = ({ announce, onDelete }) => {
     announce?.imageList?.[0]?.imageUrl ||
     "https://placehold.co/600x400?text=No Image";
 
-
-console.log("announce object =", announce);
+  // กำหนดป้ายและสีตามประเภท
+  let typeLabel = "";
+  let typeClass = "";
+  if (announce?.type === "rent") {
+    typeLabel = "ให้เช่า";
+    typeClass = "bg-[#8C6239]/10 text-[#8C6239]";
+  } else if (announce?.type === "sell") {
+    typeLabel = "ขาย";
+    typeClass = "bg-emerald-500/10 text-emerald-600";
+  } else {
+    typeLabel = "เช่า";
+    typeClass = "bg-gray-400/10 text-gray-600";
+  }
 
   const handleDelete = (e) => {
     e.preventDefault();
     e.stopPropagation();
     onDelete(announce.id);
-  }
-
+  };
 
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
@@ -50,8 +50,8 @@ console.log("announce object =", announce);
         {/* เนื้อหา */}
         <div className="flex flex-1 flex-col gap-2 p-4">
           {/* ป้ายประเภท */}
-          <span className="inline-flex w-fit rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600">
-            ขาย
+          <span className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold ${typeClass}`}>
+            {typeLabel}
           </span>
 
           {/* ชื่อประกาศ */}
@@ -63,10 +63,11 @@ console.log("announce object =", announce);
           <p className="line-clamp-2 text-sm text-gray-600">
             {announce?.location || "ไม่ระบุสถานที่"}
           </p>
-
         </div>
       </Link>
-      <div className="flex justify-end gap-2 p-4 pt-0">
+      {/* แสดงปุ่มแก้ไข/ลบ เฉพาะเจ้าของประกาศ */}
+      {userId && announce?.ownerId === userId && (
+        <div className="flex justify-end gap-2 p-4 pt-0">
           <Link to={`/edit-announce/${announce?.id}`} className="btn btn-ghost btn-sm">
             <FaEdit />
           </Link>
@@ -74,8 +75,9 @@ console.log("announce object =", announce);
             <FaTrash />
           </button>
         </div>
+      )}
     </article>
   );
 };
 
-export default SellCard;
+export default PropertyCard;

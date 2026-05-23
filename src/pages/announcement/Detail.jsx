@@ -16,7 +16,7 @@ import {
   MdElevator,
   MdSecurity,
 } from "react-icons/md";
-import GrayscaleMap from "../../components/details/GrayscaleMap";
+import SimpleMap from "../../components/details/SimpleMap";
 import AnnounceService from "../../services/AnnounceService";
 import Swal from "sweetalert2";
 import { Link, useParams } from "react-router-dom";
@@ -449,7 +449,7 @@ export const Detail = () => {
             ที่ตั้ง & สถานที่ใกล้เคียง
           </h2>
           {lat && lng ? (
-            <GrayscaleMap lat={lat} lng={lng} />
+            <SimpleMap lat={lat} lng={lng} />
           ) : (
             <p className="text-gray-500">ไม่มีพิกัดแผนที่</p>
           )}

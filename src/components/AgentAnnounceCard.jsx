@@ -159,7 +159,7 @@ export const AgentAnnounceCard = ({ announce, onCancelSuccess }) => {
             <Link
               to={`/edit-announce/${announce?.announceId}`}
               state={{ permission: announce?.permission }}
-              className="flex-1 rounded-full bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white transition hover:bg-blue-800"
+              className="flex-1 rounded-full px-4 py-2 text-center text-sm font-medium text-[#8C6239] transition hover:bg-[#8C6239] hover:text-white border border-[#8C6239] items-center justify-center flex"
             >
               แก้ไข
             </Link>
