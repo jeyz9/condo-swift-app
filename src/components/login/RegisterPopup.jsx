@@ -12,7 +12,7 @@ const initialFormState = {
   email: "",
   password: "",
   confirmPassword: "",
-  roleName: "",
+  roleName: "USER",
   is_agree: false,
 };
 
@@ -289,12 +289,7 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
                     <select
                       name="roleName"
                       value={formData.roleName}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          roleName: e.target.value,
-                        }))
-                      }
+                      onChange={handleChange}
                       className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8C6239] focus:outline-none"
                     >
                       <option value="USER">ผู้ซื้อ / ผู้เช่า</option>

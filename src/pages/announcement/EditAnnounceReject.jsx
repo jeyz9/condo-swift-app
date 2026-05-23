@@ -119,7 +119,9 @@ export const EditAnnounceReject = () => {
           id: Number(announceId),
           title: data.title || "",
           location: data.location || "",
-          province: data.province || "",
+          province: typeof data.province === "object" && data.province !== null
+            ? { id: data.province.id || data.province.value || '', name: data.province.name || data.province.label || '' }
+            : provinceOptions.find(p => p.label === data.province) || { id: '', name: data.province || '' },
           station: data.station || "",
           price: data.price || "",
           bedroomCount: data.bedroomCount || "",
@@ -346,7 +348,7 @@ export const EditAnnounceReject = () => {
             <div key={index} className="flex items-center gap-2">
               <button disabled={index > activeTab && !isCompleted} onClick={() => setActiveTab(index)} className={`pb-2 text-sm sm:text-base lg:text-lg font-medium flex items-center gap-2 ${isActive ? "text-green-600 border-b-2 border-green-600" : isCompleted ? "text-green-500" : "text-gray-500 hover:text-green-500"}`}>
                 <span className="text-base sm:text-lg">{tab.icon}</span>
-                <span className="truncate max-w-[120px] sm:max-w-none">{tab.name}</span>
+                <span className="truncate max-w-30 sm:max-w-none">{tab.name}</span>
                 {isCompleted && <FaCheck className="text-green-500 ml-1 hidden sm:inline-block" />}
               </button>
             </div>
@@ -363,8 +365,8 @@ export const EditAnnounceReject = () => {
                 <div className="w-full md:w-[65%] relative z-0">
                   <AddressMapPreview
                     query={searchText.trim() || null}
-                    initialCenter={announce.mapPoints?.[0]?.lat ? announce.mapPoints[0] : undefined}
-                    onGeocode={(lat, lng) => setAnnounce(prev => ({ ...prev, mapPoints: [{ lat, lng }] }))}
+                    initialCenter={announce.mapPoints?.[0]?.lat ? { lat: parseFloat(announce.mapPoints[0].lat), lng: parseFloat(announce.mapPoints[0].lng) } : undefined}
+                    onGeocode={(lat, lng) => setAnnounce(prev => ({ ...prev, mapPoints: [{ lat: parseFloat(lat), lng: parseFloat(lng) }] }))}
                   />
                   {announce.mapPoints[0]?.lat && (
                     <div className="mt-3 text-sm text-gray-600">
@@ -426,7 +428,7 @@ export const EditAnnounceReject = () => {
              <label className="block font-medium text-gray-700 mb-2">จังหวัด</label>
              <SearchableDropdown
                 options={provinceOptions}
-                value={announce.province || ""}
+                value={announce.province?.id || announce.province?.value || ""}
                 onChange={(value) =>
                   setAnnounce((prev) => ({
                     ...prev,
@@ -439,6 +441,20 @@ export const EditAnnounceReject = () => {
                <div>
                  <label className="block font-medium text-gray-700 mb-2">รายละเอียด ห้องนอน</label>
                  <input name="bedroomCount" value={announce.bedroomCount} onChange={handleChange} type="number" placeholder="เช่น 2 ห้องนอน" className="input input-bordered w-full rounded-xl"/>
+              <SearchableDropdown
+                options={provinceOptions}
+                value={announce.province?.id || announce.province?.value || ""}
+                onChange={(value) => {
+                  const selected = provinceOptions.find((p) => p.value === value);
+                  setAnnounce((prev) => ({
+                    ...prev,
+                    province: selected
+                      ? { id: selected.value, name: selected.label }
+                      : { id: value, name: value },
+                  }));
+                }}
+                placeholder="เลือกจังหวัด"
+              />
                </div>
                <div>
                  <label className="block font-medium text-gray-700 mb-2">รายละเอียด ขนาดห้อง</label>
@@ -519,7 +535,7 @@ export const EditAnnounceReject = () => {
                     <>
                       <div className="divider my-6"></div>
                       <h2 className="font-bold text-[20px] mb-3">ที่ตั้ง & สถานที่ใกล้เคียง</h2>
-                      <SimpleMap lat={announce.mapPoints[0].lat} lng={announce.mapPoints[0].lng} />
+                      <SimpleMap lat={parseFloat(announce.mapPoints[0].lat)} lng={parseFloat(announce.mapPoints[0].lng)} />
                     </>
                   )}
                   <div className="divider my-6"></div>
@@ -540,7 +556,7 @@ export const EditAnnounceReject = () => {
                     </div>
                   </div>
                   <div className="divider my-4" />
-                  <div className="alert alert-warning bg-[#FAAF1C40] h-[125px] flex items-center gap-3">
+                  <div className="alert alert-warning bg-[#FAAF1C40] h-31.25 flex items-center gap-3">
                     <MdWarningAmber className="h-6 w-6 shrink-0" />
                     <span>⚠️ ห้ามโอนเงินก่อนเห็นห้องจริงและตรวจสอบเอกสารสิทธิ์ให้ครบถ้วน</span>
                   </div>
