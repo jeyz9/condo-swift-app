@@ -93,9 +93,10 @@ const AdminAnnounceDetail = () => {
           "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"
         );
 
+        const lowerMessage = String(errorMessage).toLowerCase();
         if (
-          errorMessage ===
-          "You do not have permission to access this announcement."
+          lowerMessage.includes("you do not have permission to access this announcement") ||
+          error?.response?.status === 403
         ) {
           errorMessage = "คุณไม่มีสิทธิ์เข้าถึงประกาศนี้";
         }

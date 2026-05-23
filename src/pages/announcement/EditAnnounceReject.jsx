@@ -65,6 +65,28 @@ const initialAnnounceState = {
   saleType: "",
 };
 
+const normalizeBoolean = (value) => {
+  if (value === true || value === 1 || value === "1" || value === "true" || value === "TRUE") return true;
+  return false;
+};
+
+const normalizeProvince = (province) => {
+  if (!province && province !== 0) return { id: "", name: "" };
+  if (typeof province === "object" && province !== null) {
+    return {
+      id: province.id || province.value || "",
+      name: province.name || province.label || "",
+    };
+  }
+  return { id: String(province), name: String(province) };
+};
+
+const get413ErrorMessage = (error, fallbackMessage) => {
+  if (error?.response?.status === 413) {
+    return "ขนาดไฟล์หรือรูปภาพใหญ่เกินไป โปรดเลือกรูปภาพที่มีขนาดเล็กลง";
+  }
+  return extractErrorMessage(error, fallbackMessage);
+};
 
 export const EditAnnounceReject = () => {
   const { user } = useAuthContext();
@@ -105,12 +127,14 @@ export const EditAnnounceReject = () => {
         const data = response.data;
 
         // Security check: ensure the current user is the owner
-        if (data.agent.id !== user.userId) {
+        const ownerId = String(data?.agent?.id ?? data?.agent?.userId ?? "");
+        const currentUserId = String(user?.userId ?? user?.sub ?? "");
+        if (ownerId !== currentUserId) {
           Swal.fire({
             icon: "error",
             title: "เข้าถึงถูกปฏิเสธ",
             text: "คุณไม่มีสิทธิ์แก้ไขประกาศนี้",
-          }).then(() => navigate(`/detail/${announceId}`));
+          }).then(() => navigate(-1));
           return;
         }
         
@@ -119,20 +143,18 @@ export const EditAnnounceReject = () => {
           id: Number(announceId),
           title: data.title || "",
           location: data.location || "",
-          province: typeof data.province === "object" && data.province !== null
-            ? { id: data.province.id || data.province.value || '', name: data.province.name || data.province.label || '' }
-            : provinceOptions.find(p => p.label === data.province) || { id: '', name: data.province || '' },
+          province: normalizeProvince(data.province),
           station: data.station || "",
           price: data.price || "",
           bedroomCount: data.bedroomCount || "",
           bathroomCount: data.bathroomCount || "",
           areaSize: data.areaSize || "",
-          hasPool: data.hasPool || false,
-          hasParking: data.hasParking || false,
-          hasFitness: data.hasFitness || false,
-          hasElevator: data.hasElevator || false,
-          hasSecurity: data.hasSecurity || false,
-          hasConvenienceStore: data.hasConvenienceStore || false,
+          hasPool: normalizeBoolean(data.hasPool),
+          hasParking: normalizeBoolean(data.hasParking),
+          hasFitness: normalizeBoolean(data.hasFitness),
+          hasElevator: normalizeBoolean(data.hasElevator),
+          hasSecurity: normalizeBoolean(data.hasSecurity),
+          hasConvenienceStore: normalizeBoolean(data.hasConvenienceStore),
           mapPoints: data.mapPoint ? [{ lat: data.mapPoint.lat, lng: data.mapPoint.lng }] : [{ lat: "", lng: "" }],
           announceType: String(data.announceType?.id || data.announceType || ""),
           saleType: String(data.saleType?.id || data.saleType || ""),
@@ -323,7 +345,7 @@ export const EditAnnounceReject = () => {
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
-        text: extractErrorMessage(err, "ไม่สามารถบันทึกการเปลี่ยนแปลงได้"),
+        text: get413ErrorMessage(err, "ไม่สามารถบันทึกการเปลี่ยนแปลงได้"),
       });
     }
   };
@@ -429,21 +451,6 @@ export const EditAnnounceReject = () => {
              <SearchableDropdown
                 options={provinceOptions}
                 value={announce.province?.id || announce.province?.value || ""}
-                onChange={(value) =>
-                  setAnnounce((prev) => ({
-                    ...prev,
-                    province: value,
-                  }))
-                }
-                placeholder="เลือกจังหวัด"
-              />
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-               <div>
-                 <label className="block font-medium text-gray-700 mb-2">รายละเอียด ห้องนอน</label>
-                 <input name="bedroomCount" value={announce.bedroomCount} onChange={handleChange} type="number" placeholder="เช่น 2 ห้องนอน" className="input input-bordered w-full rounded-xl"/>
-              <SearchableDropdown
-                options={provinceOptions}
-                value={announce.province?.id || announce.province?.value || ""}
                 onChange={(value) => {
                   const selected = provinceOptions.find((p) => p.value === value);
                   setAnnounce((prev) => ({
@@ -455,6 +462,10 @@ export const EditAnnounceReject = () => {
                 }}
                 placeholder="เลือกจังหวัด"
               />
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+               <div>
+                 <label className="block font-medium text-gray-700 mb-2">รายละเอียด ห้องนอน</label>
+                 <input name="bedroomCount" value={announce.bedroomCount} onChange={handleChange} type="number" placeholder="เช่น 2 ห้องนอน" className="input input-bordered w-full rounded-xl"/>
                </div>
                <div>
                  <label className="block font-medium text-gray-700 mb-2">รายละเอียด ขนาดห้อง</label>
