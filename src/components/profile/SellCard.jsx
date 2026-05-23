@@ -6,17 +6,8 @@ import Swal from "sweetalert2";
 
 // รวม SellCard และ RentCard เป็น PropertyCard
 const PropertyCard = ({ announce, onDelete, userId }) => {
-  const handleCardClick = (e) => {
-    if (announce?.approveStatusId !== 1) {
-      e.preventDefault();
-      Swal.fire({
-        icon: 'info',
-        title: 'ประกาศยังไม่ได้รับการอนุมัติ',
-        text: 'คุณจะสามารถดูหน้ารายละเอียดได้หลังจากที่ประกาศได้รับการอนุมัติแล้ว',
-        confirmButtonColor: '#8C6239'
-      });
-    }
-  };
+  // ไม่ต้องเช็คสถานะอนุมัติแล้ว API กรองให้แล้ว
+  const handleCardClick = () => {};
 
   if (!announce) return null;
 

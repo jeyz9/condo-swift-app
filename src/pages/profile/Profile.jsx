@@ -5,6 +5,7 @@ import { useAuthContext } from "../../context/AuthContext";
 import UserService from "../../services/UserService";
 import AnnounceService from "../../services/AnnounceService";
 import HeroProfile from "../../components/profile/HeroProfile";
+// import PublicHeroProfile from "../../components/profile/PublicHeroProfile";
 import { ProfileDetail } from "../../components/profile/ProfileDetail";
 import PropertyCard from "../../components/profile/SellCard";
 import { Share2 } from "lucide-react"; // 📤 icon แชร์
@@ -17,16 +18,16 @@ const FILTER_TABS = [
   { label: "ขาย", value: "ขาย" },
 ];
 
-export const Profile = () => {
+export default function Profile() {
   const { user } = useAuthContext();
-  const { userId: paramId } = useParams(); //  รับ userId จาก URL เช่น /profile/2
+  const { userId: paramId } = useParams(); // รับ userId จาก URL เช่น /profile/2
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
   const [activeTab, setActiveTab] = useState("เช่า");
   const [loading, setLoading] = useState(true);
-  const userId =  user?.userId;
-  console.log(userId)
+  // ถ้ามี paramId แสดงว่าเป็น public profile, ถ้าไม่มีคือของตัวเอง
+  const userId = paramId || user?.userId;
 
 
   //  ดึงข้อมูลโปรไฟล์จาก backend
@@ -112,8 +113,8 @@ export const Profile = () => {
       </div>
     );
   }
-
-
+  // ตรวจสอบว่าเป็นการดูโปรไฟล์ของตัวเองหรือไม่
+  const isOwnProfile = !paramId || (user && paramId === String(user.userId));
 
   return (
     <div className="flex flex-col items-center gap-y-10">
@@ -161,7 +162,7 @@ export const Profile = () => {
         {announceList.length > 0 ? (
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {announceList.map((a) => (
-              <PropertyCard key={a?.id ?? a?.announceId} announce={a} onDelete={handleDelete} userId={userId} />
+              <PropertyCard key={a?.id ?? a?.announceId} announce={a} onDelete={isOwnProfile ? handleDelete : undefined} userId={userId} />
             ))}
           </div>
         ) : (
