@@ -358,7 +358,7 @@ console.log("index =", pendingIds.indexOf(Number(id)));
             ที่ตั้ง & สถานที่ใกล้เคียง
           </h2>
           {lat && lng ? (
-            <SimpleMap lat={lat} lng={lng} />
+            <SimpleMap lat={parseFloat(lat)} lng={parseFloat(lng)} />
           ) : (
             <p className="text-gray-500">ไม่มีพิกัดแผนที่</p>
           )}

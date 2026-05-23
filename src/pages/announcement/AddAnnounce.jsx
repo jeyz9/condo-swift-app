@@ -471,13 +471,13 @@ const handleDropdownChange = (field, value) => {
                     <AddressMapPreview
                       query={searchText.trim() || null}
                       onGeocode={(pos) => {
-                        if (pos && typeof pos.lat === "number" && typeof pos.lng === "number") {
-                          setAnnounce((prev) => ({
-                            ...prev,
-                            mapPoints: [{ lat: pos.lat, lng: pos.lng }],
-                          }));
-                        }
-                      }}
+                          if (pos && pos.lat && pos.lng) {
+                            setAnnounce((prev) => ({
+                              ...prev,
+                              mapPoints: [{ lat: parseFloat(pos.lat), lng: parseFloat(pos.lng) }],
+                            }));
+                          }
+                        }}
                     />
                   </div>
                   {announce.mapPoints[0].lat && (
@@ -905,8 +905,8 @@ const handleDropdownChange = (field, value) => {
                     ที่ตั้ง & สถานที่ใกล้เคียง
                   </h2>
                   <SimpleMap
-                    lat={announce.mapPoints[0].lat}
-                    lng={announce.mapPoints[0].lng}
+                    lat={parseFloat(announce.mapPoints[0].lat)}
+                    lng={parseFloat(announce.mapPoints[0].lng)}
                   />
                 </>
               )}
