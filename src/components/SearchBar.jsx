@@ -7,7 +7,6 @@ import { Badge } from "lucide-react";
 
 const BANGKOK_PROVINCE = "กรุงเทพมหานคร";
 
-// ประเภทการขาย
 const saleTypes = [
   { label: "ทั้งหมด", value: "" },
   { label: "ขาย", value: "SELL" },
@@ -47,7 +46,6 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
     );
   };
 
-  // Fetch property types
   useEffect(() => {
     ProvinceService.showAllAnnounceTypes()
       .then((res) => {
@@ -63,7 +61,6 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
       });
   }, []);
 
-  // ดึง badge
   useEffect(() => {
     AnnounceService.getAllBadges()
       .then((res) => {
@@ -76,7 +73,6 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
       });
   }, []);
 
-  // ดึง province
   useEffect(() => {
     ProvinceService.getAllProvinces()
       .then((res) => {
@@ -132,13 +128,11 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
       .catch(() => setStationOptions([]));
   }, []);
 
-  // sync saleType
   useEffect(() => {
     setFilters((prev) => ({ ...prev, saleType: selectedType }));
     setTempFilters((prev) => ({ ...prev, saleType: selectedType }));
   }, [selectedType]);
 
-  // ทำ search
   const handleSearch = () => {
     const f = filters;
 

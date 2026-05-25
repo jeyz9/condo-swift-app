@@ -17,13 +17,11 @@ const setUser = (user) => {
   if (!user) {
     Cookies.remove(TOKEN_KEY, { path: "/" });
   } else {
-    // 🧠 รองรับทั้ง accessToken และ token เผื่อ backend ส่งชื่อไม่ตรง
     const tokenData = {
       ...user,
       token: user.accessToken || user.token,
     };
 
-    // ปิด secure ตอน dev, เปิดเฉพาะโปรดักชัน
     const isProd = window.location.protocol === "https:";
 
     Cookies.set(TOKEN_KEY, JSON.stringify(tokenData), {
@@ -37,7 +35,6 @@ const setUser = (user) => {
 
 const getLocalAccessToken = () => {
   const user = getUser();
-  //  รองรับทั้งชื่อ token และ accessToken
   return user?.token || user?.accessToken || null;
 };
 

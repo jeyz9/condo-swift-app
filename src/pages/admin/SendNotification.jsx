@@ -12,12 +12,10 @@ export default function SendNotification() {
   const [sendType, setSendType] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // New states for recipient search and selection
   const [allRecipients, setAllRecipients] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRecipientObjects, setSelectedRecipientObjects] = useState([]);
 
-  // parse comma separated IDs -> number[] | empty | invalid
   const parsedUserIds = useMemo(() => {
     const ids = rawUserIds
       .split(",")
@@ -34,7 +32,6 @@ export default function SendNotification() {
     return { type: "valid", value: numbers };
   }, [rawUserIds]);
 
-  // Fetch all recipients on component mount
   useEffect(() => {
     const fetchRecipients = async () => {
       try {
@@ -57,9 +54,8 @@ export default function SendNotification() {
       }
     };
     fetchRecipients();
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
-  // Sync: rawUserIds -> selectedRecipientObjects
   useEffect(() => {
     const idsFromRaw = rawUserIds
       .split(",")
@@ -72,15 +68,13 @@ export default function SendNotification() {
       idsFromRaw.includes(recipient.id)
     );
     setSelectedRecipientObjects(newSelected);
-  }, [rawUserIds, allRecipients]); // Rerun when rawUserIds or allRecipients change
+  }, [rawUserIds, allRecipients]);
 
-  // Sync: selectedRecipientObjects -> rawUserIds
   useEffect(() => {
     const ids = selectedRecipientObjects.map((recipient) => recipient.id);
     setRawUserIds(ids.join(","));
   }, [selectedRecipientObjects]);
 
-  // Filter recipients based on search term
   const filteredRecipients = useMemo(() => {
     if (!searchTerm) {
       return allRecipients;
@@ -107,7 +101,7 @@ export default function SendNotification() {
             title: "เลือกได้สูงสุด 4 คนเท่านั้น",
             text: "คุณสามารถเลือกผู้รับได้ไม่เกิน 4 คน",
           });
-          return prev; // Do not add if limit is reached
+          return prev;
         }
         return [...prev, recipientObject];
       }
@@ -157,7 +151,6 @@ export default function SendNotification() {
     try {
       setLoading(true);
 
-      // ส่งเป็น array ของ userIds และ sendType ตามสเปกใหม่
       await NotificationService.sendNotification({
         title: title.trim(),
         message: message.trim(),
@@ -194,7 +187,7 @@ export default function SendNotification() {
     setMessage(
       "ระบบจะปรับปรุงภายใน 30 นาทีข้างหน้า การใช้งานอาจสะดุดเล็กน้อย ขออภัยในความไม่สะดวกค่ะ"
     );
-    setRawUserIds("1001,1002"); // Prefill rawUserIds, which will sync to selectedRecipientObjects
+    setRawUserIds("1001,1002");
     setSendType("SELECTED");
   };
 
@@ -271,8 +264,8 @@ export default function SendNotification() {
                 const val = e.target.value;
                 setSendType(val);
                 if (val === "ALL") {
-                  setRawUserIds(""); // Clear rawUserIds
-                  setSelectedRecipientObjects([]); // Clear selectedRecipientObjects
+                  setRawUserIds("");
+                  setSelectedRecipientObjects([]);
                 }
               }}
             >
@@ -342,9 +335,9 @@ export default function SendNotification() {
               onClick={() => {
                 setTitle("");
                 setMessage("");
-                setRawUserIds(""); // Clear rawUserIds
-                setSelectedRecipientObjects([]); // Clear selectedRecipientObjects
-                setSearchTerm(""); // Clear search term
+                setRawUserIds("");
+                setSelectedRecipientObjects([]);
+                setSearchTerm("");
                 setSendType("");
               }}
               disabled={loading}

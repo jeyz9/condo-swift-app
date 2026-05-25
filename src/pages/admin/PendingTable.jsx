@@ -56,20 +56,17 @@ export default function PendingTable() {
     }
   };
 
-  // 🔍 ฟังก์ชันกดค้นหา
   const triggerSearch = () => {
-    setKeyword(search); // ส่งค่าไป fetch API
-    setPage(0); // รีเซ็ตหน้ากลับไปหน้าแรก
+    setKeyword(search);
+    setPage(0);
   };
 
-  // ⌨️ Enter เพื่อค้นหา
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       triggerSearch();
     }
   };
 
-  // ❌ Clear search
   const clearSearch = () => {
     setSearch("");
     setKeyword("");
@@ -78,7 +75,6 @@ export default function PendingTable() {
 
   return (
     <div className="p-6 bg-base-100 rounded-xl shadow-md">
-      {/* Navigation Tabs */}
       <div className="flex gap-6 items-center mb-6 border-b border-gray-200 pb-2">
         <Link
           to="/admin/announce/pending"
@@ -113,7 +109,6 @@ export default function PendingTable() {
           ประวัติ
         </Link>
 
-        {/* ---------------------- Search Input ---------------------- */}
         <div className="relative ml-auto w-48">
           <input
             type="text"
@@ -124,7 +119,6 @@ export default function PendingTable() {
             onKeyDown={handleKeyDown}
           />
 
-          {/* ปุ่ม Clear (✖) */}
           {search.length > 0 && (
             <button
               onClick={clearSearch}
@@ -134,7 +128,6 @@ export default function PendingTable() {
             </button>
           )}
 
-          {/* ปุ่ม Search (🔍) */}
           <button
             onClick={triggerSearch}
             className="absolute top-1/2 -translate-y-1/2 right-2 text-gray-600 hover:text-gray-800"
@@ -144,7 +137,6 @@ export default function PendingTable() {
         </div>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         {loading ? (
           <TableSkeleton rows={5} cols={5} />
@@ -197,7 +189,6 @@ export default function PendingTable() {
         )}
       </div>
 
-      {/* Pagination */}
       <div className="flex justify-center items-center gap-2 mt-4">
         <button
           className="btn btn-sm btn-outline border-[#8C6239] text-[#8C6239]"

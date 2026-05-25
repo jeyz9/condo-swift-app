@@ -160,7 +160,6 @@ export default function AddressMapPreview({
     if (onGeocode && position) {
       onGeocode(position.lat, position.lng);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [position]);
 
   return (

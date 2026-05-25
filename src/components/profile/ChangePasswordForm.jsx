@@ -44,10 +44,9 @@ const ChangePasswordForm = () => {
         text: 'กรุณาเข้าสู่ระบบอีกครั้งด้วยรหัสผ่านใหม่',
         confirmButtonText: 'ตกลง',
       }).then(() => {
-        logout(); // Force logout as backend deletes token
-        navigate('/login'); // Redirect to login page
+        logout();
+        navigate('/login');
       });
-      // Clear form
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -67,7 +66,6 @@ const ChangePasswordForm = () => {
     <div className="w-full max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md border border-gray-100">
       <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">เปลี่ยนรหัสผ่าน</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Old Password */}
         <div>
           <label className="block text-sm font-medium text-gray-700">รหัสผ่านเก่า</label>
           <div className="relative">
@@ -88,7 +86,6 @@ const ChangePasswordForm = () => {
           </div>
         </div>
 
-        {/* New Password */}
         <div>
           <label className="block text-sm font-medium text-gray-700">รหัสผ่านใหม่</label>
           <div className="relative">
@@ -110,7 +107,6 @@ const ChangePasswordForm = () => {
           </div>
         </div>
 
-        {/* Confirm New Password */}
         <div>
           <label className="block text-sm font-medium text-gray-700">ยืนยันรหัสผ่านใหม่</label>
           <div className="relative">

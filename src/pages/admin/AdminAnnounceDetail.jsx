@@ -42,9 +42,6 @@ const AdminAnnounceDetail = () => {
   const agentId = announce?.owner?.id ?? announce?.agents?.[0]?.id ?? announce?.agent?.id;
 
 
-  // -------------------------------
-  // 1. โหลด pending list แค่ครั้งเดียว
-  // -------------------------------
   useEffect(() => {
     const fetchPending = async () => {
       try {
@@ -66,9 +63,6 @@ const AdminAnnounceDetail = () => {
     fetchPending();
   }, []);
 
-  // -------------------------------
-  // 2. โหลด detail + คำนวณ currentIndex ทุกครั้งที่ id เปลี่ยน
-  // -------------------------------
   useEffect(() => {
     const fetchDetail = async () => {
       try {
@@ -82,7 +76,6 @@ const AdminAnnounceDetail = () => {
           setAnnounce(null);
         }
 
-        // คำนวณ currentIndex จาก pendingIds
         if (pendingIds.length > 0) {
           const current = pendingIds.indexOf(Number(id));
           setCurrentIndex(current);
@@ -117,9 +110,6 @@ const AdminAnnounceDetail = () => {
     }
   }, [id, pendingIds]);
 
-  // -------------------------------
-  // Action handlers
-  // -------------------------------
   const handleApprove = async () => {
     try {
       await AnnounceService.approveAnnounce(id);
@@ -204,9 +194,6 @@ const AdminAnnounceDetail = () => {
     }
   };
 
-  // -------------------------------
-  // Render
-  // -------------------------------
   if (loading) return <DetailSkeleton />;
 
   if (!announce) {
@@ -223,9 +210,6 @@ const AdminAnnounceDetail = () => {
   const similarDuplicates = announce?.similarDuplicates;
   const exactDuplicates = announce?.exactDuplicates;
 
-    console.log("pendingIds =", pendingIds);
-console.log("current route id =", Number(id));
-console.log("index =", pendingIds.indexOf(Number(id)));
   return (
     <>
       {/* Back */}

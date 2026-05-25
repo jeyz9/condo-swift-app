@@ -16,7 +16,6 @@ export const Filter = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // URL is the single source of truth
   const queryParams = new URLSearchParams(location.search);
   const page = Number(queryParams.get("page") || 0);
   const keyword = queryParams.get("keyword") || queryParams.get("search_query") || "";
@@ -39,25 +38,12 @@ export const Filter = () => {
   const itemsPerPage = 10;
   const pageCount = Math.ceil(total / itemsPerPage);
 
-  // 🔥 Fetch Announces based on URL search params
   useEffect(() => {
     let ignore = false;
 
     const fetchData = async () => {
       if (ignore) return;
       
-      console.log("🔍 Fetching with params:", {
-        keyword,
-        type,
-        saleType,
-        station,
-        province,
-        badge,
-        bedroomCount,
-        minPrice,
-        maxPrice,
-        page
-      });
       
       setLoading(true);
 
@@ -67,7 +53,6 @@ export const Filter = () => {
           size: itemsPerPage,
         };
 
-        // เพิ่ม params ที่มีค่าเท่านั้น
         if (keyword) params.keyword = keyword;
         if (type) params.type = type;
         if (saleType) params.saleType = saleType;
@@ -78,17 +63,14 @@ export const Filter = () => {
         if (minPrice) params.minPrice = Number(minPrice);
         if (maxPrice) params.maxPrice = Number(maxPrice);
 
-        console.log("📤 Sending to API:", params);
 
         const res = await AnnounceService.getFilterAnnounceWithAgent(params);
 
-        console.log("📥 API Response:", res);
 
         if (res.status === 200) {
           const data = res.data?.announceDetailsWithAgents || [];
           setAnnounces(data);
           setTotal(res.data?.total || data.length);
-          console.log("✅ Data loaded:", data.length, "items");
         }
       } catch (error) {
         console.error("❌ Fetch error:", error);
@@ -111,7 +93,6 @@ export const Filter = () => {
     };
   }, [keyword, type, saleType, station, province, badge, bedroomCount, minPrice, maxPrice, page]);
 
-  // 🔥 Recommended Agents (runs only once)
   useEffect(() => {
     let ignore = false;
     const fetchAgents = async () => {
@@ -149,7 +130,6 @@ export const Filter = () => {
 
   return (
     <div className="mt-5 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-8">
-      {/* Breadcrumb */}
       <motion.div {...fadeUp} className="breadcrumbs text-sm mb-4">
         <ul>
           <li><Link to="/" className="hover:underline text-[#8C6239]">หน้าหลัก</Link></li>
@@ -157,7 +137,6 @@ export const Filter = () => {
         </ul>
       </motion.div>
 
-      {/* Search Bar */}
       <motion.div {...fadeUp}>
         <SearchBarNonFilter
           defaultKeyword={keyword}
@@ -179,7 +158,6 @@ export const Filter = () => {
         <div className="divider mt-5"></div>
       </motion.div>
 
-      {/* --- Main Layout --- */}
       <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-8 items-start">
         <div>
           <div ref={listTopRef} />
@@ -211,7 +189,6 @@ export const Filter = () => {
         </motion.div>
       </div>
 
-      {/* Pagination */}
       <motion.div {...fadeUp} className="flex justify-center items-center mt-10">
         <Pagination
           currentPage={page}

@@ -11,14 +11,12 @@ export const DetailSkeleton = () => {
       <div className="mt-7 divider w-full max-w-5xl mx-auto px-4"></div>
 
       <div className="w-full max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-[60%_40%] gap-6">
-        {/* LEFT SIDE */}
         <div className="min-w-0">
           <div className="skeleton h-9 w-3/4 rounded"></div>
           <div className="skeleton h-6 w-1/2 mt-4 rounded"></div>
 
           <div className="skeleton h-10 w-48 mt-3 rounded-full"></div>
 
-          {/* BADGES */}
           <div className="mt-7 flex flex-wrap gap-2">
             <div className="skeleton h-6 w-20 rounded-full"></div>
             <div className="skeleton h-6 w-24 rounded-full"></div>
@@ -26,7 +24,6 @@ export const DetailSkeleton = () => {
 
           <div className="mt-5 divider"></div>
 
-          {/* PRICE & DETAILS */}
           <div className="flex items-start gap-4">
             <div>
               <div className="skeleton h-5 w-16 rounded"></div>
@@ -51,7 +48,6 @@ export const DetailSkeleton = () => {
 
           <div className="mt-5 divider"></div>
 
-          {/* FACILITIES */}
           <div className="skeleton h-6 w-40 mb-3 rounded"></div>
           <div className="grid grid-cols-2 gap-3">
             <div className="skeleton h-5 w-32 rounded"></div>
@@ -62,13 +58,11 @@ export const DetailSkeleton = () => {
 
           <div className="divider my-4"></div>
 
-          {/* MAP */}
           <div className="skeleton h-6 w-48 mb-2 rounded"></div>
           <div className="skeleton h-64 w-full rounded-lg"></div>
 
           <div className="divider my-4"></div>
 
-          {/* MORE INFO */}
           <div className="skeleton h-6 w-36 mb-2 rounded"></div>
           <div className="space-y-2">
             <div className="skeleton h-4 w-full rounded"></div>
@@ -77,7 +71,6 @@ export const DetailSkeleton = () => {
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
         <div className="w-full">
           <SalerCardSkeleton />
           <div className="divider my-4"></div>

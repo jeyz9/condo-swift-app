@@ -12,7 +12,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Request Interceptor to attach the token
 api.interceptors.request.use(
   (config) => {
     const excluded = ["/auth/login", "/auth/register", "/auth/verify-email", "/api/v1/selector/showAllAnnounceTypes"];
@@ -29,11 +28,9 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor to handle 401 errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Pass all errors through to be handled by the component's catch block.
     return Promise.reject(error);
   }
 );

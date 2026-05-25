@@ -1,4 +1,4 @@
-import api from "./api"; // Use the configured axios instance with interceptors
+import api from "./api";
 
 const DEFAULT_BASE_URL = "https://condo-swift.onrender.com";
 const baseUrl =
@@ -22,52 +22,23 @@ const API_URL = resolveEndpoint(
   "/api/v1/badges"
 );
 
-/**
- * GET /api/v1/badges/showAllBadges
- * Fetches all badges.
- */
 const getAllBadges = async () => api.get(`${API_URL}/showAllBadges`);
 
-/**
- * GET /api/v1/badges/filterBadges
- * Filters badges based on query parameters.
- * @param {object} params - The filter parameters
- */
+
 const filterBadges = async (params) =>
   api.get(`${API_URL}/filterBadges`, { params });
 
-/**
- * POST /api/v1/badges/addedBadge
- * Adds a new badge.
- * @param {object} data - The badge data to add
- */
+
 const addBadge = async (data) => api.post(`${API_URL}/addedBadge`, data);
 
-/**
- * POST /api/v1/badges/addAnnounceBadge
- * Adds a badge to an announcement.
- * @param {object} data - The announcement badge data
- */
+
 const addAnnounceBadge = async (announceId, badgeId) =>
   api.post(`${API_URL}/addAnnounceBadge?announceId=${announceId}&badgeId=${badgeId}`);
 
-// const addAnnounceBadge = async (data) =>
-//   api.post(`${API_URL}/addAnnounceBadge?announceId=${data.announceId}&badgeId=${data.badgeId}`)
 
-/**
- * PUT /api/v1/badges/updatedBadge/{id}
- * Updates an existing badge.
- * @param {string} id - The ID of the badge to update
- * @param {object} data - The updated badge data
- */
 const updateBadge = async (id, data) =>
   api.put(`${API_URL}/updatedBadge/${id}`, data);
 
-/**
- * DELETE /api/v1/badges/deletedBadge/{id}
- * Deletes a badge.
- * @param {string} id - The ID of the badge to delete
- */
 const deleteBadge = async (id) => api.delete(`${API_URL}/deletedBadge/${id}`);
 
 const deleteAnnounceBadge = async (announceId, badgeId) => {

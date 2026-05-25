@@ -1,8 +1,7 @@
-import api from "./api"; // <— axios instance มี interceptor token, header ฯลฯ
+import api from "./api";
 const API_URL = import.meta.env.VITE_NOTI_API
 import axios from 'axios';
 
-// service
 const showAllNotificationSelectedByUserId = async () => {
     return api.get(`${API_URL}/showAllNotificationSelectedByUserId`)
 }

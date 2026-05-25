@@ -7,7 +7,6 @@ import {Filter} from "../pages/Filter.jsx";
 import { AddAnnounce } from "../pages/announcement/AddAnnounce.jsx";
 import { EditAnnounce } from "../pages/announcement/EditAnnounce.jsx";
 import Profile from "../pages/profile/Profile.jsx";
-// import { PublicProfile } from "../pages/profile/PublicProfile.jsx";
 import Dashboard from "../pages/admin/Dashboard.jsx";
 import HistoryTable from "../pages/admin/HistoryTable.jsx";
 import Publish from "../pages/admin/Publish.jsx";
@@ -36,7 +35,6 @@ import { EditAnnounceReject } from "../pages/announcement/EditAnnounceReject.jsx
 import VerifyEmail from "../pages/auth/VerifyEmail.jsx";
 
 const router = createBrowserRouter([
-  // 🏠 Layout หลักสำหรับผู้ใช้ทั่วไป
   {
     path: "/",
     element: <MainLayout />,
@@ -60,7 +58,6 @@ const router = createBrowserRouter([
       { path: "/my-announces", element: <RequireRole allowedRoles={['ROLE_AGENT', 'ROLE_OWNER']}><RequireVerification><MyAnnounce /></RequireVerification></RequireRole> },
       { path: "/edit-announce-reject/:id", element:<RequireRole allowedRoles={['ROLE_AGENT', 'ROLE_OWNER']}><RequireVerification><EditAnnounceReject /></RequireVerification></RequireRole> },
       { path: "/share-announce/:id", element: <ShareAnnounce /> },
-      // catch-all สำหรับ path ที่ไม่ตรง
       { path: "*", element: <NotFound /> },
     ],
   },
@@ -82,8 +79,6 @@ const router = createBrowserRouter([
       { path: "badges/manage", element: <AdminBadges /> },
       { path: "badges/assign", element: <AdminAssignBadge /> },
       { path: "users/roles", element: <AdminManageRoles /> },
-      // { path: "users", element: <ManageUsers /> },
-      // admin-specific catch-all (ไม่ให้ตกไปหน้า public)
       { path: "*", element: <NotFound /> },
     ],
   },

@@ -79,7 +79,6 @@ const SalerCard = ({ agent, onLoginRequest, title = "ผู้ลงประก
     }
   };
 
-  console.log(agent);
 
   return (
     <div className="card bg-base-100 w-full shadow-sm border border-[#FAAF1C] rounded-2xl relative">

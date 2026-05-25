@@ -40,7 +40,6 @@ export const AnnounceCard = ({ announce }) => {
       transition={{ duration: 0.25, ease: "easeOut" }}
       className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm"
     >
-      {/* Image Section */}
       <div className="relative h-48 w-full overflow-hidden sm:h-52">
         <Link to={editUrl}>
           <img
@@ -60,7 +59,6 @@ export const AnnounceCard = ({ announce }) => {
         )}
       </div>
 
-      {/* Content Section */}
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex-1">
           <h2 className="text-lg font-semibold text-gray-900 line-clamp-2">
@@ -79,7 +77,6 @@ export const AnnounceCard = ({ announce }) => {
           )}
         </div>
 
-        {/* Action Buttons */}
         <div className="mt-auto flex gap-3">
           <Link
             to={viewUrl}

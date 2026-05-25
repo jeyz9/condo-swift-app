@@ -1,12 +1,3 @@
-/*
-  Reusable Pagination component
-  Props:
-  - currentPage (number, 0-based)
-  - pageCount (number, total pages)
-  - onPageChange (function, receives target page index)
-  - className (string, optional)
-*/
-
 const Pagination = ({ currentPage = 0, pageCount = 0, onPageChange, className = "" }) => {
   if (pageCount <= 1) return null;
 

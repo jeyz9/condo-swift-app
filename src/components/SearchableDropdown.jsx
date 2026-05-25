@@ -12,7 +12,6 @@ const SearchableDropdown = ({
 
   const dropdownRef = useRef(null);
 
-  // sync selected value
   useEffect(() => {
     const selectedOption = options.find(
       (option) => String(option.value) === String(value)

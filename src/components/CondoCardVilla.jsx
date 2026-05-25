@@ -5,24 +5,16 @@ const CondoCardVilla = ({ item, image }) => {
   const total =
     typeof item?.totalAnnounce === "number" ? item.totalAnnounce : 0;
 
-    console.log("item in Villa card: ", item)
-  //  ตัดคำว่า "วิลล่า" ออก จะได้ชื่อจังหวัด/พื้นที่
   const provinceFromName = name.replace("วิลล่า", "").trim();
 
-  console.log("provinceFromName: ", provinceFromName);
 
-  //  กำหนดค่า province & type (เผื่อ backend ส่งมาใน item ด้วย)
   const province = provinceFromName 
 ;
 
-  console.log("province: ", province);
-  const type = item?.type || "วิลล่า"; // ถ้า backend ใช้ "VILLA" ก็เปลี่ยนเป็น "VILLA"
+  const type = item?.type || "วิลล่า";
 
-  // รับรูปจาก prop ถ้าไม่มีใช้ default
-  // ใช้ image จาก prop ถ้าไม่มีให้ fallback เป็น string path เดิม
   const imageToShow = image || "/villa/poolvilla-1.png";
 
-  //  สร้าง query string ให้ filter หน้า /filter รองรับ province + type
   const queryString = new URLSearchParams({
     province,
     type,

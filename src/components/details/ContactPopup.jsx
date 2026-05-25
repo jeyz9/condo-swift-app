@@ -54,18 +54,16 @@ export const showContactPopup = (phoneMasked, phoneFull, lineUrl) => {
   const showBtn = popup?.querySelector("#show-full-phone");
 
   if (showBtn && phoneText) {
-    let isShown = false; // ❗ สถานะ toggle
+    let isShown = false;
 
     showBtn.addEventListener("click", () => {
       isShown = !isShown;
 
       if (isShown) {
-        // ➤ โชว์เบอร์เต็ม
         phoneText.textContent = phoneFull;
         showBtn.textContent = "ซ่อน";
         showBtn.classList.add("bg-[#6b4a2e]");
       } else {
-        // ➤ ซ่อนกลับเป็นเบอร์ Mask
         phoneText.textContent = phoneMasked;
         showBtn.textContent = "แสดงเบอร์เต็ม";
         showBtn.classList.remove("bg-[#6b4a2e]");

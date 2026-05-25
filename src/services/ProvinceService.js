@@ -1,7 +1,6 @@
-import api from "./api"; // <— axios instance มี interceptor token, header ฯลฯ
+import api from "./api";
 const API_URL = import.meta.env.VITE_SELECTOR_API
 
-// service
 const getAllProvinces = async () => {
     return api.get(`${API_URL}/showAllProvinces`)
 }

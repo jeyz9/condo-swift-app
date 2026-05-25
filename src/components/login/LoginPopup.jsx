@@ -12,15 +12,14 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockoutEndTime, setLockoutEndTime] = useState(null);
   const [isLockedOut, setIsLockedOut] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // New state for password visibility
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login, user } = useAuthContext();
   const location = useLocation();
 
-  const LOCKOUT_DURATION = 3 * 60 * 1000; // 3 minutes in milliseconds
+  const LOCKOUT_DURATION = 3 * 60 * 1000;
   const MAX_ATTEMPTS = 5;
 
-  // Load state from localStorage on mount
   useEffect(() => {
     const storedAttempts = localStorage.getItem(`failedAttempts_${loginData.email}`);
     const storedLockout = localStorage.getItem(`lockoutEndTime_${loginData.email}`);
@@ -34,7 +33,6 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
         setLockoutEndTime(endTime);
         setIsLockedOut(true);
       } else {
-        // Lockout expired, clear storage
         localStorage.removeItem(`failedAttempts_${loginData.email}`);
         localStorage.removeItem(`lockoutEndTime_${loginData.email}`);
         setFailedAttempts(0);
@@ -44,7 +42,6 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
     }
   }, [loginData.email]);
 
-  // Update isLockedOut state and set a timer to clear lockout
   useEffect(() => {
     let timer;
     if (lockoutEndTime && lockoutEndTime > Date.now()) {
@@ -62,7 +59,6 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
     return () => clearTimeout(timer);
   }, [lockoutEndTime, loginData.email]);
 
-  // 🔁 ถ้ามี user แล้วให้ redirect
   useEffect(() => {
     if (user) navigate(location.pathname + location.search, { replace: true });
   }, [user, navigate, location.pathname, location.search]);
@@ -132,13 +128,10 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
 
     setIsLoading(true);
     try {
-      console.log("🧾 Payload before login:", { email, password });
 
       const decodedUser = await login(email, password);
 
-      console.log(" Login success response:", decodedUser);
 
-      // Reset failed attempts on successful login
       localStorage.removeItem(`failedAttempts_${email}`);
       localStorage.removeItem(`lockoutEndTime_${email}`);
       setFailedAttempts(0);
@@ -159,7 +152,6 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
     } catch (error) {
       console.error("Login error:", error);
 
-      // Increment failed attempts on login failure
       const newFailedAttempts = failedAttempts + 1;
       setFailedAttempts(newFailedAttempts);
       localStorage.setItem(`failedAttempts_${email}`, newFailedAttempts.toString());
@@ -196,7 +188,6 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
     }
   };
 
-  // 🌀 Animation variants
   const backdropVariant = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.25 } },
@@ -218,7 +209,6 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* พื้นหลังมืด */}
           <motion.div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
             onClick={onClose}
@@ -228,7 +218,6 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
             exit="exit"
           />
 
-          {/* Popup container */}
           <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center px-4"
             variants={popupVariant}
@@ -239,7 +228,6 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
             <div
               className="bg-white rounded-2xl shadow-2xl relative flex flex-col md:flex-row w-[92vw] max-w-[1000px] md:w-[1000px] h-[90vh] md:h-[650px] md:overflow-hidden"
             >
-              {/* ปุ่มปิด */}
               <button
                 onClick={onClose}
                 className="btn btn-ghost border-none absolute top-4 right-4 text-gray-500 hover:text-black text-2xl z-10"
@@ -247,7 +235,6 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
                 ✕
               </button>
 
-              {/* ฝั่งซ้าย */}
               <div className="bg-[#8C6239] text-white p-6 sm:p-8 md:p-10 w-full md:w-1/2 flex flex-col justify-center flex-shrink-0 rounded-t-2xl md:rounded-tr-none md:rounded-l-2xl">
                 <h3 className="text-xl sm:text-2xl font-semibold mb-3">
                   เพียงสมัครสมาชิก และยืนยันตัวตน
@@ -265,7 +252,6 @@ export default function LoginPopup({ isOpen, onClose, onOpenRegister }) {
                 </ul>
               </div>
 
-              {/* ฝั่งขวา */}
               <div className="p-6 sm:p-8 md:p-10 w-full md:w-1/2 flex flex-col overflow-y-auto min-h-0 rounded-b-2xl md:rounded-bl-none md:rounded-r-2xl justify-center">
                 <h2 className="text-3xl justify-center text-center xl:text-start sm:text-xl md:text-4xl  font-medium mb-6 text-gray-800 break-words">
                   เข้าสู่ระบบ

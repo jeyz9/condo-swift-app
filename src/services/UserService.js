@@ -1,6 +1,5 @@
 import api from "./api";
 
-// Standardize URL resolution to be consistent with other services
 const DEFAULT_BASE_URL = "https://condo-swift.onrender.com";
 const baseUrl =
   (import.meta.env.VITE_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, "");
@@ -47,19 +46,16 @@ const profileUser = async (userId) => {
 };
 
 
-// Always fetch user profile first to get roles, then fetch agent/owner/user endpoint accordingly
 const profilePublic = async (userId, type = "") => {
   if (!userId) {
     console.error("User ID is missing or invalid. Aborting API call.");
     return Promise.reject(new Error("User ID is missing or invalid."));
   }
-  // Step 1: Get roles from /users/profile/:id
   let userProfile;
   try {
     const res = await profileUser(userId);
     userProfile = res?.data || {};
   } catch (err) {
-    // fallback: if not found, try agent/owner endpoints
     try {
       return await profileAgent(userId, type);
     } catch (err2) {
@@ -80,7 +76,6 @@ const profilePublic = async (userId, type = "") => {
   if (normalizedRoles.includes("OWNER")) {
     return await profileOwner(userId, type);
   }
-  // fallback: admin/user
   return await profileUser(userId);
 };
 

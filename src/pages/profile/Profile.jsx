@@ -5,10 +5,9 @@ import { useAuthContext } from "../../context/AuthContext";
 import UserService from "../../services/UserService";
 import AnnounceService from "../../services/AnnounceService";
 import HeroProfile from "../../components/profile/HeroProfile";
-// import PublicHeroProfile from "../../components/profile/PublicHeroProfile";
 import { ProfileDetail } from "../../components/profile/ProfileDetail";
 import PropertyCard from "../../components/profile/SellCard";
-import { Share2 } from "lucide-react"; // 📤 icon แชร์
+import { Share2 } from "lucide-react";
 import { ProfileSkeleton } from "./ProfileSkeleton";
 import { useNavigate } from "react-router-dom";
 import { extractErrorMessage } from "../../utils/errorUtils";
@@ -20,17 +19,15 @@ const FILTER_TABS = [
 
 export default function Profile() {
   const { user } = useAuthContext();
-  const { userId: paramId } = useParams(); // รับ userId จาก URL เช่น /profile/2
+  const { userId: paramId } = useParams();
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
   const [activeTab, setActiveTab] = useState("เช่า");
   const [loading, setLoading] = useState(true);
-  // ถ้ามี paramId แสดงว่าเป็น public profile, ถ้าไม่มีคือของตัวเอง
   const userId = paramId || user?.userId;
   const isOwnProfile = !paramId || (user && paramId === String(user.userId));
 
-  //  ดึงข้อมูลโปรไฟล์จาก backend
   const fetchProfile = async (type = "เช่า") => {
     try {
       setLoading(true);
@@ -71,7 +68,7 @@ export default function Profile() {
             'ประกาศของคุณถูกลบเรียบร้อยแล้ว.',
             'success'
           );
-          fetchProfile(activeTab); // Refresh the list
+          fetchProfile(activeTab);
         } catch (error) {
           Swal.fire(
             'เกิดข้อผิดพลาด!',
@@ -83,7 +80,6 @@ export default function Profile() {
     })
   };
 
-  // 🔹 โหลดครั้งแรก
   useEffect(() => {
     if (userId) {
       fetchProfile(activeTab);
@@ -92,7 +88,6 @@ export default function Profile() {
     }
   }, [userId]);
 
-  // 🔹 โหลดใหม่เมื่อเปลี่ยนแท็บ
   useEffect(() => {
     if (userId) {
       fetchProfile(activeTab);
@@ -101,7 +96,6 @@ export default function Profile() {
 
   const announceList = profile?.announceList ?? profile?.announces ?? [];
 
-  // 🟢 Loading และ no-profile states
   if (loading) {
     return <ProfileSkeleton />;
   }
@@ -114,7 +108,6 @@ export default function Profile() {
     );
   }
 
-  // ตรวจสอบ role
   const normalizedRoles = Array.isArray(profile?.roles)
     ? profile.roles.map((role) => `${role}`.replace(/^ROLE_/i, "").toUpperCase())
     : [];
@@ -129,14 +122,12 @@ export default function Profile() {
 
       {isAgentOrOwner && (
         <section className="w-full max-w-6xl px-6 pb-16">
-          {/* ส่วนหัว */}
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-2xl font-semibold text-gray-800 sm:text-3xl">
               ประกาศที่อยู่อาศัย
             </h2>
           </div>
 
-          {/* ปุ่มเลือกแท็บ */}
           <div className="flex mt-5">
             {FILTER_TABS.map((tab, index) => {
               const isActive = activeTab === tab.value;
@@ -163,7 +154,6 @@ export default function Profile() {
             })}
           </div>
 
-          {/* รายการประกาศ */}
           {announceList.length > 0 ? (
             <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {announceList.map((a) => (
