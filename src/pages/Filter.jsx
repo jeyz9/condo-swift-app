@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CardFilter from "../components/filter/CardFilter";
-import SearchBarNonFilter from "../components/filter/SearchBarNonFilter";
+import SearchBarWithFilter from "../components/SearchBar";
 import Pagination from "../components/filter/Pagination";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AnnounceService from "../services/AnnounceService";
@@ -138,22 +138,13 @@ export const Filter = () => {
       </motion.div>
 
       <motion.div {...fadeUp}>
-        <SearchBarNonFilter
+        <SearchBarWithFilter
+          selectedType={saleType}
           defaultKeyword={keyword}
           defaultFilter={type}
-          defaultSaleType={saleType}
-          defaultStation={station}
           defaultProvince={province}
+          defaultStation={station}
           defaultBadge={badge}
-          onSearch={(params) => {
-            const q = new URLSearchParams();
-            Object.entries(params).forEach(([k, v]) => {
-              if (v !== undefined && v !== null && v !== "") {
-                q.set(k, String(v));
-              }
-            });
-            navigate(`/filter?${q.toString()}`);
-          }}
         />
         <div className="divider mt-5"></div>
       </motion.div>

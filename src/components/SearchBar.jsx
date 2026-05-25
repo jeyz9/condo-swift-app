@@ -13,9 +13,17 @@ const saleTypes = [
   { label: "เช่า", value: "RENT" },
 ];
 
-export default function SearchBarWithFilter({ selectedType = "" }) {
+export default function SearchBarWithFilter({
+  selectedType = "",
+  defaultKeyword = "",
+  defaultFilter = "",
+  defaultProvince = "",
+  defaultStation = "",
+  defaultBadge = "",
+  onSearch,
+}) {
   const [searchText, setSearchText] = useState("");
-  const [propertyTypes, setPropertyTypes] = useState([]);
+  const [announceTypes, setAnnounceTypes] = useState([]);
   const [badgeOptions, setBadgeOptions] = useState([]);
   const [provinceOptions, setProvinceOptions] = useState([]);
   const [stationOptions, setStationOptions] = useState([]);
@@ -28,7 +36,7 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
     bedroomCount: 0,
     badge: [],
     minPrice: 0,
-    maxPrice: 10000000,
+    maxPrice: 1000000000,
   });
 
   const [tempFilters, setTempFilters] = useState(filters);
@@ -50,14 +58,11 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
     ProvinceService.showAllAnnounceTypes()
       .then((res) => {
         if (res.data && Array.isArray(res.data)) {
-          const types = res.data.map((item) => item.typeName).filter(Boolean);
-          if (types.length > 0) {
-            setPropertyTypes(types);
-          }
+          setAnnounceTypes(res.data);
         }
       })
       .catch(() => {
-        setPropertyTypes([]);
+        setAnnounceTypes([]);
       });
   }, []);
 
@@ -133,24 +138,67 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
     setTempFilters((prev) => ({ ...prev, saleType: selectedType }));
   }, [selectedType]);
 
-  const handleSearch = () => {
-    const f = filters;
+  // initialize from defaults when provided (useful for filter page)
+  useEffect(() => {
+    if (defaultKeyword) setSearchText(defaultKeyword);
+    setFilters((prev) => ({
+      ...prev,
+      type: defaultFilter || prev.type,
+      province: defaultProvince || prev.province,
+      station: defaultStation || prev.station,
+      badge: defaultBadge ? (Array.isArray(defaultBadge) ? defaultBadge : String(defaultBadge).split(",")) : prev.badge,
+    }));
+    setTempFilters((prev) => ({
+      ...prev,
+      type: defaultFilter || prev.type,
+      province: defaultProvince || prev.province,
+      station: defaultStation || prev.station,
+      badge: defaultBadge ? (Array.isArray(defaultBadge) ? defaultBadge : String(defaultBadge).split(",")) : prev.badge,
+    }));
+  }, [defaultKeyword, defaultFilter, defaultProvince, defaultStation, defaultBadge]);
+
+  // If announceTypes include ids, and defaultFilter was provided as id, map to typeName for UI display
+  useEffect(() => {
+    if (!announceTypes || announceTypes.length === 0) return;
+    if (!defaultFilter) return;
+    const byId = announceTypes.find((t) => String(t.id) === String(defaultFilter));
+    if (byId) {
+      setFilters((prev) => ({ ...prev, type: byId.typeName }));
+      setTempFilters((prev) => ({ ...prev, type: byId.typeName }));
+    }
+  }, [announceTypes, defaultFilter]);
+
+  const handleSearch = (activeFilters = filters, activeSearchText = searchText) => {
+    const f = activeFilters;
+    // Ensure `type` is sent as text (typeName). If an id was provided, map it to typeName.
+    let typeParam = f.type || "";
+    if (typeParam && announceTypes && announceTypes.length > 0) {
+      // If user passed an id (e.g. from URL), find the matching announceType and use its typeName
+      const byId = announceTypes.find((t) => String(t.id) === String(typeParam));
+      if (byId) typeParam = byId.typeName || String(byId.id);
+      // otherwise assume it's already a textual typeName and send as-is
+    }
 
     const params = {
-      keyword: searchText || "",
-      type: f.type || "",
+      keyword: activeSearchText || "",
+      type: typeParam || "",
       province: f.province || "",
       station: f.station || "",
       saleType: f.saleType || "",
       bedroomCount: f.bedroomCount || "",
-      badge: f.badge.join(",") || "",
+      badge: Array.isArray(f.badge) ? f.badge.join(",") : f.badge || "",
       minPrice: f.minPrice,
       maxPrice: f.maxPrice,
       page: 0,
       size: 10,
     };
 
-    navigate(`/filter?${new URLSearchParams(params).toString()}`);
+    const query = new URLSearchParams(params).toString();
+    if (typeof onSearch === "function") {
+      onSearch(params);
+    } else {
+      navigate(`/filter?${query}`);
+    }
   };
 
   const handleTempChange = (name, value) => {
@@ -176,7 +224,7 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
       bedroomCount: 0,
       badge: [],
       minPrice: 0,
-      maxPrice: 10000000,
+      maxPrice: 1000000000,
     };
     setTempFilters(cleared);
     setFilters(cleared);
@@ -185,6 +233,7 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
   const applyFilters = () => {
     setFilters(tempFilters);
     setIsFilterOpen(false);
+    handleSearch(tempFilters);
   };
 
   return (
@@ -198,7 +247,7 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
           }}
           className="w-full max-w-4xl px-4"
         >
-          <div className="relative w-full h-[64px] rounded-2xl border border-[#e7dbce] bg-white shadow-lg flex items-center px-4 gap-3">
+          <div className="relative w-full h-16 rounded-2xl border border-[#e7dbce] bg-white shadow-lg flex items-center px-4 gap-3">
 
             {/* icon */}
             <svg
@@ -255,18 +304,18 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
           <section>
             <h3 className="font-medium text-gray-700 mb-2">ประเภททรัพย์</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {propertyTypes.map((t) => (
+              {announceTypes.map((t) => (
                 <button
-                  key={t}
+                  key={t.id}
                   type="button"
-                  onClick={() => handleTempChange("type", t)}
+                  onClick={() => handleTempChange("type", t.typeName || t.name || t.id)}
                   className={`btn btn-sm rounded-full ${
-                    tempFilters.type === t
+                    tempFilters.type === (t.typeName || t.name || t.id)
                       ? "bg-[#8C6239] text-white"
                       : "btn-outline border-[#e7dbce]"
                   }`}
                 >
-                  {t}
+                  {t.typeName || t.name || t.id}
                 </button>
               ))}
             </div>
@@ -346,7 +395,7 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
             <input
               type="range"
               min="0"
-              max="10000000"
+              max="1000000000"
               step="50000"
               value={tempFilters.minPrice}
               onChange={(e) => {
@@ -359,7 +408,7 @@ export default function SearchBarWithFilter({ selectedType = "" }) {
             <input
               type="range"
               min="0"
-              max="10000000"
+              max="1000000000"
               step="50000"
               value={tempFilters.maxPrice}
               onChange={(e) => {

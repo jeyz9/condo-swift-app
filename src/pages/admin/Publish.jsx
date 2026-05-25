@@ -173,7 +173,7 @@ export default function Publish() {
                       .format("DD MMMM YYYY เวลา HH:mm น.")}
                   </td>
                   <td>
-                   <Link to={`/admin/announce/details/${item.id}`} >
+                   <Link to={`/admin/announce/details/${item.id}?source=approved`} >
                     <button className="btn btn-active btn-warning">
                       ดูรายละเอียด
                     </button>

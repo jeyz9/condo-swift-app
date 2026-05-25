@@ -22,7 +22,7 @@ import {
 import SimpleMap from "../../components/details/SimpleMap.jsx";
 import AnnounceService from "../../services/AnnounceService.js";
 import Swal from "sweetalert2";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useLocation, useParams, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext.jsx";
 import { DetailSkeleton } from "../announcement/DetailSkeleton.jsx";
 import { extractErrorMessage } from "../../utils/errorUtils.js";
@@ -33,16 +33,27 @@ const AdminAnnounceDetail = () => {
   const [loading, setLoading] = useState(true);
   const [pendingIds, setPendingIds] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
+  const [pendingLoaded, setPendingLoaded] = useState(false);
 
   const { id } = useParams();
+  const location = useLocation();
   const { user } = useAuthContext();
   const navigate = useNavigate();
+  const detailSource = new URLSearchParams(location.search).get("source") || "pending";
+  const isPendingDetail = detailSource === "pending";
 
   const userId = user?.userId;
   const agentId = announce?.owner?.id ?? announce?.agents?.[0]?.id ?? announce?.agent?.id;
 
 
   useEffect(() => {
+    if (detailSource !== "pending") {
+      setPendingIds([]);
+      setCurrentIndex(-1);
+      setPendingLoaded(true);
+      return;
+    }
+
     const fetchPending = async () => {
       try {
         const pendingResponse = await AnnounceService.showAllAnnouncePending(
@@ -51,19 +62,65 @@ const AdminAnnounceDetail = () => {
           1000
         );
 
-        if (pendingResponse.data?.content) {
-          const ids = pendingResponse.data.content.map((a) => a.id);
-          setPendingIds(ids);
-        }
+        const items = pendingResponse.data?.data || pendingResponse.data?.content || [];
+        const ids = Array.isArray(items) ? items.map((a) => a.id) : [];
+        setPendingIds(ids);
       } catch (error) {
         console.error("โหลด pending list ไม่สำเร็จ", error);
+        setPendingIds([]);
+      } finally {
+        setPendingLoaded(true);
       }
     };
 
     fetchPending();
-  }, []);
+  }, [detailSource]);
 
   useEffect(() => {
+    if (!pendingLoaded) {
+      return;
+    }
+
+    if (detailSource !== "pending") {
+      const fetchApprovedDetail = async () => {
+        try {
+          setLoading(true);
+
+          const response = await AnnounceService.showAnnounceDetail(id);
+
+          if (response.status === 200) {
+            setAnnounce(response.data);
+          } else {
+            setAnnounce(null);
+          }
+        } catch (error) {
+          Swal.fire({
+            icon: "error",
+            title: "เกิดข้อผิดพลาด",
+            text: extractErrorMessage(error, "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"),
+            confirmButtonText: "ตกลง",
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      if (id) {
+        fetchApprovedDetail();
+      }
+
+      return;
+    }
+
+    const announceId = Number(id);
+
+    if (!pendingIds.includes(announceId)) {
+      setAnnounce(null);
+      setCurrentIndex(-1);
+      setLoading(false);
+      return;
+    }
+
     const fetchDetail = async () => {
       try {
         setLoading(true);
@@ -77,7 +134,7 @@ const AdminAnnounceDetail = () => {
         }
 
         if (pendingIds.length > 0) {
-          const current = pendingIds.indexOf(Number(id));
+          const current = pendingIds.indexOf(announceId);
           setCurrentIndex(current);
         }
       } catch (error) {
@@ -108,7 +165,7 @@ const AdminAnnounceDetail = () => {
     if (id) {
       fetchDetail();
     }
-  }, [id, pendingIds]);
+  }, [id, pendingIds, pendingLoaded, detailSource]);
 
   const handleApprove = async () => {
     try {
@@ -215,7 +272,7 @@ const AdminAnnounceDetail = () => {
       {/* Back */}
       <div className="w-full max-w-6xl mx-auto px-4 pt-4">
         <Link
-          to="/admin/announce/pending"
+          to={isPendingDetail ? "/admin/announce/pending" : "/admin/announce/published"}
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
         >
           <MdArrowBack className="text-xl" />
@@ -233,7 +290,7 @@ const AdminAnnounceDetail = () => {
       <div className="w-full max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-[60%_40%] gap-6">
         {/* LEFT */}
         <div className="min-w-0">
-          <h1 className="text-[28px] sm:text-[36px] font-bold break-words">
+          <h1 className="text-[28px] sm:text-[36px] font-bold wrap-break-word">
             {announce.title}
           </h1>
           <p className="text-[18px] mt-2 text-gray-700">{announce.location}</p>
@@ -259,9 +316,9 @@ const AdminAnnounceDetail = () => {
             {announce.badges?.map((b) => (
               <div
                 key={b.id}
-                className={`${
+                className={`$ {
                   Number(b?.id) === 1 ? "bg-[#FAAF1C]" : "bg-[#28A745]"
-                } badge border-none font-bold text-xs sm:text-sm md:text-base px-[9px] py-[2px] text-white rounded-2xl h-[24px] w-auto`}
+                } badge border-none font-bold text-xs sm:text-sm md:text-base px-2.25 py-0.5 text-white rounded-2xl h-6 w-auto`}
               >
                 {b.badgeName}
               </div>
@@ -388,7 +445,7 @@ const AdminAnnounceDetail = () => {
 
           <div
             role="alert"
-            className="alert alert-warning bg-[#FAAF1C40] h-[125px]"
+            className="alert alert-warning bg-[#FAAF1C40] h-31.25"
           >
             <MdWarningAmber className="w-6 shrink-0" />
             <span>
@@ -407,19 +464,17 @@ const AdminAnnounceDetail = () => {
       </div>
 
       {/* Bottom Admin Actions */}
-      <div className="w-full max-w-6xl mx-auto px-4 py-8 flex justify-center items-center gap-4">
+      {isPendingDetail && (
+        <div className="w-full max-w-6xl mx-auto px-4 py-8 flex justify-center items-center gap-4">
+          <button onClick={handleApprove} className="btn btn-success text-white">
+            <FaCheck /> อนุมัติ
+          </button>
 
-
-        <button onClick={handleApprove} className="btn btn-success text-white">
-          <FaCheck /> อนุมัติ
-        </button>
-
-        <button onClick={handleReject} className="btn btn-error text-white">
-          <FaTimes /> ปฏิเสธ
-        </button>
-
-       
-      </div>
+          <button onClick={handleReject} className="btn btn-error text-white">
+            <FaTimes /> ปฏิเสธ
+          </button>
+        </div>
+      )}
     </>
   );
 };

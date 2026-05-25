@@ -165,7 +165,7 @@ export default function PendingTable() {
                       alt={item.title}
                       className="w-10 h-10 rounded-md object-cover"
                     />
-                    <Link to={`/admin/announce/details/${item.id}`} className="font-medium hover:underline hover:text-[#8C6239] cursor-pointer">
+                    <Link to={`/admin/announce/details/${item.id}?source=pending`} className="font-medium hover:underline hover:text-[#8C6239] cursor-pointer">
                       {item.title}
                     </Link>
                   </td>

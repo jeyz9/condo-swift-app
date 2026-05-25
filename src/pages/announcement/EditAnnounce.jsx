@@ -235,10 +235,24 @@ export const EditAnnounce = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setAnnounce((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const numericFields = ["price", "bedroomCount", "bathroomCount", "areaSize"];
+
+    if (type === "checkbox") {
+      setAnnounce((prev) => ({ ...prev, [name]: checked }));
+      return;
+    }
+
+    if (numericFields.includes(name)) {
+      // sanitize: remove any non-numeric except dot, prevent negatives
+      let sanitized = value === undefined || value === null ? "" : String(value).replace(/[^0-9.]/g, "");
+      // collapse multiple dots
+      const parts = sanitized.split(".");
+      if (parts.length > 2) sanitized = parts[0] + "." + parts.slice(1).join("");
+      setAnnounce((prev) => ({ ...prev, [name]: sanitized }));
+      return;
+    }
+
+    setAnnounce((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleDropdownChange = (field, value) => {
@@ -498,7 +512,7 @@ export const EditAnnounce = () => {
                </div>
              </div>
              <label className="block font-medium text-gray-700 mb-2">ราคา</label>
-             <input name="price" value={announce.price} onChange={handleChange} type="number" placeholder="ระบุราคา" className="input input-bordered w-full mb-6 rounded-xl"/>
+             <input name="price" value={announce.price} onChange={handleChange} type="number" min="0" placeholder="ระบุราคา" className="input input-bordered w-full mb-6 rounded-xl" onKeyDown={(e)=>{ if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') e.preventDefault(); }} />
              <label className="block font-medium text-gray-700 mb-2">ที่อยู่</label>
              <input name="location" value={announce.location} onChange={handleChange} type="text" placeholder="รายละเอียดที่อยู่" className="input select-bordered w-full mb-6 rounded-xl"/>
              
@@ -523,15 +537,15 @@ export const EditAnnounce = () => {
              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                <div>
                  <label className="block font-medium text-gray-700 mb-2">รายละเอียด ห้องนอน</label>
-                 <input name="bedroomCount" value={announce.bedroomCount} onChange={handleChange} type="number" placeholder="เช่น 2 ห้องนอน" className="input input-bordered w-full rounded-xl"/>
+                 <input name="bedroomCount" value={announce.bedroomCount} onChange={handleChange} type="number" min="0" placeholder="เช่น 2 ห้องนอน" className="input input-bordered w-full rounded-xl" onKeyDown={(e)=>{ if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') e.preventDefault(); }} />
                </div>
                <div>
                  <label className="block font-medium text-gray-700 mb-2">รายละเอียด ขนาดห้อง</label>
-                 <input name="areaSize" value={announce.areaSize} onChange={handleChange} type="number" placeholder="เช่น 20 ตารางเมตร" className="input input-bordered w-full rounded-xl"/>
+                 <input name="areaSize" value={announce.areaSize} onChange={handleChange} type="number" min="0" placeholder="เช่น 20 ตารางเมตร" className="input input-bordered w-full rounded-xl" onKeyDown={(e)=>{ if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') e.preventDefault(); }} />
                </div>
                <div>
                  <label className="block font-medium text-gray-700 mb-2">รายละเอียด ห้องน้ำ</label>
-                 <input name="bathroomCount" value={announce.bathroomCount} onChange={handleChange} type="number" placeholder="เช่น 2 ห้องน้ำ" className="input input-bordered w-full rounded-xl"/>
+                 <input name="bathroomCount" value={announce.bathroomCount} onChange={handleChange} type="number" min="0" placeholder="เช่น 2 ห้องน้ำ" className="input input-bordered w-full rounded-xl" onKeyDown={(e)=>{ if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') e.preventDefault(); }} />
                </div>
              </div>
            </motion.div>

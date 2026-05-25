@@ -37,6 +37,11 @@ export const CondoCard = ({ announce, isLoading }) => {
     ? announce.badgeSet
     : [];
 
+  const truncate = (str, n = 60) => {
+    if (!str) return str;
+    return str.length > n ? str.slice(0, n).trimEnd() + "..." : str;
+  };
+
   return (
     <Link to={`/detail/${announce?.id ?? announce?.announceId ?? ""}`}>
       <div className="card relative  h-full min-h-[420px] overflow-hidden rounded-[12px] bg-base-100 shadow-sm transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:scale-[1.02] sm:min-h-[500px]">
@@ -71,8 +76,11 @@ export const CondoCard = ({ announce, isLoading }) => {
           <h2 className="card-title text-lg font-medium sm:text-xl md:text-2xl">
             ฿{price}
           </h2>
-          <h3 className="card-title text-base sm:text-xl md:text-2xl">
-            {announce?.title ?? "ยังไม่เข้าสู่ระบบประกาศ"}
+          <h3
+            className="card-title text-base sm:text-xl md:text-2xl"
+            title={announce?.title ?? "ยังไม่เข้าสู่ระบบประกาศ"}
+          >
+            {truncate(announce?.title ?? "ยังไม่เข้าสู่ระบบประกาศ", 60)}
           </h3>
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm sm:text-base">
             <p className="flex items-center gap-1">
