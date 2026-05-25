@@ -52,6 +52,9 @@ const UserProfile = () => {
     normalizedRoles.includes("ADMIN") ||
     normalizedRoles.includes("SUPER_ADMIN");
 
+  const canViewMyAnnouncements =
+    normalizedRoles.includes("AGENT") || normalizedRoles.includes("OWNER");
+
   /* ---------- โหลดข้อมูลโปรไฟล์ ---------- */
   useEffect(() => {
     const fetchData = async () => {
@@ -254,16 +257,15 @@ const UserProfile = () => {
                 แก้ไขโปรไฟล์
               </button>
             </li>
-            <li className="mt-1">
-               <Link to="/draft">
-              <button
-                
-                className=" text-sm text-gray-700  cursor-pointer"
-              >
-              ประกาศของฉัน
-              </button>
-              </Link>
-            </li>
+            {canViewMyAnnouncements && (
+              <li className="mt-1">
+                <Link to="/my-announces">
+                  <button className="text-sm text-gray-700 cursor-pointer">
+                    ประกาศของฉัน
+                  </button>
+                </Link>
+              </li>
+            )}
             <li className="mt-1">
               <button
                 onClick={() => setShowChangePasswordPopup(true)}

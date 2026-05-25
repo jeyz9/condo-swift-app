@@ -17,7 +17,12 @@ import ProvinceService from "../../services/ProvinceService";
 import { provinces as fallbackProvinces } from "../../data/provinces";
 import { extractErrorMessage } from "../../utils/errorUtils";
 
-
+const get413ErrorMessage = (error, fallbackMessage) => {
+  if (error?.response?.status === 413) {
+    return "ขนาดไฟล์หรือรูปภาพใหญ่เกินไป โปรดเลือกรูปภาพที่มีขนาดเล็กลง";
+  }
+  return extractErrorMessage(error, fallbackMessage);
+};
 
 // 🧱 Icons
 import {
@@ -409,7 +414,7 @@ const handleDropdownChange = (field, value) => {
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
-        text: extractErrorMessage(err, "ไม่สามารถบันทึกประกาศได้"),
+        text: get413ErrorMessage(err, "ไม่สามารถบันทึกประกาศได้"),
       });
     } finally {
       setIsSubmitting(false);
@@ -470,11 +475,11 @@ const handleDropdownChange = (field, value) => {
                   <div className="rounded-lg overflow-hidden shadow-sm">
                     <AddressMapPreview
                       query={searchText.trim() || null}
-                      onGeocode={(pos) => {
-                          if (pos && pos.lat && pos.lng) {
+                      onGeocode={(lat, lng) => {
+                          if (lat !== undefined && lng !== undefined && lat !== null && lng !== null) {
                             setAnnounce((prev) => ({
                               ...prev,
-                              mapPoints: [{ lat: parseFloat(pos.lat), lng: parseFloat(pos.lng) }],
+                              mapPoints: [{ lat: parseFloat(lat), lng: parseFloat(lng) }],
                             }));
                           }
                         }}

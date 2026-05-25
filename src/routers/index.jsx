@@ -57,8 +57,8 @@ const router = createBrowserRouter([
       { path: "/bookmarks", element: <RequireAuth><Bookmarks /></RequireAuth> },
       { path: "/forbidden", element: <Forbidden /> },
       { path: "/verify-email/verify", element: <VerifyEmail /> },
-      { path: "/draft", element: <RequireAuth><MyAnnounce /></RequireAuth> },
-      { path: "/edit-announce-reject/:id", element:<RequireRole allowedRoles={['ROLE_AGENT']}><RequireVerification><EditAnnounceReject /></RequireVerification></RequireRole> },
+      { path: "/my-announces", element: <RequireRole allowedRoles={['ROLE_AGENT', 'ROLE_OWNER']}><RequireVerification><MyAnnounce /></RequireVerification></RequireRole> },
+      { path: "/edit-announce-reject/:id", element:<RequireRole allowedRoles={['ROLE_AGENT', 'ROLE_OWNER']}><RequireVerification><EditAnnounceReject /></RequireVerification></RequireRole> },
       { path: "/share-announce/:id", element: <ShareAnnounce /> },
       // catch-all สำหรับ path ที่ไม่ตรง
       { path: "*", element: <NotFound /> },

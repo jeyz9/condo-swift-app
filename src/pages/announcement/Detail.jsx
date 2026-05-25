@@ -42,12 +42,14 @@ export const Detail = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isAgentModalOpen, setIsAgentModalOpen] = useState(false);
 
-  const userId = user?.userId;
+  const userId = String(user?.userId ?? user?.sub ?? "");
 
-  const ownerId = announce?.agent?.id;
-  const agentId = announce?.agent?.id;
+  const ownerId = String(
+    announce?.owner?.id ?? announce?.agent?.id ?? announce?.agent?.userId ?? ""
+  );
+  const agentId = ownerId;
 
-  const isOwner = userId === ownerId;
+  const isOwner = userId !== "" && ownerId !== "" && userId === ownerId;
 
   const userRoles = user?.roles || [];
 
@@ -201,21 +203,20 @@ export const Detail = () => {
   const sharePage = () => {
     const pageUrl = window.location.href; // URL จริง
     const encodedUrl = encodeURIComponent(pageUrl); // สำหรับแชร์
-    const agentLineId = announce?.agent?.lineId;
+    const agentLineId =
+    announce?.owner?.lineId ?? announce?.agents?.[0]?.lineId ?? announce?.agent?.lineId;
 
     Swal.fire({
       title: "<span class='text-xl font-semibold'>แชร์ลิงก์หน้านี้</span>",
       html: `
     <div class="flex flex-col gap-3 mt-2">
 
-      {/* Facebook */}
       <a
         href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}"
         target="_blank"
         rel="noreferrer"
         class="flex items-center justify-center gap-3 w-full py-3 rounded-xl bg-[#1877F2] text-white font-medium shadow hover:opacity-90 transition"
       >
-        {/* Facebook SVG */}
         <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
           <path d="M22.675 0h-21.35C.597 0 0 .597 0 1.326v21.348C0 23.403.597 24 1.326 24h11.495v-9.294H9.692V11.01h3.129V8.309c0-3.1 1.894-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.31h3.587l-.467 3.696h-3.12V24h6.116C23.403 24 24 23.403 24 22.674V1.326C24 .597 23.403 0 22.675 0z"/>
         </svg>
@@ -225,14 +226,12 @@ export const Detail = () => {
       ${
         agentLineId
           ? `
-      <!-- LINE -->
       <a
         href="https://line.me/R/msg/text/?${encodedUrl}"
         target="_blank"
         rel="noreferrer"
         class="flex items-center justify-center gap-3 w-full py-3 rounded-xl bg-[#06C755] text-white font-medium shadow hover:opacity-90 transition"
       >
-        {/* LINE SVG */}
         <svg class="w-5 h-5 fill-white" viewBox="0 0 24 24">
           <path d="M19.365 9.89c0-4.203-4.214-7.62-9.394-7.62C4.793 2.27.58 5.687.58 9.89c0 3.762 3.31 6.91 7.78 7.51.303.067.716.206.82.473.095.243.062.625.03.873 0 0-.108.648-.132.785-.04.23-.184.9.787.49.97-.41 5.24-3.085 7.15-5.283 1.32-1.448 2.35-3.205 2.35-4.848z"/>
         </svg>
@@ -242,12 +241,10 @@ export const Detail = () => {
           : ""
       }
 
-      {/* Copy */}
       <button
         id="copy-link"
         class="flex items-center justify-center gap-3 w-full py-3 rounded-xl bg-gray-100 text-gray-800 font-medium shadow hover:bg-gray-200 transition"
       >
-        {/* Copy SVG */}
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
           viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round"
@@ -292,11 +289,21 @@ export const Detail = () => {
       <div className="p-10 text-center text-red-500">ไม่พบข้อมูลประกาศ</div>
     );
 
-  const lat = parseFloat(announce?.mapPoint?.lat ?? 0);
-  const lng = parseFloat(announce?.mapPoint?.lng ?? 0);
+  const lat = Number(announce?.mapPoint?.lat);
+  const lng = Number(announce?.mapPoint?.lng);
 
-  const agentData = announce?.agent ?? announce?.agent ?? null;
-  console.log(agentData);
+  const ownerData = announce?.owner ?? null;
+  const agentData = announce?.agents?.[0] ?? announce?.agent ?? null;
+
+  const normalizedStatus = String(announce?.status || "").toLowerCase();
+  const approveStatusId = Number(announce?.approveStatusId);
+  const ownerEditUrl =
+    [0, 3, 4].includes(approveStatusId) ||
+    ["draft", "rejected", "pending"].some((status) =>
+      normalizedStatus.includes(status),
+    )
+      ? `/edit-announce-reject/${id}?status=${normalizedStatus}`
+      : `/edit-announce/${id}`;
 
   const handleLogin = async ({ email, password }) => {
     try {
@@ -464,23 +471,38 @@ export const Detail = () => {
               วันที่ลงประกาศ:{" "}
               {new Date(announce.announcementDate).toLocaleDateString("th-TH")}
             </p>
-            <p>ผู้ลงประกาศ: {agentData?.name ?? "-"}</p>
+            <p>เจ้าของประกาศ: {ownerData?.name ?? "-"}</p>
+            {agentData && agentData?.id !== ownerData?.id && (
+              <p>นายหน้า: {agentData?.name ?? "-"}</p>
+            )}
           </div>
         </div>
 
         {/* RIGHT SIDE */}
-        <div className="w-full">
-          <SalerCard
-            agent={agentData}
-            onLoginRequest={() => setIsLoginOpen(true)}
-          />
+        <div className="w-full space-y-4">
+          {ownerData && (
+            <SalerCard
+              agent={ownerData}
+              title="เจ้าของประกาศ"
+              onLoginRequest={() => setIsLoginOpen(true)}
+            />
+          )}
+
+          {agentData && agentData?.id !== ownerData?.id && (
+            <SalerCard
+              agent={agentData}
+              title="นายหน้า"
+              onLoginRequest={() => setIsLoginOpen(true)}
+            />
+          )}
+
           <div className="divider my-4" />
 
           <div className="mb-5 flex flex-wrap gap-4">
             {isOwner ? (
               <>
                 <Link
-                  to={`/edit-announce/${id}`}
+                  to={ownerEditUrl}
                   className="btn rounded-full border-gray-700 px-7"
                 >
                   แก้ไขประกาศ

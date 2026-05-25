@@ -39,7 +39,7 @@ const AdminAnnounceDetail = () => {
   const navigate = useNavigate();
 
   const userId = user?.userId;
-  const agentId = announce?.agent?.id;
+  const agentId = announce?.owner?.id ?? announce?.agents?.[0]?.id ?? announce?.agent?.id;
 
 
   // -------------------------------
@@ -93,9 +93,10 @@ const AdminAnnounceDetail = () => {
           "ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้"
         );
 
+        const lowerMessage = String(errorMessage).toLowerCase();
         if (
-          errorMessage ===
-          "You do not have permission to access this announcement."
+          lowerMessage.includes("you do not have permission to access this announcement") ||
+          error?.response?.status === 403
         ) {
           errorMessage = "คุณไม่มีสิทธิ์เข้าถึงประกาศนี้";
         }
@@ -216,7 +217,8 @@ const AdminAnnounceDetail = () => {
 
   const lat = parseFloat(announce?.mapPoint?.lat ?? 0);
   const lng = parseFloat(announce?.mapPoint?.lng ?? 0);
-  const agentData = announce?.agent ?? null;
+  const agentData =
+    announce?.owner ?? announce?.agents?.[0] ?? announce?.agent ?? null;
 
   const similarDuplicates = announce?.similarDuplicates;
   const exactDuplicates = announce?.exactDuplicates;
