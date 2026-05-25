@@ -11,9 +11,11 @@ const formatPrice = (value) => {
 
 export const AnnounceCard = ({ announce }) => {
   const announceId = announce?.id ?? "";
-  const status = announce?.status?.toLowerCase();
-  const editUrl = `/edit-announce-reject/${announceId}?status=${status || ''}`;
-  console.log(announce)
+  const normalizedStatus = String(announce?.status || "").toLowerCase();
+  const editUrl = ["draft", "rejected", "pending"].includes(normalizedStatus)
+    ? `/edit-announce-reject/${announceId}?status=${normalizedStatus}`
+    : `/edit-announce/${announceId}`;
+  const viewUrl = `/detail/${announceId}`;
   const imageUrl =
     announce?.imageList?.imageUrl ||
     "https://via.placeholder.com/400x300?text=No+Image";
@@ -77,11 +79,18 @@ export const AnnounceCard = ({ announce }) => {
           )}
         </div>
 
-        {/* Action Button */}
-        <div className="mt-auto">
+        {/* Action Buttons */}
+        <div className="mt-auto flex gap-3">
+          <Link
+            to={viewUrl}
+            className="flex-1 rounded-full border border-gray-300 bg-white px-4 py-2 text-center text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+          >
+            ดูประกาศ
+          </Link>
+
           <Link
             to={editUrl}
-            className="btn btn-block rounded-full border-none bg-[#8C6239] text-white shadow-sm transition hover:bg-[#704c2c]"
+            className="flex-1 rounded-full border-none bg-[#8C6239] px-4 py-2 text-center text-sm font-medium text-white shadow-sm transition hover:bg-[#704c2c]"
           >
             แก้ไข
           </Link>

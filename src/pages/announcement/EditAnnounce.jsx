@@ -66,6 +66,28 @@ const initialAnnounceState = {
   saleType: "",
 };
 
+const normalizeBoolean = (value) => {
+  if (value === true || value === 1 || value === "1" || value === "true" || value === "TRUE") return true;
+  return false;
+};
+
+const normalizeProvince = (province) => {
+  if (!province && province !== 0) return { id: "", name: "" };
+  if (typeof province === "object" && province !== null) {
+    return {
+      id: province.id || province.value || "",
+      name: province.name || province.label || "",
+    };
+  }
+  return { id: String(province), name: String(province) };
+};
+
+const get413ErrorMessage = (error, fallbackMessage) => {
+  if (error?.response?.status === 413) {
+    return "ขนาดไฟล์หรือรูปภาพใหญ่เกินไป โปรดเลือกรูปภาพที่มีขนาดเล็กลง";
+  }
+  return extractErrorMessage(error, fallbackMessage);
+};
 
 export const EditAnnounce = () => {
   const { user } = useAuthContext();
@@ -101,17 +123,36 @@ export const EditAnnounce = () => {
     const fetchAnnounceData = async () => {
       try {
         setLoading(true);
-        const response = await AnnounceService.showAnnounceDetail(announceId);
+        let response;
+
+        try {
+          response = await AnnounceService.showAnnounceDetail(announceId);
+        } catch (error) {
+          if (error?.response?.status === 403) {
+            response = await AnnounceService.showAnnounceDetailByAgent(announceId);
+          } else {
+            throw error;
+          }
+        }
+
         const data = response.data;
 
         // Security check: ensure the current user is the owner
         setPermission(data?.announceAgent?.permission || "");
-        if (data.agent.id !== user.userId && !data?.announceAgent?.permission.includes('EDIT_CONTENT') && !data?.announceAgent?.permission.includes('FULL_ACCESS')) {
+        const ownerId = String(
+          data?.owner?.id ?? data?.agent?.id ?? data?.agent?.userId ?? data?.userId ?? "",
+        );
+        const currentUserId = String(user?.userId ?? user?.sub ?? "");
+        const hasAgentPermission =
+          String(data?.announceAgent?.permission || "").includes("EDIT_CONTENT") ||
+          String(data?.announceAgent?.permission || "").includes("FULL_ACCESS");
+
+        if (ownerId !== currentUserId && !hasAgentPermission) {
           Swal.fire({
             icon: "error",
             title: "เข้าถึงถูกปฏิเสธ",
             text: "คุณไม่มีสิทธิ์แก้ไขประกาศนี้",
-          }).then(() => navigate(`/detail/${announceId}`));
+          }).then(() => navigate(-1));
           return;
         }
         
@@ -120,20 +161,18 @@ export const EditAnnounce = () => {
           id: Number(announceId),
           title: data.title || "",
           location: data.location || "",
-          province: typeof data.province === "object" && data.province !== null
-            ? { id: data.province.id || data.province.value || '', name: data.province.name || data.province.label || '' }
-            : provinceOptions.find(p => p.label === data.province) || { id: '', name: data.province || '' },
+          province: normalizeProvince(data.province),
           station: data.station || "",
           price: data.price || "",
           bedroomCount: data.bedroomCount || "",
           bathroomCount: data.bathroomCount || "",
           areaSize: data.areaSize || "",
-          hasPool: !!data.hasPool,
-          hasParking: !!data.hasParking,
-          hasFitness: !!data.hasFitness,
-          hasElevator: !!data.hasElevator,
-          hasSecurity: !!data.hasSecurity,
-          hasConvenienceStore: !!data.hasConvenienceStore,
+          hasPool: normalizeBoolean(data.hasPool),
+          hasParking: normalizeBoolean(data.hasParking),
+          hasFitness: normalizeBoolean(data.hasFitness),
+          hasElevator: normalizeBoolean(data.hasElevator),
+          hasSecurity: normalizeBoolean(data.hasSecurity),
+          hasConvenienceStore: normalizeBoolean(data.hasConvenienceStore),
           mapPoints: data.mapPoint ? [{ lat: data.mapPoint.lat, lng: data.mapPoint.lng }] : [{ lat: "", lng: "" }],
           announceType: String(data.announceType?.id || data.announceType || ""),
           saleType: String(data.saleType?.id || data.saleType || ""),
@@ -317,7 +356,7 @@ export const EditAnnounce = () => {
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
-        text: extractErrorMessage(err, "ไม่สามารถบันทึกการเปลี่ยนแปลงได้"),
+        text: get413ErrorMessage(err, "ไม่สามารถบันทึกการเปลี่ยนแปลงได้"),
       });
     }
   };  
@@ -364,7 +403,7 @@ export const EditAnnounce = () => {
       Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
-        text: extractErrorMessage(err, "ไม่สามารถบันทึกการเปลี่ยนแปลงได้"),
+        text: get413ErrorMessage(err, "ไม่สามารถบันทึกการเปลี่ยนแปลงได้"),
       });
     }
   };
