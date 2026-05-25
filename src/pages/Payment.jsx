@@ -44,7 +44,6 @@ export const Payment = () => {
       confirmButtonColor: "#8C6239",
       reverseButtons: true,
     });
-    // TODO: เชื่อมต่อ payment gateway ที่นี่
   };
 
   return (

@@ -8,9 +8,8 @@ const VerifyEmail = () => {
   const token = searchParams.get('token');
   const effectRan = useRef(false);
 
-  const [status, setStatus] = useState('pending'); // pending | success | error
+  const [status, setStatus] = useState('pending');
   const [message, setMessage] = useState('กำลังยืนยันอีเมลของคุณ...');
-  console.log("token is :", token)
   useEffect(() => {
     if (effectRan.current === true) {
       return;

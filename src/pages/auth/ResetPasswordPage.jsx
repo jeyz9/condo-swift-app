@@ -28,7 +28,7 @@ function ResetPasswordPage() {
         text: 'ไม่พบ Token สำหรับรีเซ็ตรหัสผ่านใน URL',
         confirmButtonText: 'ตกลง',
       }).then(() => {
-        navigate('/'); // Redirect to home or login if no token
+        navigate('/');
       });
     }
   }, [location, navigate]);

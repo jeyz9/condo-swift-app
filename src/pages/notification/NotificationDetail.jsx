@@ -46,7 +46,6 @@ export default function NotificationDetail() {
       className="max-w-2xl mx-auto mt-10 px-6 sm:px-8 py-8 
                  bg-white rounded-xl shadow-sm border border-gray-200"
     >
-      {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="p-3 rounded-xl border border-gray-200 bg-gray-50">
           <MdNotificationsActive className="text-[#8C6239] w-7 h-7" />
@@ -56,7 +55,6 @@ export default function NotificationDetail() {
         </h1>
       </div>
 
-      {/* Content */}
       <div className="space-y-4">
         <h2 className="text-lg font-medium text-gray-900">{detail.title}</h2>
         <p className="text-gray-700 leading-relaxed">{detail.message}</p>
@@ -71,7 +69,6 @@ export default function NotificationDetail() {
         </div>
       </div>
 
-      {/* Back Button */}
       <div className="mt-8 flex justify-end">
         <button
           onClick={() => navigate(-1)}

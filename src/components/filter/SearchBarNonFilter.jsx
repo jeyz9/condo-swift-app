@@ -214,10 +214,7 @@ export default function SearchBarNonFilter({
       Object.entries(params).filter(([_, value]) => value !== undefined)
     );
 
-    console.log("🎯 goFilter - Current URL:", location.search);
-    console.log("🎯 goFilter - Merged params:", cleaned);
 
-    // ส่งไปให้ Filter.jsx จัดการ navigate
     if (onSearch) {
       onSearch(cleaned);
     }

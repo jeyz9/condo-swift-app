@@ -22,7 +22,6 @@ export default function AdminAssignBadge() {
     try {
       setLoading(true);
 
-      console.log("📡 เรียก API ด้วย:", { keywordValue, badgeFilterValue });
 
       const resAnn = await AnnounceService.getAllAnnouncesWithBadges(
         keywordValue,
@@ -42,7 +41,6 @@ export default function AdminAssignBadge() {
     }
   };
 
-  // 🔍 ใช้กดค้นหา + filter
   const handleSearchFilter = () => {
     loadData(keyword, filterBadge);
   };
@@ -92,9 +90,7 @@ export default function AdminAssignBadge() {
     <div className="p-5 space-y-6">
       <h1 className="text-2xl font-bold">จัดการ Badge ของประกาศ</h1>
 
-      {/* 🔍 ส่วนค้นหา + Filter */}
       <div className="flex gap-3 items-end">
-        {/* input keyword */}
         <div className="flex flex-col w-1/3">
           <label className="text-sm font-semibold">ค้นหา</label>
           <input
@@ -106,7 +102,6 @@ export default function AdminAssignBadge() {
           />
         </div>
 
-        {/* filter badge */}
         <div className="flex flex-col w-1/4">
           <label className="text-sm font-semibold">Filter Badge</label>
           <select
@@ -123,7 +118,6 @@ export default function AdminAssignBadge() {
           </select>
         </div>
 
-        {/* button search */}
         <button
           onClick={handleSearchFilter}
           className="btn bg-[#8C6239] text-white"
@@ -131,7 +125,6 @@ export default function AdminAssignBadge() {
           ค้นหา
         </button>
 
-        {/* button reset */}
         <button
           onClick={() => {
             setKeyword("");
@@ -144,7 +137,6 @@ export default function AdminAssignBadge() {
         </button>
       </div>
 
-      {/* ตารางประกาศ */}
       <div className="overflow-x-auto bg-white rounded-xl shadow">
         <table className="table w-full">
           <thead>
@@ -205,7 +197,6 @@ export default function AdminAssignBadge() {
         </table>
       </div>
 
-      {/* Modal เพิ่ม Badge */}
       {selectedAnnounceId && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
           <div className="bg-white p-6 rounded-xl w-96 space-y-4">

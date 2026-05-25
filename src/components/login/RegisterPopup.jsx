@@ -22,7 +22,6 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  //  Animation settings
   const backdropVariant = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.25 } },
@@ -97,7 +96,7 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
           text: "คุณสามารถเข้าสู่ระบบได้แล้ว",
           confirmButtonColor: "#8C6239",
         }).then(() => {
-          setFormData(initialFormState); // Reset form on success
+          setFormData(initialFormState);
           onClose();
         });
       }
@@ -117,7 +116,6 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* 🟤 Background fade */}
           <motion.div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
             onClick={onClose}
@@ -127,7 +125,6 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
             exit="exit"
           />
 
-          {/* 🟤 Popup */}
           <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center px-2 sm:px-4"
             variants={popupVariant}
@@ -138,7 +135,6 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
             <div
               className="bg-white rounded-2xl shadow-2xl relative flex flex-col md:flex-row w-[92vw] max-w-[1000px] md:w-[1000px] h-[90vh] md:h-[650px] md:overflow-hidden"
             >
-              {/* ปุ่มปิด */}
               <button
                 onClick={onClose}
                 className="btn btn-ghost border-none absolute top-4 right-4 text-gray-500 hover:text-black text-2xl z-10"
@@ -146,7 +142,6 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
                 ✕
               </button>
 
-              {/* ด้านซ้าย */}
               <div className="bg-[#8C6239] text-white p-6 sm:p-8 md:p-10 w-full md:w-1/2 flex flex-col justify-center whitespace-normal break-words flex-shrink-0 rounded-t-2xl md:rounded-tr-none md:rounded-l-2xl">
                 <h3 className="text-xl sm:text-2xl font-semibold mb-6 sm:mb-10">
                   เพียงสมัครสมาชิก และยืนยันตัวตน
@@ -164,14 +159,12 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
                 </ul>
               </div>
 
-              {/* ด้านขวา */}
               <div className="p-6 sm:p-8 md:p-10 w-full md:w-1/2 flex flex-col max-w-full whitespace-normal break-words overflow-y-auto min-h-0 rounded-b-2xl md:rounded-bl-none md:rounded-r-2xl">
                 <h2 className="text-3xl justify-center text-center xl:text-start sm:text-xl md:text-4xl  font-medium mb-6 text-gray-800 break-words">
                   สมัครสมาชิก
                 </h2>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                  {/* ชื่อ */}
                   <div>
                     <label className="text-sm font-medium text-gray-700">
                       ชื่อและนามสกุล
@@ -186,7 +179,6 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
                     />
                   </div>
 
-                  {/* เบอร์โทร */}
                   <div>
                     <label className="text-sm font-medium text-gray-700">
                       เบอร์โทรศัพท์
@@ -201,7 +193,6 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
                     />
                   </div>
 
-                  {/* อีเมล */}
                   <div>
                     <label className="text-sm font-medium text-gray-700">
                       อีเมล
@@ -216,7 +207,6 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
                     />
                   </div>
 
-                  {/* รายละเอียด */}
                   <div>
                     <label className="text-sm font-medium text-gray-700">
                       รายละเอียดเพิ่มเติม
@@ -231,7 +221,6 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
                     />
                   </div>
 
-                  {/* รหัสผ่าน */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <label className="text-sm font-medium text-gray-700">
@@ -281,7 +270,6 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
                     </div>
                   </div>
 
-                  {/* dropdown */}
                   <div>
                     <label className="text-sm font-medium text-gray-700">
                       ประเภทผู้ใช้งาน
@@ -298,7 +286,6 @@ export default function RegisterPopup({ isOpen, onClose, onOpenLogin }) {
                     </select>
                   </div>
 
-                  {/* checkbox */}
                   <label className="flex items-start gap-2 mt-2">
                     <input
                       type="checkbox"

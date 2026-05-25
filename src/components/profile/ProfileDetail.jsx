@@ -111,7 +111,6 @@ export const ProfileDetail = ({ profile }) => {
     );
   }
 
-  // USER/ADMIN: show only join date
   const joinAt = profile?.joinAt;
   const formatJoinedAgo = (joinDate) => {
     if (!joinDate) return "-";

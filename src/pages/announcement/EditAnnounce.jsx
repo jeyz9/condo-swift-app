@@ -4,23 +4,19 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useAuthContext } from "../../context/AuthContext";
 
-// 🧩 Components
 import SearchableDropdown from "../../components/SearchableDropdown";
 import AddressMapPreview from "../../components/AddressMapPreview";
 import { CardDetails } from "../../components/details/CardDetails";
 import SimpleMap from "../../components/details/SimpleMap";
 
-// 🔧 Services
 import AnnounceService from "../../services/AnnounceService";
 import UserService from "../../services/UserService";
 import ProvinceService from "../../services/ProvinceService";
 
-// 📚 Data
 import { provinces as fallbackProvinces } from "../../data/provinces";
 import { stations as fallbackStations } from "../../data/stations";
 import { extractErrorMessage } from "../../utils/errorUtils";
 
-// 🧱 Icons
 import {
   FaMapMarkedAlt,
   FaFileAlt,
@@ -98,9 +94,9 @@ export const EditAnnounce = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const [announce, setAnnounce] = useState(initialAnnounceState);
-  const [newImages, setNewImages] = useState([]); // รูปใหม่ที่ user อัปโหลด
-  const [existingImages, setExistingImages] = useState([]); // รูปเดิมจาก server
-  const [imagesToRemove, setImagesToRemove] = useState([]); // ID ของรูปที่ต้องลบ
+  const [newImages, setNewImages] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
+  const [imagesToRemove, setImagesToRemove] = useState([]);
 
   const [searchText, setSearchText] = useState("");
   const [userProfile, setUserProfile] = useState(null);
@@ -137,7 +133,6 @@ export const EditAnnounce = () => {
 
         const data = response.data;
 
-        // Security check: ensure the current user is the owner
         setPermission(data?.announceAgent?.permission || "");
         const ownerId = String(
           data?.owner?.id ?? data?.agent?.id ?? data?.agent?.userId ?? data?.userId ?? "",
@@ -156,7 +151,6 @@ export const EditAnnounce = () => {
           return;
         }
         
-        // Populate the form state
         setAnnounce({
           id: Number(announceId),
           title: data.title || "",
@@ -191,7 +185,6 @@ export const EditAnnounce = () => {
       }
     };
     
-    // Fetch user profile and other necessary data
     const fetchInitialData = async () => {
         try {
             const [provincesRes, userProfileRes, announceTypesRes] = await Promise.all([
@@ -228,7 +221,7 @@ export const EditAnnounce = () => {
               title: "เกิดข้อผิดพลาด",
               text: extractErrorMessage(error, "ไม่สามารถโหลดข้อมูลเริ่มต้นได้"),
             });
-            setProvinceOptions(fallbackProvinces); // Fallback on error
+            setProvinceOptions(fallbackProvinces);
         }
     };
 
@@ -320,11 +313,9 @@ export const EditAnnounce = () => {
     else setActiveTab(activeTab - 1);
   };
   
-  // สำหรับ agent ที่มี EDIT_CONTENT
   const submitUpdateByAgent = async () => {
     if (!validate()) return;
     try {
-      // ส่งเฉพาะ field ที่ backend อนุญาต
       const announcePayload = {
         title: announce.title,
         bathroomCount: Number(announce.bathroomCount) || 0,
@@ -337,13 +328,11 @@ export const EditAnnounce = () => {
         hasParking: announce.hasParking,
         hasSecurity: announce.hasSecurity,
       };
-      // เตรียมไฟล์ภาพ (ถ้าต้องการส่ง)
       const formData = new FormData();
       formData.append('announce', new Blob([JSON.stringify(announcePayload)], { type: 'application/json' }));
       newImages.forEach((img, idx) => {
         formData.append('files', img.file);
       });
-      // เรียก API
       const response = await AnnounceService.updateAnnounceByAgent(announceId, formData);
       if (response.status === 200) {
         await Swal.fire({

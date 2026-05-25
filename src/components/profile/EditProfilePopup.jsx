@@ -71,7 +71,6 @@ const EditProfilePopup = ({ onClose, onProfileUpdate }) => {
           timer: 1500,
         });
         onProfileUpdate(formData);
-        // If sensitive contact info changed, force logout and return home
         if (emailChanged || phoneChanged) {
           logout();
           window.location.href = '/';

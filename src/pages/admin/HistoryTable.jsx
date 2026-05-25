@@ -48,20 +48,17 @@ export default function HistoryTable() {
     }
   };
 
-  // 🔍 ฟังก์ชันกดค้นหา
   const triggerSearch = () => {
-    setKeyword(search); // ส่งค่าไป fetch API
-    setPage(0); // รีเซ็ตหน้ากลับไปหน้าแรก
+    setKeyword(search);
+    setPage(0);
   };
 
-  // ⌨️ Enter เพื่อค้นหา
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       triggerSearch();
     }
   };
 
-  // ❌ Clear search
   const clearSearch = () => {
     setSearch("");
     setKeyword("");

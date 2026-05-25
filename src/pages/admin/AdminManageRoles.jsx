@@ -89,7 +89,7 @@ export default function AdminManageRoles() {
           confirmButtonText: "OK",
         });
         setSelectedUserId(null);
-        loadData(currentPage, keyword); // Refresh data
+        loadData(currentPage, keyword);
       }
     } catch (error) {
       Swal.fire({
@@ -122,7 +122,7 @@ export default function AdminManageRoles() {
             text: "Role ถูกลบเรียบร้อย",
             icon: "success",
           });
-          loadData(currentPage, keyword); // Refresh data
+          loadData(currentPage, keyword);
         }
       } catch (error) {
         Swal.fire({

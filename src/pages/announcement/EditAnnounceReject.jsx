@@ -4,22 +4,18 @@ import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useAuthContext } from "../../context/AuthContext";
 
-// 🧩 Components
 import SearchableDropdown from "../../components/SearchableDropdown";
 import AddressMapPreview from "../../components/AddressMapPreview";
 import { CardDetails } from "../../components/details/CardDetails";
 import SimpleMap from "../../components/details/SimpleMap";
 
-// 🔧 Services
 import AnnounceService from "../../services/AnnounceService";
 import UserService from "../../services/UserService";
 import ProvinceService from "../../services/ProvinceService";
 
-// 📚 Data
 import { stations as fallbackStations } from "../../data/stations";
 import { extractErrorMessage } from "../../utils/errorUtils";
 
-// 🧱 Icons
 import {
   FaMapMarkedAlt,
   FaFileAlt,
@@ -97,9 +93,9 @@ export const EditAnnounceReject = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const [announce, setAnnounce] = useState(initialAnnounceState);
-  const [newImages, setNewImages] = useState([]); // รูปใหม่ที่ user อัปโหลด
-  const [existingImages, setExistingImages] = useState([]); // รูปเดิมจาก server
-  const [imagesToRemove, setImagesToRemove] = useState([]); // ID ของรูปที่ต้องลบ
+  const [newImages, setNewImages] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
+  const [imagesToRemove, setImagesToRemove] = useState([]);
 
   const [searchText, setSearchText] = useState("");
   const [userProfile, setUserProfile] = useState(null);
@@ -126,7 +122,6 @@ export const EditAnnounceReject = () => {
         const response = await AnnounceService.showAnnounceDetailByAgent(announceId);
         const data = response.data;
 
-        // Security check: ensure the current user is the owner
         const ownerId = String(
           data?.owner?.id ?? data?.agent?.id ?? data?.agent?.userId ?? ""
         );
@@ -140,7 +135,6 @@ export const EditAnnounceReject = () => {
           return;
         }
         
-        // Populate the form state
         setAnnounce({
           id: Number(announceId),
           title: data.title || "",
@@ -174,7 +168,6 @@ export const EditAnnounceReject = () => {
       }
     };
     
-    // Fetch user profile and other necessary data
     const fetchInitialData = async () => {
         try {
             const [provincesRes, userProfileRes, announceTypesRes] = await Promise.all([
@@ -310,7 +303,6 @@ export const EditAnnounceReject = () => {
         title: announce.title,
         location: announce.location,
         province: (() => {
-          // provinceOptions: [{ value, label }]
           const found = provinceOptions.find(p => p.value === announce.province);
           return found ? found.label : announce.province?.name;
         })(),

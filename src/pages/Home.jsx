@@ -24,7 +24,6 @@ export const Home = () => {
   const [loading, setLoading] = useState(true);
   const [saleType, setSaleType] = useState("");
 
-  //  รูป villa (เรียงตาม index)
   const imageList = [villa1, villa2, villa3, villa4];
   const mrtImageList = [
     "/mrt/BTS-and-MRT-Bangkok.jpg",
@@ -72,11 +71,9 @@ export const Home = () => {
     fetchData();
   }, []);
 
-  //  ดึงข้อมูลแต่ละหมวด
   const { recommendAnnounces, nearbyPlaces, luxuryHouses, villaProvince } =
     announce;
 
-  //  Animation
   const fadeUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
@@ -92,7 +89,6 @@ export const Home = () => {
 
   return (
     <>
-      {/* HERO */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -101,7 +97,6 @@ export const Home = () => {
         <Hero />
       </motion.div>
 
-      {/* SEARCH BAR */}
       <motion.div
         className="relative -top-6 text-gray-600 p-2 -mt-2"
         variants={fadeUp}
@@ -111,7 +106,6 @@ export const Home = () => {
         <SearchBar selectedType={saleType} />
       </motion.div>
 
-      {/* ปุ่ม “เช่า” และ “ขาย” */}
       <motion.div
         className="flex flex-row flex-wrap justify-center  gap-4 sm:gap-5"
         initial="hidden"
@@ -149,7 +143,6 @@ export const Home = () => {
         </motion.button>
       </motion.div>
 
-      {/* SECTION: คอนโดแนะนำ */}
       <motion.div
         className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         variants={fadeUp}
@@ -200,7 +193,6 @@ export const Home = () => {
         </motion.div>
       </motion.div>
 
-      {/* SECTION: คอนโดใกล้ BTS/MRT */}
       <motion.div
         className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         variants={fadeUp}
@@ -237,7 +229,6 @@ export const Home = () => {
                 initial="hidden"
                 animate="visible"
               >
-                {/*  ใช้รูปเรียงตามลำดับ */}
                 <CondoCardNearby
                   item={item}
                   image={mrtImageList[i % mrtImageList.length]}
@@ -251,7 +242,6 @@ export const Home = () => {
                           )}        </motion.div>
       </motion.div>
 
-      {/* SECTION: บ้าน */}
       <motion.div
         className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         variants={fadeUp}
@@ -301,7 +291,6 @@ export const Home = () => {
         )}
       </motion.div>
 
-      {/* SECTION: วิลล่า */}
       <motion.div
         className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         variants={fadeUp}

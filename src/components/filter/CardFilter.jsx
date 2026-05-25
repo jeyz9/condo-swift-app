@@ -70,7 +70,6 @@ const CardFilter = ({ announce }) => {
 
   const agent = announce?.agent || {};
 
-  console.log("announce in CardFilter:", announce);
   const badges = useMemo(() => {
     if (Array.isArray(announce?.badgeSet)) return announce.badgeSet;
     if (Array.isArray(announce?.badges)) return announce.badges;
@@ -86,9 +85,6 @@ const CardFilter = ({ announce }) => {
     "https://via.placeholder.com/400x300?text=No+Image";
 
   const price = formatPrice(announce?.price);
-  // const bedroom = announce?.bedroomCount ?? announce?.bedroom ?? "-";
-  // const bathroom = announce?.bathroomCount ?? announce?.bathroom ?? "-";
-  // const area = announce?.areaSize ?? announce?.area ?? "-";
   const saleType =
     announce?.saleType || announce?.effectiveType || announce?.type || "";
 

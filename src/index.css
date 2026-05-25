@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&display=swap');
 @import "leaflet/dist/leaflet.css";
 
-/* Force wrapping for long, unbroken Thai/EN strings inside Detail section */
 .wrap-anywhere h1 {
   overflow: visible !important;
   text-overflow: clip !important;
@@ -12,7 +11,6 @@
   hyphens: auto !important;
 }
 
-/* As a fallback, override any h1 using Tailwind's text-ellipsis + overflow-hidden */
 h1[class~="text-ellipsis"] {
   text-overflow: clip !important;
   white-space: normal !important;
@@ -41,7 +39,6 @@ body {
   background: #e5e7eb;
 }
 
-/* thumb */
 .swal2-popup .price-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -73,7 +70,6 @@ input[type="password"]::-ms-clear {
   display: none;
 }
 
-/* Ensure SweetAlert2 dialogs sit above app modals (fix popups appearing behind login modal) */
 .swal2-container,
 .swal2-backdrop-show,
 .swal2-popup {

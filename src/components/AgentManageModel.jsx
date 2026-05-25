@@ -22,7 +22,6 @@ export const AgentManageModal = ({ announceId, isOpen, onClose }) => {
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  console.log("Agent: ", agents);
 
   useEffect(() => {
     if (isOpen && announceId) {
@@ -74,7 +73,6 @@ export const AgentManageModal = ({ announceId, isOpen, onClose }) => {
       await AnnounceService.approveAgent(announceAgentId, {
         permission,
       });
-      // อัปเดต permission ใน state ทันที
       setAgents((prev) =>
         prev.map((agent) =>
           agent.announceAgentId === announceAgentId
@@ -159,7 +157,6 @@ export const AgentManageModal = ({ announceId, isOpen, onClose }) => {
                       className="border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-[#8C6239] focus:border-[#8C6239] transition"
                       value={(() => {
                         if (!agent.permission) return "";
-                        // normalize to string and uppercase
                         const perm = String(agent.permission).toUpperCase();
                         const found = permissions.find((p) => p.value === perm);
                         return found ? found.value : "";

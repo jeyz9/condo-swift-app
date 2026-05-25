@@ -4,7 +4,6 @@ import { CondoCardSkeleton } from "../../components/CondoCardSkeleton";
 export const ProfileSkeleton = () => {
   return (
     <div className="flex flex-col items-center gap-y-10 animate-pulse">
-      {/* Hero Skeleton */}
       <div className="w-full">
         <div className="w-full h-[320px] bg-gray-300" />
         <div className="relative -mt-[100px] flex flex-col gap-6 px-6 sm:flex-row sm:items-end sm:justify-between sm:px-12">
@@ -23,7 +22,6 @@ export const ProfileSkeleton = () => {
         </div>
       </div>
 
-      {/* ProfileDetail Skeleton */}
       <div className="flex flex-col items-center justify-center w-full">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-y-8 sm:gap-x-20 w-full max-w-6xl rounded-3xl bg-white p-8 border border-gray-200">
           {[...Array(4)].map((_, i) => (
@@ -36,7 +34,6 @@ export const ProfileSkeleton = () => {
         </div>
       </div>
 
-      {/* Announce List Skeleton */}
       <section className="w-full max-w-6xl px-6 pb-16">
         <div className="skeleton h-8 w-48 rounded"></div>
         <div className="flex mt-5">
