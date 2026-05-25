@@ -45,7 +45,7 @@ export const Detail = () => {
   const userId = String(user?.userId ?? user?.sub ?? "");
 
   const ownerId = String(
-    announce?.agent?.id ?? announce?.agent?.userId ?? ""
+    announce?.owner?.id ?? announce?.agent?.id ?? announce?.agent?.userId ?? ""
   );
   const agentId = ownerId;
 
@@ -203,7 +203,8 @@ export const Detail = () => {
   const sharePage = () => {
     const pageUrl = window.location.href; // URL จริง
     const encodedUrl = encodeURIComponent(pageUrl); // สำหรับแชร์
-    const agentLineId = announce?.agent?.lineId;
+    const agentLineId =
+    announce?.owner?.lineId ?? announce?.agents?.[0]?.lineId ?? announce?.agent?.lineId;
 
     Swal.fire({
       title: "<span class='text-xl font-semibold'>แชร์ลิงก์หน้านี้</span>",
@@ -291,7 +292,8 @@ export const Detail = () => {
   const lat = Number(announce?.mapPoint?.lat);
   const lng = Number(announce?.mapPoint?.lng);
 
-  const agentData = announce?.agent ?? announce?.agent ?? null;
+  const ownerData = announce?.owner ?? null;
+  const agentData = announce?.agents?.[0] ?? announce?.agent ?? null;
 
   const normalizedStatus = String(announce?.status || "").toLowerCase();
   const approveStatusId = Number(announce?.approveStatusId);
@@ -469,16 +471,31 @@ export const Detail = () => {
               วันที่ลงประกาศ:{" "}
               {new Date(announce.announcementDate).toLocaleDateString("th-TH")}
             </p>
-            <p>ผู้ลงประกาศ: {agentData?.name ?? "-"}</p>
+            <p>เจ้าของประกาศ: {ownerData?.name ?? "-"}</p>
+            {agentData && agentData?.id !== ownerData?.id && (
+              <p>นายหน้า: {agentData?.name ?? "-"}</p>
+            )}
           </div>
         </div>
 
         {/* RIGHT SIDE */}
-        <div className="w-full">
-          <SalerCard
-            agent={agentData}
-            onLoginRequest={() => setIsLoginOpen(true)}
-          />
+        <div className="w-full space-y-4">
+          {ownerData && (
+            <SalerCard
+              agent={ownerData}
+              title="เจ้าของประกาศ"
+              onLoginRequest={() => setIsLoginOpen(true)}
+            />
+          )}
+
+          {agentData && agentData?.id !== ownerData?.id && (
+            <SalerCard
+              agent={agentData}
+              title="นายหน้า"
+              onLoginRequest={() => setIsLoginOpen(true)}
+            />
+          )}
+
           <div className="divider my-4" />
 
           <div className="mb-5 flex flex-wrap gap-4">

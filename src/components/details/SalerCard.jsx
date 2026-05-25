@@ -8,7 +8,7 @@ import UserService from "../../services/UserService";
 import { Link } from "react-router-dom";
 import { FaPhoneAlt, FaLine } from "react-icons/fa";
 
-const SalerCard = ({ agent, onLoginRequest }) => {
+const SalerCard = ({ agent, onLoginRequest, title = "ผู้ลงประกาศ" }) => {
   const { user } = useAuthContext();
   const userId = user?.userId || user?.id;
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -87,6 +87,10 @@ const SalerCard = ({ agent, onLoginRequest }) => {
         <div className="badge bg-[#28A745] border-none rounded-full text-white text-xs sm:text-sm inline-flex items-center gap-1">
           {agent?.is_verify ? "ยืนยันตัวตนแล้ว" : "ยังไม่ยืนยันตัวตน"}
         </div>
+      </div>
+
+      <div className="px-4 pt-4 sm:px-5">
+        <div className="text-sm font-semibold text-gray-500 mb-3">{title}</div>
       </div>
 
       <>

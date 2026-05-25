@@ -140,7 +140,7 @@ export const EditAnnounce = () => {
         // Security check: ensure the current user is the owner
         setPermission(data?.announceAgent?.permission || "");
         const ownerId = String(
-          data?.agent?.id ?? data?.agent?.userId ?? data?.userId ?? "",
+          data?.owner?.id ?? data?.agent?.id ?? data?.agent?.userId ?? data?.userId ?? "",
         );
         const currentUserId = String(user?.userId ?? user?.sub ?? "");
         const hasAgentPermission =

@@ -39,7 +39,7 @@ const AdminAnnounceDetail = () => {
   const navigate = useNavigate();
 
   const userId = user?.userId;
-  const agentId = announce?.agent?.id;
+  const agentId = announce?.owner?.id ?? announce?.agents?.[0]?.id ?? announce?.agent?.id;
 
 
   // -------------------------------
@@ -217,7 +217,8 @@ const AdminAnnounceDetail = () => {
 
   const lat = parseFloat(announce?.mapPoint?.lat ?? 0);
   const lng = parseFloat(announce?.mapPoint?.lng ?? 0);
-  const agentData = announce?.agent ?? null;
+  const agentData =
+    announce?.owner ?? announce?.agents?.[0] ?? announce?.agent ?? null;
 
   const similarDuplicates = announce?.similarDuplicates;
   const exactDuplicates = announce?.exactDuplicates;

@@ -127,7 +127,9 @@ export const EditAnnounceReject = () => {
         const data = response.data;
 
         // Security check: ensure the current user is the owner
-        const ownerId = String(data?.agent?.id ?? data?.agent?.userId ?? "");
+        const ownerId = String(
+          data?.owner?.id ?? data?.agent?.id ?? data?.agent?.userId ?? ""
+        );
         const currentUserId = String(user?.userId ?? user?.sub ?? "");
         if (ownerId !== currentUserId) {
           Swal.fire({
