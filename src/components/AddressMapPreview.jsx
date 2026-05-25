@@ -7,6 +7,7 @@ import {
   useMap,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import "../utils/leafletIconFix";
 
 const FALLBACK_CENTER = { lat: 13.7563, lng: 100.5018 };
 
