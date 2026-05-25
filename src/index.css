@@ -72,3 +72,10 @@ input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
   display: none;
 }
+
+/* Ensure SweetAlert2 dialogs sit above app modals (fix popups appearing behind login modal) */
+.swal2-container,
+.swal2-backdrop-show,
+.swal2-popup {
+  z-index: 2147483647 !important;
+}
