@@ -366,14 +366,12 @@ export const Detail = () => {
 
           {/* BADGES */}
           <div className="mt-7 flex flex-wrap gap-2">
-            {announce.badges?.map((b) => (
+            {Array.isArray(announce.badges) && announce.badges.map((badge, idx) => (
               <div
-                key={b.id}
-                className={`${
-                  Number(b?.id) === 1 ? "bg-[#FAAF1C]" : "bg-[#28A745]"
-                } badge border-none font-bold text-xs sm:text-sm md:text-base px-[9px] py-[2px] text-white rounded-2xl h-[24px] w-auto`}
+                key={badge + idx}
+                className={`bg-[#28A745] badge border-none font-bold text-xs sm:text-sm md:text-base px-[9px] py-[2px] text-white rounded-2xl h-[24px] w-auto`}
               >
-                {b.badgeName}
+                {badge}
               </div>
             ))}
           </div>

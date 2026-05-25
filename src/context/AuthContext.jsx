@@ -1,7 +1,7 @@
 import { useState, useContext, createContext, useEffect } from "react";
 import AuthService from "../services/AuthService";
 import TokenService from "../services/TokenService";
-import { jwtDecode } from "jwt-decode";
+import * as jwtDecodeModule from "jwt-decode";
 
 const AuthContext = createContext(null);
 
@@ -48,7 +48,8 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const decoded = jwtDecode(token);
+      const decodeFn = jwtDecodeModule.default ?? jwtDecodeModule.jwtDecode ?? jwtDecodeModule;
+      const decoded = decodeFn(token);
 
       // 💡 Check if the token is expired
       const isExpired = Date.now() >= decoded.exp * 1000;

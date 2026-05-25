@@ -20,12 +20,68 @@ const resolveEndpoint = (rawValue, fallbackPath) => {
 
 const API_URL = resolveEndpoint(import.meta.env.VITE_USER_API, "/api/v1/users");
 
-const profilePublic = async (userId, type) => {
+const normalizeRoles = (rawRoles) => {
+  if (!rawRoles) return [];
+  if (Array.isArray(rawRoles)) return rawRoles.map((r) => `${r}`.trim()).filter(Boolean);
+  if (typeof rawRoles === "string") {
+    return rawRoles
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  return [];
+};
+
+const profileAgent = async (userId, saleType = "") => {
+  const query = saleType ? `?saleType=${encodeURIComponent(saleType)}` : "";
+  return await api.get(`${baseUrl}/api/v1/agents/profile/${userId}${query}`);
+};
+
+const profileOwner = async (userId, saleType = "") => {
+  const query = saleType ? `?saleType=${encodeURIComponent(saleType)}` : "";
+  return await api.get(`${baseUrl}/api/v1/owners/profile/${userId}${query}`);
+};
+
+const profileUser = async (userId) => {
+  return await api.get(`${API_URL}/profile/${userId}`);
+};
+
+
+// Always fetch user profile first to get roles, then fetch agent/owner/user endpoint accordingly
+const profilePublic = async (userId, type = "") => {
   if (!userId) {
     console.error("User ID is missing or invalid. Aborting API call.");
     return Promise.reject(new Error("User ID is missing or invalid."));
   }
-  return await api.get(`${API_URL}/showUserProfileOverview/${userId}?type=${type}`);
+  // Step 1: Get roles from /users/profile/:id
+  let userProfile;
+  try {
+    const res = await profileUser(userId);
+    userProfile = res?.data || {};
+  } catch (err) {
+    // fallback: if not found, try agent/owner endpoints
+    try {
+      return await profileAgent(userId, type);
+    } catch (err2) {
+      try {
+        return await profileOwner(userId, type);
+      } catch (err3) {
+        throw err3;
+      }
+    }
+  }
+
+  const normalizedRoles = normalizeRoles(userProfile.roles)
+    .map((role) => role.replace(/^ROLE_/i, "").toUpperCase());
+
+  if (normalizedRoles.includes("AGENT")) {
+    return await profileAgent(userId, type);
+  }
+  if (normalizedRoles.includes("OWNER")) {
+    return await profileOwner(userId, type);
+  }
+  // fallback: admin/user
+  return await profileUser(userId);
 };
 
 const showRecommendedAgents = async () => {

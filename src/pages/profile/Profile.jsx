@@ -28,7 +28,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   // ถ้ามี paramId แสดงว่าเป็น public profile, ถ้าไม่มีคือของตัวเอง
   const userId = paramId || user?.userId;
-
+  const isOwnProfile = !paramId || (user && paramId === String(user.userId));
 
   //  ดึงข้อมูลโปรไฟล์จาก backend
   const fetchProfile = async (type = "เช่า") => {
@@ -99,7 +99,7 @@ export default function Profile() {
     }
   }, [activeTab]);
 
-  const announceList = profile?.announceList ?? [];
+  const announceList = profile?.announceList ?? profile?.announces ?? [];
 
   // 🟢 Loading และ no-profile states
   if (loading) {
@@ -113,8 +113,12 @@ export default function Profile() {
       </div>
     );
   }
-  // ตรวจสอบว่าเป็นการดูโปรไฟล์ของตัวเองหรือไม่
-  const isOwnProfile = !paramId || (user && paramId === String(user.userId));
+
+  // ตรวจสอบ role
+  const normalizedRoles = Array.isArray(profile?.roles)
+    ? profile.roles.map((role) => `${role}`.replace(/^ROLE_/i, "").toUpperCase())
+    : [];
+  const isAgentOrOwner = normalizedRoles.includes("AGENT") || normalizedRoles.includes("OWNER");
 
   return (
     <div className="flex flex-col items-center gap-y-10">
@@ -123,54 +127,56 @@ export default function Profile() {
       </div>
       <ProfileDetail profile={profile} />
 
-      <section className="w-full max-w-6xl px-6 pb-16">
-        {/* ส่วนหัว */}
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-2xl font-semibold text-gray-800 sm:text-3xl">
-            ประกาศที่อยู่อาศัย
-          </h2>
-        </div>
-
-        {/* ปุ่มเลือกแท็บ */}
-        <div className="flex mt-5">
-          {FILTER_TABS.map((tab, index) => {
-            const isActive = activeTab === tab.value;
-            const isFirst = index === 0;
-            const isLast = index === FILTER_TABS.length - 1;
-
-            return (
-              <button
-                key={tab.value}
-                onClick={() => setActiveTab(tab.value)}
-                className={`btn border px-5 py-2 text-sm sm:text-base transition 
-                ${isFirst ? "rounded-s-xl" : ""} 
-                ${isLast ? "rounded-e-xl" : ""} 
-                ${!isLast ? "-mr-[1px]" : ""} 
-                ${
-                  isActive
-                    ? "border-[#8C6239] bg-[#8C6239] text-white rounded-none"
-                    : "border-gray-300 text-gray-700 hover:border-[#8C6239] hover:text-[#8C6239] rounded-none"
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* รายการประกาศ */}
-        {announceList.length > 0 ? (
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {announceList.map((a) => (
-              <PropertyCard key={a?.id ?? a?.announceId} announce={a} onDelete={isOwnProfile ? handleDelete : undefined} userId={userId} />
-            ))}
+      {isAgentOrOwner && (
+        <section className="w-full max-w-6xl px-6 pb-16">
+          {/* ส่วนหัว */}
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-2xl font-semibold text-gray-800 sm:text-3xl">
+              ประกาศที่อยู่อาศัย
+            </h2>
           </div>
-        ) : (
-          <p className="mt-8 text-center text-gray-500">
-            ไม่พบประกาศในหมวดนี้
-          </p>
-        )}
-      </section>
+
+          {/* ปุ่มเลือกแท็บ */}
+          <div className="flex mt-5">
+            {FILTER_TABS.map((tab, index) => {
+              const isActive = activeTab === tab.value;
+              const isFirst = index === 0;
+              const isLast = index === FILTER_TABS.length - 1;
+
+              return (
+                <button
+                  key={tab.value}
+                  onClick={() => setActiveTab(tab.value)}
+                  className={`btn border px-5 py-2 text-sm sm:text-base transition 
+                  ${isFirst ? "rounded-s-xl" : ""} 
+                  ${isLast ? "rounded-e-xl" : ""} 
+                  ${!isLast ? "-mr-[1px]" : ""} 
+                  ${
+                    isActive
+                      ? "border-[#8C6239] bg-[#8C6239] text-white rounded-none"
+                      : "border-gray-300 text-gray-700 hover:border-[#8C6239] hover:text-[#8C6239] rounded-none"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* รายการประกาศ */}
+          {announceList.length > 0 ? (
+            <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {announceList.map((a) => (
+                <PropertyCard key={a?.id ?? a?.announceId} announce={a} onDelete={isOwnProfile ? handleDelete : undefined} userId={userId} />
+              ))}
+            </div>
+          ) : (
+            <p className="mt-8 text-center text-gray-500">
+              ไม่พบประกาศในหมวดนี้
+            </p>
+          )}
+        </section>
+      )}
     </div>
   );
 };
