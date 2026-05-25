@@ -1,60 +1,78 @@
 import React, { useState, useEffect } from "react";
 import { BiChevronLeft, BiChevronRight } from "react-icons/bi";
 
-export const CardDetails = ({ images = [] }) => {
+const popupButtonClasses =
+  "absolute top-1/2 -translate-y-1/2 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/90 text-slate-950 shadow-lg shadow-slate-950/20 transition duration-200 hover:scale-105 hover:bg-white";
 
+const thumbnailClass =
+  "group relative overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm";
+
+const thumbnailHoverOverlay =
+  "absolute inset-0 bg-slate-950/15 opacity-0 transition-opacity duration-300 group-hover:opacity-100";
+
+const thumbnailHint =
+  "absolute inset-x-0 bottom-0 p-3 text-xs text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100";
+
+const emptyState = (
+  <div className="w-full max-w-5xl">
+    <div className="h-[400px] flex items-center justify-center bg-gray-200 rounded-lg text-gray-600">
+      ไม่มีภาพประกอบ
+    </div>
+  </div>
+);
+
+export const CardDetails = ({ images = [] }) => {
   const [currentIndex, setCurrentIndex] = useState(null);
+  const hasImages = images.length > 0;
+  const totalImages = images.length;
+  const hasMultipleImages = totalImages > 1;
+  const mainImage = images[0];
+  const otherImages = hasMultipleImages ? images.slice(1, 5) : [];
+  const hasOtherImages = otherImages.length > 0;
+  const currentImage = currentIndex !== null ? images[currentIndex] : null;
 
   const openPopup = (index) => setCurrentIndex(index);
   const closePopup = () => setCurrentIndex(null);
 
   const goToPrevious = () => {
     if (currentIndex === null) return;
-    const isFirst = currentIndex === 0;
-    const newIndex = isFirst ? images.length - 1 : currentIndex - 1;
-    setCurrentIndex(newIndex);
+    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
 
   const goToNext = () => {
     if (currentIndex === null) return;
-    const isLast = currentIndex === images.length - 1;
-    const newIndex = isLast ? 0 : currentIndex + 1;
-    setCurrentIndex(newIndex);
+    setCurrentIndex((prev) =>
+      prev === images.length - 1 ? 0 : prev + 1,
+    );
   };
 
-  // Keyboard navigation
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (event) => {
       if (currentIndex === null) return;
-      if (e.key === "ArrowLeft") goToPrevious();
-      if (e.key === "ArrowRight") goToNext();
-      if (e.key === "Escape") closePopup();
+      if (event.key === "ArrowLeft") goToPrevious();
+      if (event.key === "ArrowRight") goToNext();
+      if (event.key === "Escape") closePopup();
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentIndex, images.length]);
+
+  useEffect(() => {
+    if (currentIndex !== null) {
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [currentIndex]);
 
-
-  if (!images.length) {
-    return (
-      <div className="w-full max-w-5xl">
-        <div className="h-[400px] flex items-center justify-center bg-gray-200 rounded-lg text-gray-600">
-          ไม่มีภาพประกอบ
-        </div>
-      </div>
-    );
-  }
-
-  const mainImage = images[0];
-  const otherImages = images.slice(1, 5);
-  const totalImages = images.length;
+  if (!hasImages) return emptyState;
 
   return (
     <div className="w-full max-w-5xl">
       <div className="flex flex-col md:flex-row -mx-2 gap-y-4">
-        {/* Main Image */}
-        <div className="w-full md:w-1/2 px-2">
+        <div className={`w-full ${hasOtherImages ? "md:w-1/2" : "md:w-full"} px-2`}>
           <div className="relative overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_35px_80px_-40px_rgba(15,23,42,0.35)]">
             <figure
               className="group relative w-full h-64 sm:h-80 md:h-[420px] cursor-pointer overflow-hidden"
@@ -89,14 +107,11 @@ export const CardDetails = ({ images = [] }) => {
           </div>
         </div>
 
-        {/* Other Images */}
-        <div className="w-full md:w-1/2 px-2">
-          <div className="grid grid-cols-2 gap-4 h-64 sm:h-80 md:h-[420px]">
-            {otherImages.map((img, index) => (
-              <div
-                key={img.id || index}
-                className="group relative overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm"
-              >
+        {hasOtherImages && (
+          <div className="w-full md:w-1/2 px-2">
+            <div className="grid grid-cols-2 gap-4 h-64 sm:h-80 md:h-[420px]">
+              {otherImages.map((img, index) => (
+                <div key={img.id || index} className={thumbnailClass}>
                 <figure
                   className="relative w-full h-full cursor-pointer"
                   onClick={() => openPopup(index + 1)}
@@ -106,18 +121,16 @@ export const CardDetails = ({ images = [] }) => {
                     src={img.imageUrl}
                     alt={img.imageName}
                   />
-                  <div className="absolute inset-0 bg-slate-950/15 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <div className="absolute inset-x-0 bottom-0 p-3 text-xs text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    คลิกเพื่อขยาย
-                  </div>
+                  <div className={thumbnailHoverOverlay} />
+                  <div className={thumbnailHint}>คลิกเพื่อขยาย</div>
                 </figure>
               </div>
             ))}
           </div>
         </div>
+      )}
       </div>
 
-      {/* Image Popup */}
       {currentIndex !== null && (
         <div
           className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-4"
@@ -130,46 +143,52 @@ export const CardDetails = ({ images = [] }) => {
             <button
               className="absolute top-4 right-4 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/95 text-slate-950 shadow-lg shadow-slate-950/20 transition duration-200 hover:scale-105 hover:bg-white"
               onClick={closePopup}
-              aria-label="ปิดรูปภาพ"
+              aria-label="ปิดรูป"
             >
               ✕
             </button>
 
-            <button
-              className="absolute left-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-slate-950 shadow-lg shadow-slate-950/20 transition duration-200 hover:scale-105 hover:bg-white"
-              onClick={(e) => {
-                e.stopPropagation();
-                goToPrevious();
-              }}
-              aria-label="รูปก่อนหน้า"
-            >
-              <BiChevronLeft className="text-2xl" />
-            </button>
+            {hasMultipleImages && (
+              <>
+                <button
+                  className={`${popupButtonClasses} left-4`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    goToPrevious();
+                  }}
+                  aria-label="รูปก่อนหน้า"
+                >
+                  <BiChevronLeft className="text-2xl" />
+                </button>
 
-            <button
-              className="absolute right-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-slate-950 shadow-lg shadow-slate-950/20 transition duration-200 hover:scale-105 hover:bg-white"
-              onClick={(e) => {
-                e.stopPropagation();
-                goToNext();
-              }}
-              aria-label="รูปถัดไป"
-            >
-              <BiChevronRight className="text-2xl" />
-            </button>
+                <button
+                  className={`${popupButtonClasses} right-4`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    goToNext();
+                  }}
+                  aria-label="รูปถัดไป"
+                >
+                  <BiChevronRight className="text-2xl" />
+                </button>
+              </>
+            )}
 
             <div className="flex min-h-[28rem] items-center justify-center p-6">
               <img
-                src={images[currentIndex].imageUrl}
-                alt={images[currentIndex].imageName || "Popup view"}
+                src={currentImage.imageUrl}
+                alt={currentImage.imageName || "Popup view"}
                 className="max-h-[78vh] max-w-full rounded-[28px] object-contain shadow-2xl shadow-slate-950/40"
               />
             </div>
 
             <div className="border-t border-white/10 bg-slate-950/90 px-6 py-4 text-slate-200 sm:flex sm:items-center sm:justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-slate-400">รูปที่ {currentIndex + 1} / {totalImages}</p>
+                <p className="text-sm text-slate-400">
+                  รูปที่ {currentIndex + 1} / {totalImages}
+                </p>
                 <p className="text-base font-semibold text-white">
-                  {images[currentIndex].imageName || `ภาพประกาศ ${currentIndex + 1}`}
+                  {currentImage.imageName || `ภาพประกาศ ${currentIndex + 1}`}
                 </p>
               </div>
               <p className="mt-3 text-sm text-slate-400 sm:mt-0">

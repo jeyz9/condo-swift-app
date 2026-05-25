@@ -7,7 +7,7 @@ export const MainLayout = () => {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Navbar สำหรับผู้ใช้ทั่วไป */}
-      <header className="fixed inset-x-0 top-0 z-50">
+      <header className="fixed inset-x-0 top-0 z-[9999]">
         <Navbar />
       </header>
 
