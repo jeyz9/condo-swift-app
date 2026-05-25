@@ -25,7 +25,6 @@ export const extractErrorMessage = (error, fallbackMessage) => {
         const serialized = JSON.stringify(data);
         if (serialized !== "{}") return serialized;
       } catch {
-        // ignore
       }
     }
   

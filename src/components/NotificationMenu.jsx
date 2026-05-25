@@ -21,7 +21,6 @@ export default function NotificationMenu() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  //  แปลงเวลาให้อ่านง่าย
   const formatTime = (timeString) => {
     if (!timeString) return "";
     const date = new Date(timeString);
@@ -31,7 +30,6 @@ export default function NotificationMenu() {
     });
   };
 
-  //  ปิด popup เมื่อคลิกนอกกรอบ
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -42,7 +40,6 @@ export default function NotificationMenu() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  //  ดึง notification เมื่อมี userId
   useEffect(() => {
     const fetchData = async () => {
       if (!userId) return;
@@ -53,12 +50,11 @@ export default function NotificationMenu() {
         if (response?.status === 200) {
           setNotifications(response.data);
 
-          //  นับเฉพาะที่ยังไม่อ่าน
           const unread = response.data.filter((n) => !n.is_read).length;
           setUnreadCount(unread);
         }
       } catch (error) {
-        if (user) { // Only show error if user is still logged in
+        if (user) { 
           Swal.fire({
             title: "ไม่สามารถดึงการแจ้งเตือนได้",
             icon: "error",
@@ -71,12 +67,11 @@ export default function NotificationMenu() {
     };
 
     setLoading(true);
-    fetchData(); //  โหลดทันทีตอนเข้า
-    const interval = setInterval(fetchData, 10000); //  โหลดซ้ำทุก 10 วิ
+    fetchData();
+    const interval = setInterval(fetchData, 10000);
     return () => clearInterval(interval);
   }, [userId]);
 
-  //  รีเฟรช badge เมื่อกลับมาหน้าหลักหลังจากดู detail
   useEffect(() => {
     if (!isOpen && userId) {
       const refresh = async () => {
@@ -96,28 +91,23 @@ export default function NotificationMenu() {
     }
   }, [location.pathname]);
 
-  //  เปิด/ปิด popup
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
   };
 
-  //  เมื่อกดเข้าไปดู detail
   const handleOpenDetail = (n) => {
-    // ❌ ไม่ต้อง markAsRead เพราะ backend ทำให้อยู่แล้ว
     setIsOpen(false);
     navigate(`/notifications/${n.id}`);
   };
 
   return (
     <div className="relative" ref={menuRef}>
-      {/* 🔔 ไอคอนแจ้งเตือน */}
       <button
         className="relative text-2xl flex items-center justify-center"
         onClick={handleToggle}
       >
         <IoMdNotificationsOutline className="cursor-pointer text-gray-700 hover:text-[#8C6239] mr-2 h-8 w-8 transition-colors" />
 
-        {/* 🔴 Badge */}
         {unreadCount > 0 && (
           <span className="absolute -top-2 right-[1px] bg-red-500 text-white text-[10px] font-semibold px-1.5 rounded-full animate-pulse w-5 h-5 flex items-center justify-center">
             {unreadCount}
@@ -125,7 +115,6 @@ export default function NotificationMenu() {
         )}
       </button>
 
-      {/*  Popup แจ้งเตือน */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -163,7 +152,6 @@ export default function NotificationMenu() {
                           : "bg-white text-gray-800 hover:bg-[#fdf7f2]"
                       }`}
                   >
-                    {/* 🔹 เนื้อหาแจ้งเตือน */}
                     <div
                       onClick={() => handleOpenDetail(n)}
                       className="flex flex-col cursor-pointer flex-grow"
@@ -187,18 +175,6 @@ export default function NotificationMenu() {
                         {formatTime(n.createdDate)}
                       </span>
                     </div>
-
-                    {/* 🔹 ปุ่มลบ (optional) */}
-                    {/* <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(n.id);
-                      }}
-                      className="btn border-none ml-3 text-gray-400 hover:text-red-500 transition"
-                      title="ลบการแจ้งเตือน"
-                    >
-                      <FaRegWindowClose />
-                    </button> */}
                   </li>
                 ))}
               </ul>

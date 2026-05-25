@@ -1,5 +1,5 @@
 import daisyui from 'daisyui';
-import lineClamp from '@tailwindcss/line-clamp'; // เพิ่มบรรทัดนี้
+import lineClamp from '@tailwindcss/line-clamp';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -31,7 +31,7 @@ export default {
       },
     },
   },
-  plugins: [daisyui, lineClamp], // ใส่ lineClamp เข้าไป
+  plugins: [daisyui, lineClamp],
   daisyui: {
     themes: [
       {

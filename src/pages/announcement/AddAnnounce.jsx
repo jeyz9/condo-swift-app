@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useAuthContext } from "../../context/AuthContext.jsx";
 
-// 🧩 Components
 import SearchableDropdown from "../../components/SearchableDropdown";
 import AddressMapPreview from "../../components/AddressMapPreview";
 import { CardDetails } from "../../components/details/CardDetails";
@@ -13,7 +12,6 @@ import AnnounceService from "../../services/AnnounceService";
 import UserService from "../../services/UserService";
 import ProvinceService from "../../services/ProvinceService";
 
-// 📚 Data
 import { provinces as fallbackProvinces } from "../../data/provinces";
 import { extractErrorMessage } from "../../utils/errorUtils";
 
@@ -24,7 +22,6 @@ const get413ErrorMessage = (error, fallbackMessage) => {
   return extractErrorMessage(error, fallbackMessage);
 };
 
-// 🧱 Icons
 import {
   FaMapMarkedAlt,
   FaFileAlt,
@@ -84,7 +81,6 @@ export const AddAnnounce = () => {
     userId: user?.userId || 0,
   });
 
-  // Fetch Announce Types
   useEffect(() => {
     ProvinceService.showAllAnnounceTypes()
       .then((res) => {
@@ -102,7 +98,6 @@ export const AddAnnounce = () => {
       });
   }, []);
 
-  // ควรเก็บไว้ใกล้ ๆ ด้านบนไฟล์ src/pages/AddAnnounce.jsx
   const isAccountYoungerThanMonths = (createdDate, limitMonths = 4) => {
     if (!createdDate) return false;
     const created = new Date(createdDate);
@@ -114,7 +109,7 @@ export const AddAnnounce = () => {
 
     if (monthDiff < limitMonths) return true;
     if (monthDiff > limitMonths) return false;
-    return now.getDate() <= created.getDate(); // กรณีครบ 4 เดือนพอดี เช็กวันด้วย
+    return now.getDate() <= created.getDate();
   };
 
   useEffect(() => {
@@ -159,7 +154,6 @@ export const AddAnnounce = () => {
               : item?.provinceName || item?.name || item?.title
           )
           .filter(Boolean);
-        // Always convert to { label, value }
         const arr = (names.length > 0 ? names : fallbackProvinces).map((p) => ({ label: p, value: p }));
         setProvinceOptions(arr);
       })
@@ -219,7 +213,6 @@ export const AddAnnounce = () => {
     }
   }, [user]);
 
-  //  ฟังก์ชันเปลี่ยนค่าฟอร์ม
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setAnnounce((prev) => ({
@@ -229,7 +222,6 @@ export const AddAnnounce = () => {
   };
 
 
-  // 📸 Upload รูป
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
     const validFiles = files.filter((file) =>
@@ -305,10 +297,8 @@ export const AddAnnounce = () => {
     };
 
     if (step !== null) {
-      // Validate a specific step
       validations[step]?.();
     } else {
-      // Validate all steps for final submission
       Object.values(validations).forEach((validation) => validation());
     }
 
@@ -337,18 +327,16 @@ export const AddAnnounce = () => {
   };
 
 
-//  ใช้กับ dropdown / component ที่ส่งค่าเป็น value ตรง ๆ
 const handleDropdownChange = (field, value) => {
   setAnnounce((prev) => ({
     ...prev,
-    [field]: value || "",   // กัน null/undefined
+    [field]: value || "",
   }));
 };
 
   const submitAnnounce = async (statusId) => {
     if (isSubmitting) return;
 
-    // For final submission (not draft), run all validations
     if (statusId === 3 && !validate()) {
       return;
     }
@@ -366,8 +354,8 @@ const handleDropdownChange = (field, value) => {
 
       const payload = {
         ...announce,
-        userId: user.userId, // กันพลาด เผื่อ state ยังไม่อัปเดต
-        approveStatusId: statusId, // 👈 เหมือนที่ต้องการ 3 หรือ 4
+        userId: user.userId,
+        approveStatusId: statusId,
       };
 
       const response = await AnnounceService.createAnnounce(
@@ -384,7 +372,6 @@ const handleDropdownChange = (field, value) => {
               : "ส่งประกาศสำเร็จ! รอการอนุมัติ",
         });
 
-        // reset ฟอร์มแบบเบาๆ
         setAnnounce((prev) => ({
           ...prev,
           title: "",

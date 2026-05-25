@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom"; //  ใช้ react-router-dom
+import { Link, useNavigate } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 import LoginPopup from "./login/LoginPopup";
 import RegisterPopup from "./login/RegisterPopup";
@@ -10,8 +10,8 @@ import UserService from "../services/UserService";
 import Swal from "sweetalert2";
 
 const Navbar = () => {
-  const { user } = useAuthContext();           //  เรียก hook ข้างใน component
-  const roles = user?.roles || "";            //  ดึง roles จาก user
+  const { user } = useAuthContext();
+  const roles = user?.roles || "";
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
 
@@ -29,7 +29,6 @@ const Navbar = () => {
     }
   }, [user?.userId]);
 
-  console.log("roles:" ,  roles)
   const handleAddAnnounceClick = () => {
     if (!user) {
       Swal.fire({
@@ -67,7 +66,6 @@ const Navbar = () => {
         { title: "เช่า", path: "/filter?saleType=เช่า&page=0&size=10" },
         { title: "ขาย", path: "/filter?saleType=ขาย&page=0&size=10" },
 
-        //  เพิ่มเมนู "ระบบหลังบ้าน" เฉพาะ ROLE_ADMIN
         ...(roles.includes("ROLE_ADMIN")
           ? [{ title: "ระบบผู้ดูแล", path: "/admin/dashboard" }]
           : []),
@@ -79,15 +77,11 @@ const Navbar = () => {
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
   const handleLogin = (data) => {
-    console.log("ข้อมูลเข้าสู่ระบบ:", data);
-    // TODO: เรียก API login หรือบันทึก token ได้ที่นี่
   };
 
   return (
     <div className="navbar bg-base-100 shadow-sm px-4 sm:px-8">
-      {/* ซ้าย */}
       <div className="navbar-start">
-        {/* เมนูมือถือ */}
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
             <FaBars className="h-5 w-5" />
@@ -117,14 +111,12 @@ const Navbar = () => {
           </ul>
         </div>
 
-        {/* โลโก้ */}
         <Link to="/" className="flex flex-col items-start">
           <span className="text-xs sm:text-sm">Condo</span>
           <span className="text-xl sm:text-2xl font-bold -mt-2">Swift</span>
         </Link>
       </div>
 
-      {/* กลาง */}
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1 text-base">
           {menuItems.map((item, index) => (
@@ -150,7 +142,6 @@ const Navbar = () => {
         </ul>
       </div>
 
-      {/* ขวา */}
       <div className="navbar-end">
         {user ? (
           <>
@@ -174,7 +165,6 @@ const Navbar = () => {
           </button>
         )}
 
-        {/* Login Popup */}
         <LoginPopup
           isOpen={isLoginOpen}
           onClose={() => setIsLoginOpen(false)}
@@ -185,7 +175,6 @@ const Navbar = () => {
           }}
         />
 
-        {/* Register Popup */}
         <RegisterPopup
           isOpen={isRegisterOpen}
           onClose={() => setIsRegisterOpen(false)}

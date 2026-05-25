@@ -1,4 +1,3 @@
-// src/utils/roleUtils.js
 export const parseUserRoles = (user) => {
     if (!user?.roles) {
         return [];
@@ -14,7 +13,7 @@ export const parseUserRoles = (user) => {
             }
             return user.roles.map(String);
         }
-        return user.roles; // Array of strings
+        return user.roles;
     }
 
     if (typeof user.roles === 'string') {

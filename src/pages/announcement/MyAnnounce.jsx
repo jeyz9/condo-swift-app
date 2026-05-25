@@ -47,7 +47,6 @@ const MyAnnounce = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-12">
-      {/* ================= Draft Section ================= */}
       {loading ? (
         <div>
           <div className="mb-6 h-8 w-52 animate-pulse rounded bg-gray-200" />
@@ -85,7 +84,6 @@ const MyAnnounce = () => {
         )
       )}
 
-      {/* ================= Managed Section ================= */}
       {loading ? (
         <div>
           <div className="mb-6 h-8 w-52 animate-pulse rounded bg-gray-200" />
@@ -131,7 +129,6 @@ const MyAnnounce = () => {
         )
       )}
 
-      {/* ================= Empty State ================= */}
       {!loading && !hasDraft && !hasManaged && (
         <div className="py-20 text-center text-gray-500">
           <p className="text-lg">คุณยังไม่มีประกาศ หรือ ประกาศที่ต้องดูแล</p>

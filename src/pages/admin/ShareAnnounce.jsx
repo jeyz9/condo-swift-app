@@ -43,7 +43,6 @@ const ShareAnnounce = () => {
       });
     }
   }, [id, navigate]);
-//...
   const handleApprove = async () => {
     try {
       const confirmed = await Swal.fire({

@@ -27,8 +27,6 @@ const HeroProfile = ({ profile }) => {
 
   const emailVerified = verificationStatus.emailVerified;
   const phoneVerified = verificationStatus.phoneVerified;
-  console.log("email verified:", emailVerified);
-  console.log("phone verified:", phoneVerified)
   const displayName = profile?.name?.trim() || "ยังไม่เข้าสู่ระบบ";
   const displayDescription =
     profile?.description?.trim() || "ยังไม่มีคำอธิบายเกี่ยวกับผู้ใช้งาน";
@@ -127,7 +125,6 @@ const HeroProfile = ({ profile }) => {
     }
 
     if (Object.keys(inputOptions).length === 0) {
-        // Should not happen if the button is hidden correctly
         Swal.fire({
             icon: 'info',
             title: 'ยืนยันตัวตนแล้ว',
@@ -235,7 +232,6 @@ const HeroProfile = ({ profile }) => {
         
         resendOtpElement.addEventListener('click', async () => {
           try {
-            // Show loading state on the resend text itself
             resendOtpElement.textContent = 'กำลังส่ง...';
             resendOtpElement.style.pointerEvents = 'none';
 
@@ -248,36 +244,32 @@ const HeroProfile = ({ profile }) => {
               
               Swal.showValidationMessage('ส่ง OTP ใหม่สำเร็จแล้ว');
               startCooldown(60);
-              otpInputs[0]?.focus(); // Refocus the first input
+              otpInputs[0]?.focus();
             } else {
                throw new Error('Failed to resend OTP');
             }
           } catch (error) {
             const errorMessage = extractErrorMessage(error, "ไม่สามารถส่ง OTP ได้");
             Swal.showValidationMessage(errorMessage);
-            // Reset if failed
             resendOtpElement.textContent = 'ส่งอีกครั้ง';
             resendOtpElement.style.pointerEvents = 'auto';
             resendOtpElement.style.color = '#8C6239';
           }
         });
 
-        startCooldown(60); // Start cooldown immediately when popup opens
+        startCooldown(60);
 
-        // Focus the first input on open
         otpInputs[0]?.focus();
 
         otpInputs.forEach((input, idx) => {
           if (!input) return;
 
-          // Auto-forward
           input.addEventListener('input', () => {
             if (input.value && idx < otpInputs.length - 1) {
               otpInputs[idx + 1]?.focus();
             }
           });
 
-          // Auto-backward on backspace
           input.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && !input.value && idx > 0) {
               otpInputs[idx - 1]?.focus();
@@ -285,7 +277,6 @@ const HeroProfile = ({ profile }) => {
           });
         });
 
-        // Handle paste on the first input
         otpInputs[0]?.addEventListener('paste', (e) => {
           e.preventDefault();
           const pastedData = e.clipboardData?.getData('text').trim().slice(0, 6);
@@ -295,7 +286,6 @@ const HeroProfile = ({ profile }) => {
                 otpInputs[index].value = char;
               }
             });
-            // Focus the last input that was filled
             const lastIndex = Math.min(pastedData.length, otpInputs.length) - 1;
             if (lastIndex >= 0) {
               otpInputs[lastIndex]?.focus();
@@ -343,14 +333,11 @@ const HeroProfile = ({ profile }) => {
 
   return (
     <div className="w-full">
-      {/* แบนเนอร์ */}
       <div className="w-full h-48 sm:h-64 lg:h-80 bg-[#E3E3E3]" />
 
       <div className="relative -mt-20 lg:-mt-24 px-4 pb-8 max-w-6xl mx-auto">
         <div className="flex flex-col items-center sm:flex-row sm:items-end sm:justify-between gap-4">
-          {/* ซ้าย: รูป + ชื่อ + ป้าย verify */}
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4">
-            {/* รูปโปรไฟล์ */}
             <div className="relative group cursor-pointer w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 shrink-0">
               <img
                 src={avatarSrc}
@@ -359,7 +346,6 @@ const HeroProfile = ({ profile }) => {
                   ${uploading ? "opacity-60" : "group-hover:opacity-70"}`}
                 onClick={() => document.getElementById("uploadProfile").click()}
               />
-              {/* overlay เปลี่ยนรูป */}
               <div
                 className="absolute inset-0 z-10 flex items-center justify-center rounded-full bg-black/40
                 opacity-0 group-hover:opacity-100 transition text-white text-xs sm:text-sm"
@@ -367,7 +353,6 @@ const HeroProfile = ({ profile }) => {
               >
                 เปลี่ยนรูปโปรไฟล์
               </div>
-              {/* ปุ่มลบ */}
               {profile?.image && (
                 <button
                   type="button"
@@ -400,7 +385,6 @@ const HeroProfile = ({ profile }) => {
               />
             </div>
 
-            {/* ชื่อ + ป้าย verify */}
             <div className="text-center sm:text-left min-w-0">
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-800
                            flex flex-col sm:flex-row justify-center items-center sm:items-start gap-2">
@@ -427,7 +411,6 @@ const HeroProfile = ({ profile }) => {
             </div>
           </div>
 
-          {/* ขวา: แชร์อย่างเดียว */}
           <div className="flex items-center gap-3">
             <button
               onClick={handleShare}

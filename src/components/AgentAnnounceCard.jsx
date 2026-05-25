@@ -59,9 +59,6 @@ export const AgentAnnounceCard = ({ announce, onCancelSuccess }) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          // =========================
-          // CONNECT FUNCTION HERE
-          // =========================
           await AnnounceService.cancelManageRequest(announce.id);
 
           Swal.fire({

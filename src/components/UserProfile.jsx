@@ -16,7 +16,6 @@ const UserProfile = () => {
   const [showChangePasswordPopup, setShowChangePasswordPopup] = useState(false);
   const [showEditProfilePopup, setShowEditProfilePopup] = useState(false);
 
-  // state สำหรับ show / hide password แต่ละช่อง
   const [showPassword, setShowPassword] = useState({
     old: false,
     new: false,

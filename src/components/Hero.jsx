@@ -10,7 +10,6 @@ const Hero = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const roles = user?.roles 
-  console.log("user:", roles)
   useEffect(() => {
     if (user?.userId) {
       UserService.profilePublic(user.userId)

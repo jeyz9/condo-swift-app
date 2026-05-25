@@ -8,7 +8,6 @@ const CondoCardLuxury = ({ item }) => {
   
     typeof item?.totalAnnounces === "number" ? item.totalAnnounces : undefined;
   const location = item?.location
-    console.log(`item: `, item)
   return (
     <Link to={`/detail/${item.id}`}>
     <div className="card relative flex h-full flex-col overflow-hidden rounded-[12px] bg-base-100 shadow-lg transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:scale-[1.02]">

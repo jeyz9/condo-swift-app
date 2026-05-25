@@ -1,10 +1,5 @@
 import Swal from "sweetalert2";
 
-/**
- * ใช้แบบ:
- * const accepted = await showTermsPopup();
- * if (accepted) { ...ทำต่อ... }
- */
 export const showTermsPopup = () => {
   return new Promise((resolve) => {
     Swal.fire({
@@ -65,7 +60,6 @@ export const showTermsPopup = () => {
     const cancelBtn = popup.querySelector("#terms-cancel");
     const confirmBtn = popup.querySelector("#terms-confirm");
 
-    // disable/enable ปุ่มยืนยันตาม checkbox
     checkbox.addEventListener("change", () => {
       if (checkbox.checked) {
         confirmBtn.classList.remove("opacity-40", "cursor-not-allowed");
@@ -76,14 +70,14 @@ export const showTermsPopup = () => {
 
     cancelBtn.addEventListener("click", () => {
       Swal.close();
-      resolve(false); // ไม่ยอมรับ
+      resolve(false);
     });
 
     confirmBtn.addEventListener("click", () => {
-      if (!checkbox.checked) return; // กันเผื่อคลิกตอนยังไม่ติ๊ก
+      if (!checkbox.checked) return;
 
       Swal.close();
-      resolve(true); // ยอมรับ
+      resolve(true);
     });
   });
 };

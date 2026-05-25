@@ -1,6 +1,5 @@
-// src/components/RecommendedAgent.jsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom"; //  Import Link
+import { Link } from "react-router-dom";
 import { MdVerified } from "react-icons/md";
 import Swal from "sweetalert2";
 import { showContactPopup } from "./details/ContactPopup";
@@ -13,8 +12,6 @@ const RecommendedAgent = ({ recommendedAgents }) => {
   const userId = user?.userId || user?.id || null;
 
   const [termsAccepted, setTermsAccepted] = useState(false);
-  console.log("แนะนำ ", recommendedAgents);
-  // รองรับทั้งส่งมาเป็น object เดียว หรือ array
   const agents = Array.isArray(recommendedAgents)
     ? recommendedAgents
     : recommendedAgents
@@ -33,18 +30,15 @@ const RecommendedAgent = ({ recommendedAgents }) => {
       return;
     }
 
-    // 1) แสดง popup ข้อตกลง
     const accepted = await showTermsPopup();
     if (!accepted) return;
 
     try {
-      // 2) บันทึกการยอมรับเงื่อนไข
       const response = await UserService.acceptTerms();
 
       if (response.status === 200 || response.status === 201) {
         setTermsAccepted(true);
 
-        // 3) จากนั้นแสดงช่องทางติดต่อ
         const phoneMasked =
           agent?.phoneMasked ||
           (agent?.phone
@@ -83,7 +77,7 @@ const RecommendedAgent = ({ recommendedAgents }) => {
   return (
     <div className="space-y-4 w-full">
       {agents.map((agent) => {
-        const agentProfileId = agent?.userId || agent?.agentId || agent?.id; //  Get agent ID
+        const agentProfileId = agent?.userId || agent?.agentId || agent?.id;
 
         const Wrapper = agentProfileId ? Link : "div";
         const wrapperProps = agentProfileId
@@ -95,7 +89,6 @@ const RecommendedAgent = ({ recommendedAgents }) => {
             key={agent.id || agent.agentId || agent.name}
             className="card bg-base-100 w-full shadow-sm border border-[#FAAF1C] rounded-2xl relative"
           >
-            {/* Badge ยืนยันตัวตน */}
             <div className="absolute top-2 right-2">
               <div
                 className={`badge border-none rounded-full text-white text-xs sm:text-sm inline-flex items-center gap-1 ${

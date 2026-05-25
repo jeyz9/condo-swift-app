@@ -29,7 +29,7 @@ const RequireVerification = ({ children }) => {
   }, [user?.userId]);
 
   if (loading) {
-    return <div>Loading...</div>; // Or a spinner
+    return <div>Loading...</div>;
   }
 
   if (!user) {

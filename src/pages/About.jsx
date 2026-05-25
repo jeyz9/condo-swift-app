@@ -10,7 +10,6 @@ export const About = () => {
 
   return (
     <div className="w-full bg-white min-h-screen py-16 px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40">
-      {/* HERO / INTRO */}
       <motion.div
         className="text-center mb-14"
         initial="hidden"
@@ -26,7 +25,6 @@ export const About = () => {
         </p>
       </motion.div>
 
-      {/* OUR MISSION */}
       <motion.div
         className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center mb-20"
         variants={fadeUp}
@@ -50,7 +48,6 @@ export const About = () => {
         </div>
       </motion.div>
 
-      {/* OUR VALUES */}
       <motion.div
         className="text-center mb-14"
         initial="hidden"
@@ -100,7 +97,6 @@ export const About = () => {
         </div>
       </motion.div>
 
-      {/* CONTACT / CTA */}
       <motion.div
         className="text-center mt-16"
         initial="hidden"

@@ -207,8 +207,8 @@ export const Detail = () => {
   };
 
   const sharePage = () => {
-    const pageUrl = window.location.href; // URL จริง
-    const encodedUrl = encodeURIComponent(pageUrl); // สำหรับแชร์
+    const pageUrl = window.location.href;
+    const encodedUrl = encodeURIComponent(pageUrl);
     const agentLineId =
     announce?.owner?.lineId ?? announce?.agents?.[0]?.lineId ?? announce?.agent?.lineId;
 
@@ -277,13 +277,12 @@ export const Detail = () => {
       });
     });
 
-    // ปุ่มคัดลอกลิงก์
     const popup = Swal.getPopup();
     const copyBtn = popup?.querySelector("#copy-link");
 
     if (copyBtn) {
       copyBtn.addEventListener("click", () => {
-        navigator.clipboard.writeText(pageUrl); // ⬅ ใช้ URL จริง
+        navigator.clipboard.writeText(pageUrl);
         copyBtn.textContent = "คัดลอกเรียบร้อย ✓";
       });
     }

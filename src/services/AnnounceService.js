@@ -1,9 +1,8 @@
 import api from "./api";
 import BadgesService from "./BadgesService";
 
-const DEFAULT_BASE_URL = "https://condo-swift.onrender.com";
 const baseUrl =
-  (import.meta.env.VITE_BASE_URL || DEFAULT_BASE_URL).replace(/\/$/, "");
+  (import.meta.env.VITE_BASE_URL).replace(/\/$/, "");
 
 const resolveEndpoint = (rawValue, fallbackPath) => {
   if (rawValue) {
@@ -23,7 +22,6 @@ const API_URL = resolveEndpoint(
   "/api/v1/announces"
 );
 
-// 🏗 CRUD หลัก
 const createAnnounce = async (announce, imageFiles = []) => {
   const formData = new FormData();
 
@@ -59,7 +57,6 @@ const createAnnounce = async (announce, imageFiles = []) => {
 };
 
 
-// /api/v1/announces/editAnnounce/{announceId}
 const updateAnnounce = async (
   announceId,
   announce,
@@ -94,7 +91,6 @@ const updateAnnounce = async (
     });
   }
 
-  //  Append IDs of images to remove
   if (Array.isArray(imagesToRemove) && imagesToRemove.length > 0) {
     formData.append("removeImageIds", JSON.stringify(imagesToRemove));
   }
@@ -106,15 +102,12 @@ const updateAnnounce = async (
 const getAnnounceById = async (id) => api.get(`${API_URL}/${id}`);
 const deleteAnnounce = async (id) => api.delete(`${API_URL}/deletedAnnounce/${id}`);
 
-// 🔍 Announce Detail
 const showAnnounceDetail = async (id) => api.get(`${API_URL}/showAnnounceDetails/${id}`);
 const showAnnouncePendingDetails = async (id) => api.get(`${API_URL}/showAnnouncePendingDetails/${id}`);
 const showAnnounceDetailByAgent = async (id) => api.get(`${API_URL}/showAnnounceDetailsByAgent/${id}`);
 
-// 📦 รวม category ทั้งหมด
 const getAnnounceWithCategory = async () => api.get(`${API_URL}/showAnnounceWithCategory`);
 
-// 🧠 ฟังก์ชันใหม่ — สำหรับหน้า /filter
 const getFilterAnnounceWithAgent = async (params) => {
   if (typeof params !== "object" || params === null) {
     throw new Error("getFilterAnnounceWithAgent ต้องเรียกด้วย object เท่านั้น");
@@ -152,7 +145,6 @@ const getFilterAnnounceWithAgent = async (params) => {
     size,
   };
 
-  // ลบค่าที่ว่างออก
   Object.keys(finalParams).forEach((key) => {
     const value = finalParams[key];
     const isEmptyString = typeof value === "string" && value.trim() === "";
@@ -248,7 +240,6 @@ const updateAnnounceByAgent = (announceAgentId, formData) => {
 }
 
 
-//  export ฟังก์ชันทั้งหมดไว้ให้เรียกง่าย
 const AnnounceService = {
   deleteAnnounce,
   createAnnounce,

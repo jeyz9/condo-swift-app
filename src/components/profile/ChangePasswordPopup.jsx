@@ -50,10 +50,9 @@ const ChangePasswordPopup = ({ onClose }) => {
         confirmButtonText: 'ตกลง',
       }).then(() => {
         window.location.href = '/login';
-        onClose(); // Close the popup after the user clicks OK
+        onClose();
       });
 
-      // Clear form
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -117,7 +116,6 @@ const ChangePasswordPopup = ({ onClose }) => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Old Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 รหัสผ่านเก่า
@@ -141,7 +139,6 @@ const ChangePasswordPopup = ({ onClose }) => {
               </div>
             </div>
 
-            {/* New Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 รหัสผ่านใหม่
@@ -169,7 +166,6 @@ const ChangePasswordPopup = ({ onClose }) => {
               </p>
             </div>
 
-            {/* Confirm New Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 ยืนยันรหัสผ่านใหม่
