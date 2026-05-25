@@ -50,6 +50,12 @@ export const Detail = () => {
   const agentId = ownerId;
 
   const isOwner = userId !== "" && ownerId !== "" && userId === ownerId;
+  const isAssignedAgent =
+    !!announce?.agents &&
+    Array.isArray(announce.agents) &&
+    announce.agents.some(
+      (agent) => String(agent?.id ?? agent?.userId ?? "") === userId,
+    );
 
   const userRoles = user?.roles || [];
 
@@ -543,7 +549,7 @@ export const Detail = () => {
                 </button>
 
                 {/* REQUEST AGENT */}
-                {isAgent && (
+                {isAgent && !isAssignedAgent && (
                   <button
                     className="btn rounded-full border-none bg-[#8C6239] px-8 text-white hover:bg-[#704c2c]"
                     onClick={() => {
