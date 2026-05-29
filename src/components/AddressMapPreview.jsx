@@ -163,11 +163,11 @@ export default function AddressMapPreview({
   }, [position]);
 
   return (
-    <div className="relative" style={{ width: "100%", height: 400, borderRadius: 8, overflow: "hidden" }}>
+    <div className="relative z-0" style={{ width: "100%", height: 400, borderRadius: 8, overflow: "hidden" }}>
       <MapContainer
         center={position}
         zoom={15}
-        style={{ width: "100%", height: "100%" }}
+        style={{ width: "100%", height: "100%", zIndex: 0 }}
         scrollWheelZoom={true}
       >
         <TileLayer

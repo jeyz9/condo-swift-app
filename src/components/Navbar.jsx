@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 import LoginPopup from "./login/LoginPopup";
@@ -28,6 +28,17 @@ const Navbar = () => {
         });
     }
   }, [user?.userId]);
+
+  // Close dropdowns when clicking outside of the navbar center
+  useEffect(() => {
+    const handleDocClick = (e) => {
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setOpenDropdownIndex(null);
+      }
+    };
+    document.addEventListener("mousedown", handleDocClick);
+    return () => document.removeEventListener("mousedown", handleDocClick);
+  }, []);
 
   const handleAddAnnounceClick = () => {
     if (!user) {
@@ -75,6 +86,8 @@ const Navbar = () => {
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [openDropdownIndex, setOpenDropdownIndex] = useState(null);
+  const navRef = useRef(null);
 
   const handleLogin = (data) => {
   };
@@ -117,13 +130,21 @@ const Navbar = () => {
         </Link>
       </div>
 
-      <div className="navbar-center hidden lg:flex">
+      <div ref={navRef} className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal px-1 text-base">
           {menuItems.map((item, index) => (
             <li key={index}>
               {item.submenu ? (
-                <details>
-                  <summary className="text-base">{item.title}</summary>
+                <details open={openDropdownIndex === index}>
+                  <summary
+                    className="text-base cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setOpenDropdownIndex(openDropdownIndex === index ? null : index);
+                    }}
+                  >
+                    {item.title}
+                  </summary>
                   <ul className="p-2 bg-base-100 rounded-t-none absolute w-max text-base">
                     {item.submenu.map((subItem, subIndex) => (
                       <li key={subIndex}>

@@ -24,8 +24,11 @@ const CondoCardNearby = ({ item, image }) => {
         </figure>
 
         <div className="flex flex-col gap-3 bg-white p-4 text-center sm:p-5 sm:text-left">
-          <h2 className="card-title text-xl sm:text-2xl md:text-3xl">
-            {name}
+          <h2
+            className="card-title text-xl sm:text-2xl md:text-3xl truncate"
+            title={name}
+          >
+            {name?.length > 40 ? name.slice(0, 40).trimEnd() + "..." : name}
           </h2>
           <p className="text-sm text-gray-600 sm:text-base">
             {total} ประกาศที่เปิดอยู่

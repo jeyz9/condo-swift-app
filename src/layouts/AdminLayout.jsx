@@ -15,22 +15,31 @@ export const AdminLayout = () => {
   });
 
   const isActive = (path) => location.pathname.startsWith(path);
-  const [firstId, setFirstId] = useState(null);
+  const [firstPendingId, setFirstPendingId] = useState(null);
+  const [firstApprovedId, setFirstApprovedId] = useState(null);
 
   useEffect(() => {
     const loadFirstAnnounce = async () => {
       try {
-        const res = await AnnounceService.showAllAnnouncePending("", 0, 1);
-        if (res.data.data?.length > 0) {
-          setFirstId(res.data.data[0].id);
-        }
+        const [pendingRes, approvedRes] = await Promise.all([
+          AnnounceService.showAllAnnouncePending("", 0, 1),
+          AnnounceService.showAllAnnounceApprove("", 0, 1),
+        ]);
+
+        const pendingItems = pendingRes.data.data || pendingRes.data.content || [];
+        const approvedItems = approvedRes.data.data || approvedRes.data.content || [];
+
+        setFirstPendingId(pendingItems.length > 0 ? pendingItems[0].id : null);
+        setFirstApprovedId(approvedItems.length > 0 ? approvedItems[0].id : null);
       } catch (err) {
         console.error("Error loading first announce:", err);
+        setFirstPendingId(null);
+        setFirstApprovedId(null);
       }
     };
 
     loadFirstAnnounce();
-  }, [isActive]);
+  }, [location.pathname]);
 
   useEffect(() => {
     function handleResize() {
@@ -104,19 +113,30 @@ export const AdminLayout = () => {
                 >
                   ประกาศที่เผยแพร่
                 </Link>
-                <Link
-                  to={firstId ? `/admin/announce/details/${firstId}` : ""}
-                  onClick={(e) => {
-                    if (!firstId) e.preventDefault();
-                  }}
-                  className={`pl-16 py-2 cursor-pointer select-none rounded-e-md space-y-2 transition ${
-                    isActive("/admin/announce/details")
-                      ? "bg-[#704c2c] text-white"
-                      : "hover:bg-[#8C623910] hover:text-[#704c2c]"
-                  }`}
-                >
-                  รายละเอียดประกาศ
-                </Link>
+                {firstPendingId || firstApprovedId ? (
+                  <Link
+                    to={
+                      firstPendingId
+                        ? `/admin/announce/details/${firstPendingId}?source=pending`
+                        : `/admin/announce/details/${firstApprovedId}?source=approved`
+                    }
+                    className={`pl-16 py-2 cursor-pointer select-none rounded-e-md space-y-2 transition ${
+                      isActive("/admin/announce/details")
+                        ? "bg-[#704c2c] text-white"
+                        : "hover:bg-[#8C623910] hover:text-[#704c2c]"
+                    }`}
+                  >
+                    รายละเอียดประกาศ
+                  </Link>
+                ) : (
+                  <div
+                    className="pl-16 py-2 select-none rounded-e-md space-y-2 transition text-gray-400 cursor-not-allowed"
+                    aria-disabled="true"
+                    title="ไม่มีประกาศให้ดูรายละเอียด"
+                  >
+                    รายละเอียดประกาศ
+                  </div>
+                )}
               </div>
             )}
           </div>

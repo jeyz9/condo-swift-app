@@ -21,7 +21,12 @@ const CondoCardLuxury = ({ item }) => {
         />
       </figure>
       <div className="flex flex-col gap-3 bg-white p-4 text-center sm:p-5 sm:text-left">
-        <h2 className="card-title text-xl sm:text-2xl md:text-3xl">{title}</h2>
+        <h2
+          className="card-title text-xl sm:text-2xl md:text-3xl"
+          title={title}
+        >
+          {title.length > 50 ? title.slice(0, 50).trimEnd() + "..." : title}
+        </h2>
         <p className="card-sm text-sm sm:text-sm md:text-sm text-gray-600 truncate" >{location}</p>
         {typeof total === "number" && (
           <p className="text-sm text-gray-600 sm:text-base">
